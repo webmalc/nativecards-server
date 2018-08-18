@@ -1,0 +1,32 @@
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'billing',
+        'USER': 'billing',
+        'PASSWORD': 'billing',
+        'HOST': '127.0.0.1',
+        'PORT': '5432'
+    }
+}
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.example.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'admin'
+EMAIL_HOST_PASSWORD = 'password'
+DEFAULT_FROM_EMAIL = 'maxibooking.group <admin@example.ru>'
+SERVER_EMAIL = 'maxibooking.group <admin@example.ru>'
+
+ADMINS = (('maxibooking.group', 'admin@example.com'), )
+MANAGERS = ADMINS
+
+SECRET_KEY = 'my_super_secret_key'
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+DEBUG = True
+
+CELERY_LOGLEVEL = 'debug'
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
+# Django-cors
+CORS_ORIGIN_ALLOW_ALL = True

@@ -1,0 +1,18 @@
+{
+  "name": "nativecards",
+  "version": "1.0.0",
+  "description": "The backend server for Nativecards app",
+  "main": "index.js",
+  "dependencies": {
+    "jquery": "^3.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "nativecards"
+  ],
+  "author": "m@webmalc.pw",
+  "license": "ISC"
+}
