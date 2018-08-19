@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     # Nativecards apps
     'nativecards',
+    'cards',
 ]
 
 MIDDLEWARE = [
@@ -61,8 +62,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    # 'billing.middleware.WhodidMiddleware',
-    # 'billing.middleware.DisableAdminI18nMiddleware',
+    'nativecards.middleware.WhodidMiddleware',
+    'nativecards.middleware.DisableAdminI18nMiddleware',
     'reversion.middleware.RevisionMiddleware',
 ]
 
