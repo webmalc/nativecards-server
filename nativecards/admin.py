@@ -3,28 +3,6 @@ from django.contrib.postgres.fields import JSONField
 from django.shortcuts import redirect
 from django.urls import reverse
 from prettyjson import PrettyJSONWidget
-from reversion.admin import VersionAdmin
-from django.conf import settings
-from django.contrib.auth.admin import UserAdmin, GroupAdmin
-from django.contrib.auth.models import Group
-
-admin.site.unregister(settings.AUTH_USER_MODEL, Group)
-
-
-@admin.register(settings.AUTH_USER_MODEL)
-class VersionUserAdmin(VersionAdmin, UserAdmin):
-    """
-    The users admin interface with versioning
-    """
-    pass
-
-
-@admin.register(Group)
-class VersionGroupAdmin(VersionAdmin, GroupAdmin):
-    """
-    The groups admin interface with versioning
-    """
-    pass
 
 
 class TextFieldListFilter(admin.ChoicesFieldListFilter):
@@ -64,7 +42,7 @@ class ShowAllInlineAdminMixin(admin.TabularInline):
         """
         return template.format(reverse(self.all_url), self.parent_obj.login)
 
-    all.allow_tags = True
+    all.allow_tags = True  # type: ignore
 
 
 class ManagerListMixin(admin.ModelAdmin):
@@ -111,7 +89,7 @@ class ArchorAdminMixin(admin.ModelAdmin):
     def num(self, obj):
         return '<a name="el_{0}"/>{0}'.format(obj.pk)
 
-    num.allow_tags = True
+    num.allow_tags = True  # type: ignore
 
     def response_post_save_change(self, request, obj):
         parent = super().response_post_save_change(request, obj)

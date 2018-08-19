@@ -95,6 +95,9 @@ GTAGS
 .#*
 rest_client.txt
 
+#mypy
+.mypy_cache
+
 #Project
 local_settings.py
 settings_local.py
