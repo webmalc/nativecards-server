@@ -1,0 +1,70 @@
+[
+{
+    "model": "cards.deck",
+    "pk": 1,
+    "fields": {
+        "order": 1,
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-20T10:43:58.405Z",
+        "modified": "2018-08-20T11:30:23.966Z",
+        "title": "main",
+        "description": "the main deck",
+        "image": "350x150.png",
+        "remote_image": "",
+        "is_default": true
+    }
+},
+{
+    "model": "cards.deck",
+    "pk": 2,
+    "fields": {
+        "order": 0,
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-20T11:11:39.167Z",
+        "modified": "2018-08-20T11:29:49.411Z",
+        "title": "remeber",
+        "description": "the words to remeber",
+        "image": "",
+        "remote_image": null,
+        "is_default": false
+    }
+},
+{
+    "model": "cards.deck",
+    "pk": 3,
+    "fields": {
+        "order": 2,
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-20T11:30:16.247Z",
+        "modified": "2018-08-20T11:30:16.247Z",
+        "title": "animals",
+        "description": "",
+        "image": "",
+        "remote_image": null,
+        "is_default": false
+    }
+},
+{
+    "model": "cards.deck",
+    "pk": 4,
+    "fields": {
+        "order": 3,
+        "created_by": 2,
+        "modified_by": 2,
+        "is_enabled": true,
+        "created": "2018-08-20T11:30:16.247Z",
+        "modified": "2018-08-20T11:30:16.247Z",
+        "title": "main test deck",
+        "description": "",
+        "image": "",
+        "remote_image": null,
+        "is_default": true
+    }
+}
+]

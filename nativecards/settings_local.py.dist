@@ -1,9 +1,9 @@
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'billing',
-        'USER': 'billing',
-        'PASSWORD': 'billing',
+        'NAME': 'nativecards',
+        'USER': 'nativecards',
+        'PASSWORD': 'nativecards',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
@@ -14,10 +14,10 @@ EMAIL_HOST = 'smtp.example.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'admin'
 EMAIL_HOST_PASSWORD = 'password'
-DEFAULT_FROM_EMAIL = 'maxibooking.group <admin@example.ru>'
-SERVER_EMAIL = 'maxibooking.group <admin@example.ru>'
+DEFAULT_FROM_EMAIL = 'nativecards.group <admin@example.ru>'
+SERVER_EMAIL = 'nativecards.group <admin@example.ru>'
 
-ADMINS = (('maxibooking.group', 'admin@example.com'), )
+ADMINS = (('nativecards.group', 'admin@example.com'), )
 MANAGERS = ADMINS
 
 SECRET_KEY = 'my_super_secret_key'

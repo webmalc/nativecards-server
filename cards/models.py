@@ -1,13 +1,21 @@
+import shutil
+from tempfile import NamedTemporaryFile
+from time import time_ns
+
+import requests
+from django.conf import settings
 from django.core.validators import (MaxValueValidator, MinLengthValidator,
                                     MinValueValidator)
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 from imagekit.models import ProcessedImageField
-from imagekit.processors import ResizeToFill
+from imagekit.processors import ResizeToFit
 from ordered_model.models import OrderedModel
 
 from nativecards.models import CommonInfo
+
+from .managers import DeckManager
 
 
 class ImageMixin(models.Model):
@@ -16,9 +24,9 @@ class ImageMixin(models.Model):
     """
     image = ProcessedImageField(
         upload_to='uploads',
-        processors=[ResizeToFill(150)],
-        format='JPG',
-        options={'quality': 60},
+        processors=[ResizeToFit(settings.NC_IMAGE_WIDTH)],
+        format='PNG',
+        options={'quality': 80},
         null=True,
         blank=True,
         verbose_name=_('image'),
@@ -26,24 +34,52 @@ class ImageMixin(models.Model):
     remote_image = models.URLField(
         null=True, blank=True, verbose_name=_('remote image url'))
 
+    def get_remote_image(self):
+        if self.remote_image and not self.image:
+            response = requests.get(self.remote_image, stream=True)
+            img_temp = NamedTemporaryFile(delete=True)
+            shutil.copyfileobj(response.raw, img_temp)
+            self.image.save('deck_{}_{}.png'.format(time_ns(), self.pk),
+                            img_temp)
+
     class Meta:
         abstract = True
 
 
-class Deck(CommonInfo, TimeStampedModel, TitleDescriptionModel, OrderedModel,
-           ImageMixin):
+class Deck(  # type: ignore
+        CommonInfo,
+        TimeStampedModel,
+        TitleDescriptionModel,
+        OrderedModel,
+        ImageMixin,
+):
     """
     The flashcard's deck class
     """
 
+    objects = DeckManager()
+
     is_default = models.BooleanField(
-        default=True, db_index=True, verbose_name=_('is default'))
+        default=False, db_index=True, verbose_name=_('is default'))
+
+    def save(self, *args, **kwargs):
+        # Get an image from remote url
+        self.get_remote_image()
+
+        # Invoke the parent save method
+        super().save(*args, **kwargs)
+
+        # Update the is default field
+        if self.is_default:
+            Deck.objects.filter(
+                is_default=True, created_by=self.created_by).exclude(
+                    pk=self.pk).update(is_default=False)
 
     class Meta(OrderedModel.Meta):
         pass
 
 
-class Card(CommonInfo, TimeStampedModel, ImageMixin):
+class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
     """
     The flashcard class
     """

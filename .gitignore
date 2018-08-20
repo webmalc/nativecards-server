@@ -78,7 +78,8 @@ bower_components/*
 /static
 
 #media
-/media
+/media/*
+!/media/350x150.png
 
 #coverage
 /htmlcov

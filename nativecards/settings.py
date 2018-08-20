@@ -284,3 +284,7 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_ERRORS': False,
     'DEFAULT_USE_CACHE': 'default'
 }
+
+# Nativecards
+
+NC_IMAGE_WIDTH = 150
