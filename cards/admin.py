@@ -7,7 +7,7 @@ from .models import Deck
 
 
 @admin.register(Deck)
-class TransactionAdmin(VersionAdmin, OrderedModelAdmin):
+class DeckAdmin(VersionAdmin, OrderedModelAdmin):
     """
     The deck's admin interface
     """

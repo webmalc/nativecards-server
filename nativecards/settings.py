@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'two_factor',
     'ajax_select',
     'ordered_model',
+    'rest_framework',
     'django_filters',
     'annoying',
 
@@ -237,28 +238,25 @@ CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 5
 # CELERYBEAT_SCHEDULE = {}
 
 # Django restframework
-# REST_FRAMEWORK = {
-#     'DEFAULT_VERSION':
-#     '1.0',
-#     'DEFAULT_VERSIONING_CLASS':
-#     'rest_framework.versioning.AcceptHeaderVersioning',
-#     'DEFAULT_PAGINATION_CLASS':
-#     'billing.pagination.StandardPagination',
-#     'DEFAULT_PERMISSION_CLASSES': [
-#         'billing.permissions.DjangoModelPermissionsGet',
-#         'rest_framework.permissions.IsAuthenticated',
-#     ],
-#     'DEFAULT_FILTER_BACKENDS': (
-#         'django_filters.rest_framework.DjangoFilterBackend',
-#         'rest_framework.filters.SearchFilter',
-#         'rest_framework.filters.OrderingFilter',
-#         'rest_framework_filters.backends.DjangoFilterBackend',
-#     ),
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework.authentication.TokenAuthentication',
-#         'rest_framework.authentication.SessionAuthentication',
-#     )
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_VERSION':
+    '1.0',
+    'DEFAULT_VERSIONING_CLASS':
+    'rest_framework.versioning.AcceptHeaderVersioning',
+    'DEFAULT_PAGINATION_CLASS':
+    'nativecards.pagination.StandardPagination',
+    'DEFAULT_PERMISSION_CLASSES': [
+        'nativecards.permissions.DjangoModelPermissionsGet',
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES':
+    ('rest_framework.authentication.SessionAuthentication', )
+}
 
 if not DEBUG:  # pragma: no cover
     # Sentry raven
