@@ -254,8 +254,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES':
-    ('rest_framework.authentication.SessionAuthentication', )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
 
 if not DEBUG:  # pragma: no cover
@@ -283,6 +285,8 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_USE_CACHE': 'default'
 }
 
-# Nativecards
+# Django REST framework JWT
+JWT_AUTH = {'JWT_ALLOW_REFRESH': True}
 
+# Nativecards
 NC_IMAGE_WIDTH = 150

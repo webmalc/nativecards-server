@@ -7,6 +7,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from two_factor.urls import urlpatterns as tf_urls
 
 from cards.urls import router as cards_router
@@ -18,6 +19,8 @@ router.extend(cards_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^api-token-auth/', obtain_jwt_token),
+    re_path(r'^api-token-refresh/', refresh_jwt_token),
     path(r'', include(tf_urls)),
 ]
 
