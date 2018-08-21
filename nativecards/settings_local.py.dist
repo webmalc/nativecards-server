@@ -30,3 +30,6 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 
 # Django-cors
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Nativecards
+NC_PIXABAY_KEY = 'pixabay key'

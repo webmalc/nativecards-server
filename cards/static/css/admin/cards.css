@@ -2,3 +2,13 @@ td.field-audio,
 td.field-complete {
   text-align: center;
 }
+div#remote-image-wrapper {
+  margin-top: 10px;
+}
+div#remote-image-wrapper img {
+  margin-left: 5px;
+  cursor: pointer;
+}
+div#remote-image-wrapper img.chosen {
+  border: 1px dashed #777;
+}

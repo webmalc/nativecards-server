@@ -12,9 +12,9 @@ class CardAdmin(VersionAdmin):
     """
     The cards's admin interface
     """
-    list_display = ('id', 'word', 'translation', 'audio', 'deck', 'priority',
-                    'complete', 'last_showed_at', 'is_enabled', 'created',
-                    'created_by', 'admin_thumbnail')
+    list_display = ('id', 'admin_thumbnail', 'word', 'translation', 'audio',
+                    'deck', 'priority', 'complete', 'last_showed_at',
+                    'is_enabled', 'created', 'created_by')
     admin_thumbnail = AdminThumbnail(image_field='image')
     list_display_links = ('id', 'word')
     list_filter = ('deck', 'priority', 'created_by', 'created',
@@ -50,6 +50,7 @@ class CardAdmin(VersionAdmin):
 
     class Media:
         css = {'all': ('css/admin/cards.css', )}
+        js = ('js/admin/cards.js', )
 
 
 @admin.register(Deck)
@@ -57,8 +58,8 @@ class DeckAdmin(VersionAdmin, OrderedModelAdmin):
     """
     The deck's admin interface
     """
-    list_display = ('id', 'title', 'description', 'is_default', 'is_enabled',
-                    'created', 'created_by', 'admin_thumbnail',
+    list_display = ('id', 'admin_thumbnail', 'title', 'description',
+                    'is_default', 'is_enabled', 'created', 'created_by',
                     'move_up_down_links')
     admin_thumbnail = AdminThumbnail(image_field='image')
     list_display_links = ('id', 'title')

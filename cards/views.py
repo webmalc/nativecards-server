@@ -1,3 +1,7 @@
+from rest_framework.decorators import list_route
+from rest_framework.response import Response
+
+from nativecards.lib.pixabay import get_images
 from nativecards.viewsets import UserModelViewSet
 
 from .models import Card, Deck
@@ -26,3 +30,7 @@ class CardViewSet(UserModelViewSet):
 
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')
+
+    @list_route(methods=['get'])
+    def images(self, request, login=None):
+        return Response(get_images(request.GET.get('word')))
