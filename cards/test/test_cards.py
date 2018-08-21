@@ -79,3 +79,18 @@ def test_cards_images_by_admin(admin_client):
     assert response.status_code == 200
     assert len(response.json()) == 5
     assert 'previewURL' in response.json()[0]
+
+
+def test_cards_translation_by_user(client):
+    response = client.get(reverse('cards-translation'))
+    assert response.status_code == 401
+
+
+def test_cards_translation_by_admin(admin_client):
+    response = admin_client.get(reverse('cards-translation'))
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The word parameter not found.'
+
+    response = admin_client.get(reverse('cards-translation') + '?word=dog')
+    assert response.status_code == 200
+    assert 'собака' in response.json()['translation']

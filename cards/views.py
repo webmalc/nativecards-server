@@ -2,6 +2,7 @@ from rest_framework.decorators import list_route
 from rest_framework.response import Response
 
 from nativecards.lib.pixabay import get_images
+from nativecards.lib.trans import translate
 from nativecards.viewsets import UserModelViewSet
 
 from .models import Card, Deck
@@ -34,3 +35,7 @@ class CardViewSet(UserModelViewSet):
     @list_route(methods=['get'])
     def images(self, request, login=None):
         return Response(get_images(request.GET.get('word')))
+
+    @list_route(methods=['get'])
+    def translation(self, request, login=None):
+        return Response(translate(request.GET.get('word')))

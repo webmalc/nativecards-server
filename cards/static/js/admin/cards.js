@@ -3,6 +3,26 @@
 $(document).ready(function($) {
     'use strict';
 
+
+    // Get translation
+    (function() {
+        $('input#id_word').blur(function(event) {
+            let transInput = $('input#id_translation');
+            if (transInput.val()) {
+                return;
+            }
+            $.get(
+                '/en/cards/translation/?word=' + $(this).val(),
+                function(data) {
+                    if (data['error']) {
+                        console.log(data);
+                        return;
+                    }
+                    transInput.val(data['translation']);
+                });
+        });
+    }());
+
     // Get images
     (function() {
         if ($('input#id_word').length) {
