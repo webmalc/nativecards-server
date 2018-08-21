@@ -41,6 +41,7 @@ class ImageMixin(models.Model):
             shutil.copyfileobj(response.raw, img_temp)
             self.image.save('deck_{}_{}.png'.format(time_ns(), self.pk),
                             img_temp)
+            self.save()
 
     class Meta:
         abstract = True
@@ -63,11 +64,11 @@ class Deck(  # type: ignore
         default=False, db_index=True, verbose_name=_('is default'))
 
     def save(self, *args, **kwargs):
-        # Get an image from remote url
-        self.get_remote_image()
-
         # Invoke the parent save method
         super().save(*args, **kwargs)
+
+        # Get an image from remote url
+        self.get_remote_image()
 
         # Update the is default field
         if self.is_default:
@@ -133,11 +134,11 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         verbose_name=_('deck'))
 
     def save(self, *args, **kwargs):
-        # Get an image from remote url
-        self.get_remote_image()
-
         # Invoke the parent save method
         super().save(*args, **kwargs)
+
+        # Get an image from remote url
+        self.get_remote_image()
 
         # Set a default deck
         if not self.deck and self.created_by:

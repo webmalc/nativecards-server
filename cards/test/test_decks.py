@@ -1,6 +1,9 @@
+import json
+
 import pytest
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 from cards.models import Deck
 
@@ -85,3 +88,45 @@ def test_deck_get_remote_image(admin):
 
     assert deck.image.width is settings.NC_IMAGE_WIDTH
     assert '_1' in deck.image.url
+
+
+def test_decks_list_by_user(client):
+    response = client.get(reverse('decks-list'))
+    assert response.status_code == 401
+
+
+def test_decks_list_by_admin(admin_client):
+    response = admin_client.get(reverse('decks-list') + '?ordering=id')
+    data = response.json()['results']
+    assert response.status_code == 200
+    assert len(data) == 3
+    assert data[0]['description'] == 'the main deck'
+
+
+def test_decks_display_by_user(client):
+    response = client.get(reverse('decks-detail', args=[2]))
+    assert response.status_code == 401
+
+
+def test_decks_display_by_admin(admin_client):
+    response = admin_client.get(reverse('decks-detail', args=[3]))
+    assert response.status_code == 200
+    assert response.json()['title'] == 'animals'
+
+
+def test_decks_create_by_admin(admin_client):
+    data = json.dumps({
+        'title': 'new test deck',
+        'description': 'test description',
+        'remote_image': 'https://via.placeholder.com/550x400'
+    })
+    response = admin_client.post(
+        reverse('decks-list'), data=data, content_type="application/json")
+    data = response.json()
+
+    assert data['title'] == 'new test deck'
+    assert data['created_by'] == 'admin'
+    assert '_5.png' in data['image']
+
+    response = admin_client.get(reverse('decks-list'))
+    assert len(response.json()['results']) == 4

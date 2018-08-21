@@ -1,5 +1,12 @@
 from .settings import *
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/dev/shm/nativecards.test.db.sqlite3',
+    }
+}
+
 LOGGING.pop('root', None)
 
 CELERY_ALWAYS_EAGER = True
