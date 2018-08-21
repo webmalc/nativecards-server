@@ -103,7 +103,7 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         null=True,
         blank=True,
         db_index=True,
-        verbose_name=_('definition'),
+        verbose_name=_('examples'),
         validators=[MinLengthValidator(2)])
     translation = models.CharField(
         max_length=255,
@@ -112,16 +112,12 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         db_index=True,
         verbose_name=_('translation'),
         validators=[MinLengthValidator(2)])
-    pronunciation = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        validators=[MinLengthValidator(2)],
-        verbose_name=_('pronunciation'))
+    pronunciation = models.URLField(
+        null=True, blank=True, verbose_name=_('pronunciation'))
     complete = models.PositiveIntegerField(
         default=0,
         verbose_name=_('complete'),
-        validators=[MinValueValidator(1),
+        validators=[MinValueValidator(0),
                     MaxValueValidator(100)])
     priority = models.PositiveIntegerField(
         default=2, choices=PRIORITY, verbose_name=_('priority'), db_index=True)
@@ -129,7 +125,21 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         null=True, blank=True, verbose_name=_('last showed at'))
     deck = models.ForeignKey(
         Deck,
+        blank=True,
+        null=True,
         on_delete=models.CASCADE,
         db_index=True,
         related_name='cards',
         verbose_name=_('deck'))
+
+    def save(self, *args, **kwargs):
+        # Get an image from remote url
+        self.get_remote_image()
+
+        # Invoke the parent save method
+        super().save(*args, **kwargs)
+
+        # Set a default deck
+        if not self.deck and self.created_by:
+            self.deck = Deck.objects.get_default(self.created_by)
+            self.save()

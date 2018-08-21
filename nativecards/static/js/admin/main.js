@@ -22,11 +22,10 @@ $(document).ready(function($) {
         event.preventDefault();
         $(this).prev('input').trigger('click');
     });
-    $('.vTimeField').inputmask({
-        mask: '99:99:99',
-    });
-    $('.vDateField').inputmask({
-        mask: '9999-99-99',
+
+    $('a[data-audio]').click(function(event) {
+        event.preventDefault();
+        document.getElementById($(this).attr('data-audio')).play();
     });
 
     /** datarange filter **/

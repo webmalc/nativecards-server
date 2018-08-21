@@ -37,12 +37,15 @@ def test_deck_is_default_get(admin, user):
     admin_deck = Deck.objects.get_default(admin)
     user_deck = Deck.objects.get_default(user)
     Deck.objects.filter(pk=1).delete()
+    admin_deck_first = Deck.objects.get_default(admin)
+    Deck.objects.all().delete()
     admin_deck_delete = Deck.objects.get_default(admin)
 
     assert admin_deck.title == 'main'
     assert admin_deck.is_default is True
     assert user_deck.title == 'main test deck'
     assert user_deck.is_default is True
+    assert admin_deck_first.title == 'remeber'
     assert admin_deck_delete is None
 
 
