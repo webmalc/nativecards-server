@@ -144,3 +144,6 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         if not self.deck and self.created_by:
             self.deck = Deck.objects.get_default(self.created_by)
             self.save()
+
+    class Meta:
+        ordering = ('word', )

@@ -1,7 +1,7 @@
 from nativecards.viewsets import UserModelViewSet
 
-from .models import Deck
-from .serializers import DeckSerializer
+from .models import Card, Deck
+from .serializers import CardSerializer, DeckSerializer
 
 
 class DeckViewSet(UserModelViewSet):
@@ -13,3 +13,16 @@ class DeckViewSet(UserModelViewSet):
 
     def get_queryset(self):
         return self.filter_by_user(Deck.objects.all())
+
+
+class CardViewSet(UserModelViewSet):
+    search_fields = ('=pk', 'word', 'definition', 'translation', 'examples',
+                     'created_by__username', 'created_by__email',
+                     'created_by__last_name')
+
+    serializer_class = CardSerializer
+    filter_fields = ('deck', 'priority', 'complete', 'created_by', 'created',
+                     'last_showed_at', 'is_enabled')
+
+    def get_queryset(self):
+        return self.filter_by_user(Card.objects.all()).select_related('deck')

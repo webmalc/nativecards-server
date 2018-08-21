@@ -1,0 +1,68 @@
+[
+{
+    "model": "cards.card",
+    "pk": 1,
+    "fields": {
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-21T12:16:14.717Z",
+        "modified": "2018-08-21T12:16:18.679Z",
+        "image": "350x150.png",
+        "remote_image": "",
+        "word": "word one",
+        "definition": "word one definition",
+        "examples": "word one examples",
+        "translation": "word one translation",
+        "pronunciation": "http://audio.oxforddictionaries.com/en/mp3/ace_1_gb_1_abbr.mp3",
+        "complete": 0,
+        "priority": 2,
+        "last_showed_at": null,
+        "deck": 1
+    }
+},
+{
+    "model": "cards.card",
+    "pk": 2,
+    "fields": {
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-21T12:16:14.717Z",
+        "modified": "2018-08-21T12:16:18.679Z",
+        "image": "",
+        "remote_image": "",
+        "word": "word two",
+        "definition": "word two definition",
+        "examples": "word two examples",
+        "translation": "word two translation",
+        "pronunciation": "",
+        "complete": 20,
+        "priority": 1,
+        "last_showed_at": null,
+        "deck": 1
+    }
+},
+{
+    "model": "cards.card",
+    "pk": 3,
+    "fields": {
+        "created_by": 2,
+        "modified_by": 2,
+        "is_enabled": true,
+        "created": "2018-08-21T12:16:14.717Z",
+        "modified": "2018-08-21T12:16:18.679Z",
+        "image": "",
+        "remote_image": "",
+        "word": "word test",
+        "definition": "word test definition",
+        "examples": "word test examples",
+        "translation": "word test translation",
+        "pronunciation": "",
+        "complete": 50,
+        "priority": 1,
+        "last_showed_at": null,
+        "deck": 4
+    }
+}
+]

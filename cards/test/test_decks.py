@@ -2,22 +2,11 @@ import json
 
 import pytest
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.urls import reverse
 
 from cards.models import Deck
 
 pytestmark = pytest.mark.django_db
-
-
-@pytest.fixture
-def admin():
-    return User.objects.get(pk=1)
-
-
-@pytest.fixture
-def user():
-    return User.objects.get(pk=2)
 
 
 def test_deck_is_default_filter(admin, user):
@@ -112,6 +101,11 @@ def test_decks_display_by_admin(admin_client):
     response = admin_client.get(reverse('decks-detail', args=[3]))
     assert response.status_code == 200
     assert response.json()['title'] == 'animals'
+
+
+def test_decks_display_another_user_by_admin(admin_client):
+    response = admin_client.get(reverse('decks-detail', args=[4]))
+    assert response.status_code == 404
 
 
 def test_decks_create_by_admin(admin_client):
