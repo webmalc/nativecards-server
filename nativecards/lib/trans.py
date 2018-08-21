@@ -20,10 +20,10 @@ class Lingualeo(Translate):
     """
     Lingualeo translation class
     """
-    URL = 'https://api.lingualeo.com/gettranslates?word='
+    url = 'https://api.lingualeo.com/gettranslates?word='
 
     def translate(self, word: str) -> list:
-        result = requests.get(self.URL + word)
+        result = requests.get(self.url + word.lower())
         if result.status_code == 200:
             data = result.json()
             if 'error_msg' in data and data['error_msg']:

@@ -33,3 +33,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 # Nativecards
 NC_PIXABAY_KEY = 'pixabay key'
+NC_OXFORD_ID = 'oxford id'
+NC_OXFORD_KEY = 'oxford key'
