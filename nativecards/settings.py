@@ -2,6 +2,7 @@
 Django settings for nativecards project.
 """
 
+import datetime
 import os
 
 import raven
@@ -286,7 +287,10 @@ REST_FRAMEWORK_EXTENSIONS = {
 }
 
 # Django REST framework JWT
-JWT_AUTH = {'JWT_ALLOW_REFRESH': True}
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+}
 
 # Nativecards
 NC_IMAGE_WIDTH = 150
