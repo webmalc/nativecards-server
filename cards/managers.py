@@ -28,4 +28,4 @@ class DeckManager(LookupMixin):
         try:
             return query.get()
         except cards.models.Deck.DoesNotExist:
-            return None
+            return self.filter(created_by=user).first()
