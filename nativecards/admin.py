@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from prettyjson import PrettyJSONWidget
 
 
@@ -38,11 +39,11 @@ class ShowAllInlineAdminMixin(admin.TabularInline):
 
     def all(self, request):
         template = """
-        <a href="{}?client__login__exact={}" target="_blank">Show all</a>
+        <a href="{}?created_by__id__exact={}" target="_blank">Show all</a>
         """
-        return template.format(reverse(self.all_url), self.parent_obj.login)
-
-    all.allow_tags = True  # type: ignore
+        return mark_safe(
+            template.format(
+                reverse(self.all_url), self.parent_obj.created_by.id))
 
 
 class ManagerListMixin(admin.ModelAdmin):

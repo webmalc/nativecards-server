@@ -135,6 +135,12 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         verbose_name=_('deck'))
 
     def save(self, *args, **kwargs):
+        # Limit the complete field
+        if self.complete < 0:
+            self.complete = 0
+        if self.complete > 100:
+            self.complete = 100
+
         # Invoke the parent save method
         super().save(*args, **kwargs)
 
@@ -146,5 +152,71 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
             self.deck = Deck.objects.get_default(self.created_by)
             self.save()
 
+    def __str__(self):
+        return self.word
+
     class Meta:
         ordering = ('word', )
+
+
+class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
+    """
+    The card's attempt
+    """
+    FORMS = (
+        ('listen', _('listen')),
+        ('write', _('write')),
+        ('choose', _('choose')),
+    )
+    card = models.ForeignKey(
+        Card,
+        on_delete=models.CASCADE,
+        db_index=True,
+        related_name='attempts',
+        verbose_name=_('card'))
+    is_correct = models.BooleanField(
+        db_index=True, verbose_name=_('is correct'))
+    is_hint = models.BooleanField(
+        default=False, db_index=True, verbose_name=_('is hint'))
+    answer = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        db_index=True,
+        validators=[MinLengthValidator(2)],
+        verbose_name=_('answer'))
+    score = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_('score'),
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(100)])
+    form = models.CharField(
+        max_length=30, db_index=True, choices=FORMS, verbose_name=_('form'))
+
+    def _set_score(self):
+        """
+        Calc the score
+        """
+        if not self.pk:
+            self.score = 100 // settings.NC_ATTEMPTS_TO_REMEMBER
+            if self.is_hint and self.is_correct:
+                self.score = self.score // 2
+            if self.is_hint and not self.is_correct:
+                self.score = self.score * 2
+            complete = self.score if self.is_correct else -self.score
+            self.card.complete = self.card.complete + complete
+            self.card.save()
+
+    def save(self, *args, **kwargs):
+        # Calc the card complete field
+        self._set_score()
+
+        # Invoke the parent save method
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return '{} at {}'.format(
+            str(self.card), self.created.strftime('%d.%m.%Y %H:%M'))
+
+    class Meta:
+        ordering = ('-created', )

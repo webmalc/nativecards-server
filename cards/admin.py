@@ -1,10 +1,57 @@
+import arrow
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from imagekit.admin import AdminThumbnail
 from ordered_model.admin import OrderedModelAdmin
 from reversion.admin import VersionAdmin
 
-from .models import Card, Deck
+from nativecards.admin import ShowAllInlineAdminMixin
+
+from .models import Attempt, Card, Deck
+
+
+@admin.register(Attempt)
+class AttemptAdmin(VersionAdmin):
+    """
+    The attempt's admin interface
+    """
+    list_display = ('id', 'form', 'card', 'is_correct', 'is_hint', 'answer',
+                    'score', 'created', 'created_by')
+    list_display_links = ('id', 'form')
+    list_filter = ('is_correct', 'is_hint', 'created_by', 'created')
+    search_fields = ('=pk', 'card__word', 'answer', 'created_by__username',
+                     'created_by__email', 'created_by__last_name')
+    readonly_fields = ('created', 'modified', 'created_by', 'modified_by',
+                       'score')
+    raw_id_fields = ('card', )
+    fieldsets = (
+        ('General', {
+            'fields': ('form', 'card', 'is_correct', 'is_hint', 'answer')
+        }),
+        ('Options', {
+            'fields': ('score', 'created', 'modified', 'created_by',
+                       'modified_by')
+        }),
+    )
+    list_select_related = ('created_by', 'card')
+
+
+class AttemptInlineAdmin(ShowAllInlineAdminMixin):
+    """
+    The attempt's inline admin interface
+    """
+    model = Attempt
+    fields = ('form', 'is_correct', 'is_hint', 'answer', 'score', 'created',
+              'all')
+    verbose_name_plural = "Last attempts (1 month)"
+    readonly_fields = ('created', 'score', 'all')
+    show_change_link = True
+    all_url = 'admin:cards_attempt_changelist'
+
+    def get_queryset(self, request):
+        query = super().get_queryset(request)
+        date_limit = arrow.utcnow().shift(months=-1).datetime
+        return query.filter(created__gte=date_limit)
 
 
 @admin.register(Card)
@@ -24,6 +71,7 @@ class CardAdmin(VersionAdmin):
                      'created_by__last_name')
     readonly_fields = ('created', 'modified', 'last_showed_at', 'created_by',
                        'modified_by')
+    inlines = (AttemptInlineAdmin, )
     fieldsets = (
         ('General', {
             'fields': ('word', 'deck', 'definition', 'examples', 'translation',

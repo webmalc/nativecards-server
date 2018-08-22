@@ -17,6 +17,20 @@ def test_cards_set_default_deck(admin):
     assert card.deck.description == 'the main deck'
 
 
+def test_cards_limit_complete_deck(admin):
+    card = Card()
+    card.word = 'word'
+    card.complete = 122
+    card.created_by = admin
+    card.save()
+
+    assert card.complete == 100
+
+    card.complete = -23
+    card.save()
+    assert card.complete == 0
+
+
 def test_cards_list_by_user(client):
     response = client.get(reverse('cards-list'))
     assert response.status_code == 401
