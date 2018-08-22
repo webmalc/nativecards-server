@@ -41,7 +41,7 @@ class CardAdmin(VersionAdmin):
             return None
         html = """
             <audio id="audio_{id}">
-                <source src="{file}" type="audio/mpeg">
+                <source src="{file}">
             </audio>
             <a href="#" data-audio="audio_{id}">►</a>
         """

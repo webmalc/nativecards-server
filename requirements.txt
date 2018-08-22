@@ -19,6 +19,7 @@ django-ajax-selects==1.7.0
 django-annoying==0.10.4
 django-appconf==1.0.2
 django-autoslug==1.9.3
+django-ckeditor==5.6.1
 django-colorful==1.2
 django-cors-headers==2.4.0
 django-crispy-forms==1.7.2
@@ -27,6 +28,7 @@ django-extensions==2.1.0
 django-filter==2.0.0
 django-formtools==2.1
 django-imagekit==4.0.2
+django-js-asset==1.1.0
 django-model-utils==3.1.2
 django-modeltranslation==0.12.2
 django-ordered-model==2.1.0
@@ -62,7 +64,6 @@ pipenv==2018.7.1
 pluggy==0.7.1
 polib==1.1.0
 progressbar2==3.38.0
-psycopg2==2.7.5
 psycopg2-binary==2.7.5
 py==1.5.4
 py-moneyed==0.7.0

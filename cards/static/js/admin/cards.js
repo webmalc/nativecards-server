@@ -3,6 +3,52 @@
 $(document).ready(function($) {
     'use strict';
 
+    // Add clear button
+    (function() {
+        $('<span id="clear-card">clear</span>').insertAfter($('#id_word'));
+        $('#clear-card').click(function() {
+            $(`textarea#id_definition, input#id_pronunciation, input#id_word,
+               textarea#id_examples, input#id_translation`).val('');
+            CKEDITOR.instances['id_examples'].setData('');
+            CKEDITOR.instances['id_definition'].setData('');
+        });
+    }());
+
+    // Get definition
+    (function() {
+        $('input#id_word').blur(function(event) {
+            let definitionInput = $('textarea#id_definition');
+            let pronunciationInput = $('input#id_pronunciation');
+            let examplesInput = $('textarea#id_examples');
+
+            if (definitionInput.val() &&
+                examplesInput.val() &&
+                pronunciationInput.val()) {
+                return;
+            }
+            $.get(
+                '/en/cards/definition/?word=' + $(this).val(),
+                function(data) {
+                    if (data['error']) {
+                        console.log(data);
+                        return;
+                    }
+                    if (!pronunciationInput.val()) {
+                        pronunciationInput.val(data['pronunciation']);
+                    }
+                    if (!examplesInput.val()) {
+                        examplesInput.val(data['examples']);
+                        CKEDITOR.instances['id_examples']
+                            .setData(data['examples']);
+                    }
+                    if (!definitionInput.val()) {
+                        definitionInput.val(data['definition']);
+                        CKEDITOR.instances['id_definition']
+                            .setData(data['definition']);
+                    }
+                });
+        });
+    }());
 
     // Get translation
     (function() {

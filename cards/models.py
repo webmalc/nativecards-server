@@ -3,6 +3,7 @@ from tempfile import NamedTemporaryFile
 from time import time_ns
 
 import requests
+from ckeditor.fields import RichTextField
 from django.conf import settings
 from django.core.validators import (MaxValueValidator, MinLengthValidator,
                                     MinValueValidator)
@@ -96,11 +97,11 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         db_index=True,
         validators=[MinLengthValidator(2)],
         verbose_name=_('word'))
-    definition = models.TextField(
+    definition = RichTextField(
         db_index=True,
         verbose_name=_('definition'),
         validators=[MinLengthValidator(2)])
-    examples = models.TextField(
+    examples = RichTextField(
         null=True,
         blank=True,
         db_index=True,

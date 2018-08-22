@@ -1,6 +1,7 @@
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from nativecards.lib.dictionary import definition
 from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserModelViewSet
@@ -32,10 +33,14 @@ class CardViewSet(UserModelViewSet):
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')
 
-    @list_route(methods=['get'])
-    def images(self, request, login=None):
+    @action(detail=False, methods=['get'])
+    def images(self, request):
         return Response(get_images(request.GET.get('word')))
 
-    @list_route(methods=['get'])
-    def translation(self, request, login=None):
+    @action(detail=False, methods=['get'])
+    def translation(self, request):
         return Response(translate(request.GET.get('word')))
+
+    @action(detail=False, methods=['get'])
+    def definition(self, request):
+        return Response(definition(request.GET.get('word')))

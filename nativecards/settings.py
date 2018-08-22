@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'annoying',
+    'ckeditor',
 
     # Nativecards apps
     'nativecards',
@@ -290,6 +291,13 @@ REST_FRAMEWORK_EXTENSIONS = {
 JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
+}
+
+# Ckeditor
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Basic',
+    },
 }
 
 # Nativecards

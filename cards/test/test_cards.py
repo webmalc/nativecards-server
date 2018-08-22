@@ -94,3 +94,20 @@ def test_cards_translation_by_admin(admin_client):
     response = admin_client.get(reverse('cards-translation') + '?word=dog')
     assert response.status_code == 200
     assert 'собака' in response.json()['translation']
+
+
+def test_cards_definition_by_user(client):
+    response = client.get(reverse('cards-definition'))
+    assert response.status_code == 401
+
+
+def test_cards_definition_by_admin(admin_client):
+    response = admin_client.get(reverse('cards-definition'))
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The word parameter not found.'
+
+    response = admin_client.get(reverse('cards-definition') + '?word=dog')
+    assert response.status_code == 200
+    assert '.wav' in response.json()['pronunciation']
+    assert '<i>dog</i>' in response.json()['examples']
+    assert 'animal' in response.json()['definition']
