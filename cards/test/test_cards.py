@@ -125,3 +125,33 @@ def test_cards_definition_by_admin(admin_client):
     assert '.wav' in response.json()['pronunciation']
     assert '<i>dog</i>' in response.json()['examples']
     assert 'animal' in response.json()['definition']
+
+
+def test_cards_lesson_by_user(client):
+    response = client.get(reverse('cards-lesson'))
+    assert response.status_code == 401
+
+
+def test_cards_lesson_by_admin(admin_client, admin, settings):
+    settings.NC_LESSON_LATEST_DAYS = 1
+    response = admin_client.get(reverse('cards-lesson') + '?deck=1')
+    assert response.status_code == 200
+    data_one = response.json()
+
+    response = admin_client.get(reverse('cards-lesson') + '?deck=1')
+    assert response.status_code == 200
+    data_two = response.json()
+
+    Card.objects.create(word='new word', created_by=admin)
+    Card.objects.create(word='completed word', created_by=admin, complete=100)
+    response = admin_client.get(reverse('cards-lesson') + '?is_latest=1')
+    assert response.status_code == 200
+    data_latest = response.json()
+    words = [d['word'] for d in data_latest]
+    words.sort()
+
+    assert len(data_one) == 6
+    assert len(data_two) == 6
+    assert data_one != data_two
+    assert len(data_latest) == 4
+    assert set(words) == {'completed word', 'new word'}

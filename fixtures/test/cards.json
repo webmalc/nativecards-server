@@ -15,7 +15,7 @@
         "examples": "word one examples",
         "translation": "word one translation",
         "pronunciation": "http://audio.oxforddictionaries.com/en/mp3/ace_1_gb_1_abbr.mp3",
-        "complete": 0,
+        "complete": 50,
         "priority": 2,
         "last_showed_at": null,
         "deck": 1

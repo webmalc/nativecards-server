@@ -1,0 +1,53 @@
+[
+{
+    "model": "cards.attempt",
+    "pk": 1,
+    "fields": {
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-22T13:23:20.481Z",
+        "modified": "2018-08-22T13:23:20.481Z",
+        "card": 1,
+        "is_correct": true,
+        "is_hint": false,
+        "answer": "word one",
+        "score": 10,
+        "form": "write"
+    }
+},
+{
+    "model": "cards.attempt",
+    "pk": 2,
+    "fields": {
+        "created_by": 1,
+        "modified_by": 1,
+        "is_enabled": true,
+        "created": "2018-08-22T14:23:20.481Z",
+        "modified": "2018-08-22T14:23:20.481Z",
+        "card": 1,
+        "is_correct": false,
+        "is_hint": true,
+        "answer": "incorrect word one",
+        "score": 20,
+        "form": "listen"
+    }
+},
+{
+    "model": "cards.attempt",
+    "pk": 3,
+    "fields": {
+        "created_by": 2,
+        "modified_by": 2,
+        "is_enabled": true,
+        "created": "2018-08-22T13:23:20.481Z",
+        "modified": "2018-08-22T13:23:20.481Z",
+        "card": 3,
+        "is_correct": true,
+        "is_hint": false,
+        "answer": "word test",
+        "score": 10,
+        "form": "listen"
+    }
+}
+]

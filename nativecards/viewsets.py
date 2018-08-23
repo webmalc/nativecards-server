@@ -1,9 +1,6 @@
-from rest_framework import viewsets
-
-
-class UserModelViewSet(viewsets.ModelViewSet):
+class UserViewSetMixin():
     """
-    The viewset with created_by field filter
+    The mixin with created_by field filter
     """
 
     def filter_by_user(self, query):

@@ -16,7 +16,7 @@ from ordered_model.models import OrderedModel
 
 from nativecards.models import CommonInfo
 
-from .managers import DeckManager
+from .managers import AttemptManager, CardManager, DeckManager
 
 
 class ImageMixin(models.Model):
@@ -92,6 +92,9 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         (3, _('high')),
         (4, _('very high')),
     )
+
+    objects = CardManager()
+
     word = models.CharField(
         max_length=255,
         db_index=True,
@@ -168,6 +171,9 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
         ('write', _('write')),
         ('choose', _('choose')),
     )
+
+    objects = AttemptManager()
+
     card = models.ForeignKey(
         Card,
         on_delete=models.CASCADE,
