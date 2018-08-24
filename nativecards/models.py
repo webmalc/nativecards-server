@@ -4,6 +4,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from .managers import SettingsManager
+
 
 class CommonInfo(models.Model):
     """ CommonInfo abstract model """
@@ -36,22 +38,46 @@ class CommonInfo(models.Model):
         abstract = True
 
 
-# class Settings(CommonInfo, TimeStampedModel):
-#     """
-#     The class with user settings
-#     """
-
-#     # NC_ATTEMPTS_TO_REMEMBER = 10
-#     # NC_CARDS_PER_LESSON = 10
-#     # NC_CARDS_TO_REPEAT = 5
-#     # NC_LESSON_LATEST_DAYS = 21
-#     attempts_to_remeber = models.PositiveIntegerField(
-#         default=settings.NC_ATTEMPTS_TO_REMEMBER,
-#         verbose_name=_('complete'),
-#         validators=[MinValueValidator(0),
-#                     MaxValueValidator(100)])
-
-
 class CachedModel(models.Model):
     class Meta:
         abstract = True
+
+
+class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
+    """
+    The class with user settings
+    """
+
+    objects = SettingsManager()
+
+    attempts_to_remember = models.PositiveIntegerField(
+        default=settings.NC_ATTEMPTS_TO_REMEMBER,
+        verbose_name=_('attempts to remember'),
+        help_text=_('number of correct answers to remember the card'),
+        validators=[MinValueValidator(3),
+                    MaxValueValidator(50)])
+    cards_per_lesson = models.PositiveIntegerField(
+        default=settings.NC_CARDS_PER_LESSON,
+        verbose_name=_('cards per lesson'),
+        help_text=_('number of cards to study per the lesson'),
+        validators=[MinValueValidator(5),
+                    MaxValueValidator(50)])
+    cards_to_repeat = models.PositiveIntegerField(
+        default=settings.NC_CARDS_TO_REPEAT,
+        verbose_name=_('cards to repeat'),
+        help_text=_('number of cards to repeat per the lesson'),
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(50)])
+    lesson_latest_days = models.PositiveIntegerField(
+        default=settings.NC_LESSON_LATEST_DAYS,
+        verbose_name=_('lesson latest days'),
+        help_text=_('number of days for getting the latest added cards'),
+        validators=[MinValueValidator(5),
+                    MaxValueValidator(50)])
+
+    def __str__(self):
+        return "{}'s settings".format(self.created_by)
+
+    class Meta:
+        ordering = ['-created']
+        verbose_name_plural = _('settings')

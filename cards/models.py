@@ -14,6 +14,7 @@ from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
 from ordered_model.models import OrderedModel
 
+import nativecards.lib.settings as config
 from nativecards.models import CachedModel, CommonInfo
 
 from .managers import AttemptManager, CardManager, DeckManager
@@ -205,7 +206,8 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
         Calc the score
         """
         if not self.pk:
-            self.score = 100 // settings.NC_ATTEMPTS_TO_REMEMBER
+            self.score = 100 // config.get('attempts_to_remember',
+                                           self.card.created_by)
             if self.is_hint and self.is_correct:
                 self.score = self.score // 2
             if self.is_hint and not self.is_correct:

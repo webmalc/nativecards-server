@@ -2,9 +2,9 @@ from typing import Dict
 
 import arrow
 from django.apps import apps
-from django.conf import settings
 
 import cards
+import nativecards.lib.settings as config
 from nativecards.managers import LookupMixin
 
 
@@ -29,10 +29,10 @@ class CardManager(LookupMixin):
         if is_latest:
             date = arrow.utcnow().replace(
                 hour=0, minute=0, second=0, microsecond=0).shift(
-                    days=-settings.NC_LESSON_LATEST_DAYS).datetime
+                    days=-config.get('lesson_latest_days', user)).datetime
             query = query.filter(created__gte=date)
 
-        return query[:settings.NC_CARDS_PER_LESSON]
+        return query[:config.get('cards_per_lesson', user)]
 
     def get_lesson_learned_cards(self, user) -> list:
         """
@@ -41,7 +41,7 @@ class CardManager(LookupMixin):
         query = self.filter(
             created_by=user, complete=100).select_related(
                 'created_by', 'modified_by', 'deck').order_by('?')
-        return query[:settings.NC_CARDS_TO_REPEAT]
+        return query[:config.get('cards_to_repeat', user)]
 
 
 class AttemptManager(LookupMixin):

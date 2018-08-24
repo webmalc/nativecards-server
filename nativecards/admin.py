@@ -1,9 +1,14 @@
+from django import forms
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
+from django.core.validators import ValidationError
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from prettyjson import PrettyJSONWidget
+from reversion.admin import VersionAdmin
+
+from .models import Settings
 
 
 class TextFieldListFilter(admin.ChoicesFieldListFilter):
@@ -160,3 +165,58 @@ class DictAdminMixin():
         if parent and obj and obj.code:
             return False
         return parent
+
+
+class SettingsAdminForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        """
+        Validation
+        """
+        query = Settings.objects.filter(created_by=self.request.user)
+        if self.instance.pk:
+            query = query.exclude(pk=self.instance.pk)
+        if query.count():
+            raise ValidationError(
+                'The settings object already exists for this user.')
+        return super().clean()
+
+
+@admin.register(Settings)
+class SettingsAdmin(VersionAdmin):
+    """
+    The settings admin interface
+    """
+    form = SettingsAdminForm
+    list_display = ('id', 'attempts_to_remember', 'cards_per_lesson',
+                    'cards_to_repeat', 'lesson_latest_days', 'created',
+                    'created_by')
+    list_display_links = ('id', 'attempts_to_remember', 'cards_per_lesson',
+                          'cards_to_repeat', 'lesson_latest_days')
+    list_filter = ('created_by', 'created')
+    search_fields = ('=pk', 'created_by__username', 'created_by__email',
+                     'created_by__last_name')
+    readonly_fields = ('created', 'modified', 'created_by', 'modified_by')
+    fieldsets = (
+        ('General', {
+            'fields': ('attempts_to_remember', 'cards_per_lesson',
+                       'cards_to_repeat', 'lesson_latest_days')
+        }),
+        ('Options', {
+            'fields': ('created', 'modified', 'created_by', 'modified_by')
+        }),
+    )
+    list_select_related = ('created_by', )
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        AdminForm = super().get_form(request, obj, **kwargs)
+
+        class ModelFormMetaClass(AdminForm):
+            def __new__(cls, *args, **kwargs):
+                kwargs['request'] = request
+                return AdminForm(*args, **kwargs)
+
+        return ModelFormMetaClass

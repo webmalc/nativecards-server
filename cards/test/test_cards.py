@@ -3,7 +3,9 @@ import json
 import pytest
 from django.urls import reverse
 
+import nativecards.lib.settings as config
 from cards.models import Card
+from nativecards.models import Settings
 
 pytestmark = pytest.mark.django_db
 
@@ -132,8 +134,12 @@ def test_cards_lesson_by_user(client):
     assert response.status_code == 401
 
 
-def test_cards_lesson_by_admin(admin_client, admin, settings):
-    settings.NC_LESSON_LATEST_DAYS = 1
+def test_cards_lesson_by_admin(admin_client, admin):
+    config.RELOAD = True
+    settings = Settings.objects.get_by_user(admin)
+    settings.lesson_latest_days = 1
+    settings.save()
+
     response = admin_client.get(reverse('cards-lesson') + '?deck=1')
     assert response.status_code == 200
     data_one = response.json()

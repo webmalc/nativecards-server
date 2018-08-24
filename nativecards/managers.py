@@ -4,6 +4,8 @@ from functools import reduce
 from django.db import models
 from django.db.models import Q
 
+import nativecards
+
 
 class LookupMixin(models.Manager, metaclass=ABCMeta):
     """
@@ -31,3 +33,19 @@ class DictManager(models.Manager):
 
     def filter_is_enabled(self):
         return self.filter(is_enabled=True)
+
+
+class SettingsManager(models.Manager):
+    """"
+    The settings objects manager
+    """
+
+    def get_by_user(self, user):
+        """
+        Get user's settings
+        """
+        try:
+            return self.filter(created_by=user).get()
+        except nativecards.models.Settings.DoesNotExist:
+            settings = self.create(created_by=user)
+            return settings
