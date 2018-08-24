@@ -14,7 +14,7 @@ from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
 from ordered_model.models import OrderedModel
 
-from nativecards.models import CommonInfo
+from nativecards.models import CachedModel, CommonInfo
 
 from .managers import AttemptManager, CardManager, DeckManager
 
@@ -49,6 +49,7 @@ class ImageMixin(models.Model):
 
 
 class Deck(  # type: ignore
+        CachedModel,
         CommonInfo,
         TimeStampedModel,
         TitleDescriptionModel,

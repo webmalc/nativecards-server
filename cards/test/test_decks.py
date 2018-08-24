@@ -2,11 +2,24 @@ import json
 
 import pytest
 from django.conf import settings
+from django.test import TestCase
 from django.urls import reverse
 
 from cards.models import Deck
 
 pytestmark = pytest.mark.django_db
+
+
+class DeckTestCase(TestCase):
+    def test_deck_api_cache(self):
+        admin_client = self.client
+        admin_client.login(username='admin', password='password')
+        url = reverse('decks-list')
+
+        with self.assertNumQueries(4):
+            admin_client.get(url)
+        with self.assertNumQueries(2):
+            admin_client.get(url)
 
 
 def test_deck_is_default_filter(admin, user):

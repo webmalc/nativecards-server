@@ -3,6 +3,7 @@ from random import shuffle
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from nativecards.lib.dictionary import definition
 from nativecards.lib.pixabay import get_images
@@ -13,9 +14,9 @@ from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
 
 
-class DeckViewSet(viewsets.ModelViewSet, UserViewSetMixin):
-    search_fields = ('=id', 'ip', 'client__name', 'client__email',
-                     'client__login', 'user_agent')
+class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
+    search_fields = ('=id', 'title', 'description', 'created_by__username',
+                     'created_by__email', 'created_by__last_name')
 
     serializer_class = DeckSerializer
     filter_fields = ('is_default', 'is_enabled', 'created')
