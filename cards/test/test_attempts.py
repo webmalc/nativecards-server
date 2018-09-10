@@ -1,9 +1,8 @@
 import json
 
 import pytest
-from django.urls import reverse
-
 from cards.models import Attempt, Card
+from django.urls import reverse
 
 pytestmark = pytest.mark.django_db
 
@@ -74,6 +73,7 @@ def test_attempts_statistics_admin(admin_client, admin):
     assert response.status_code == 200
 
     data = response.json()
+
     assert data == {
         'learned_cards': 1,
         'month_attempts': 10,
@@ -84,7 +84,7 @@ def test_attempts_statistics_admin(admin_client, admin):
         'today_incorrect_attempts': 1,
         'total_cards': 2,
         'unlearned_cards': 1,
-        'week_attempts': 10,
-        'week_correct_attempts': 8,
-        'week_incorrect_attempts': 2
+        'week_attempts': 8,
+        'week_correct_attempts': 7,
+        'week_incorrect_attempts': 1
     }

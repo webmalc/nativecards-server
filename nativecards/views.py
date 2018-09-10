@@ -24,7 +24,7 @@ class SettingsViewSet(viewsets.GenericViewSet, UserViewSetMixin):
 
         return Response(serializer.data)
 
-    @action(detail=False, methods=['PUT'])
+    @action(detail=False, methods=['PATCH'])
     def save(self, request):
         settings = Settings.objects.get_by_user(request.user)
         serializer = self.get_serializer(

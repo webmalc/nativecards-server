@@ -94,6 +94,11 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         (3, _('high')),
         (4, _('very high')),
     )
+    CATEGORIES = (
+        ('word', _('word')),
+        ('phrase', _('phrase')),
+        ('phrasal_verb', _('phrasal verb')),
+    )
 
     objects = CardManager()
 
@@ -102,6 +107,12 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         db_index=True,
         validators=[MinLengthValidator(2)],
         verbose_name=_('word'))
+    category = models.CharField(
+        max_length=30,
+        db_index=True,
+        choices=CATEGORIES,
+        default='word',
+        verbose_name=_('category'))
     definition = RichTextField(
         db_index=True,
         verbose_name=_('definition'),
@@ -119,8 +130,33 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         db_index=True,
         verbose_name=_('translation'),
         validators=[MinLengthValidator(2)])
+    synonyms = RichTextField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name=_('synonyms'),
+        validators=[MinLengthValidator(2)])
+    antonyms = RichTextField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name=_('antonyms'),
+        validators=[MinLengthValidator(2)])
+    transcription = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name=_('transcription'),
+        validators=[MinLengthValidator(2)])
     pronunciation = models.URLField(
         null=True, blank=True, verbose_name=_('pronunciation'))
+    note = RichTextField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name=_('note'),
+        validators=[MinLengthValidator(2)])
     complete = models.PositiveIntegerField(
         default=0,
         verbose_name=_('complete'),

@@ -5,6 +5,19 @@ import requests
 from django.conf import settings
 
 
+class Thesaurus(ABC):
+    """
+    Base thesaurus class
+    """
+
+    @abstractmethod
+    def synonyms(self, word: str):
+        """
+        Get the synonyms
+        """
+        pass
+
+
 class Dictionary(ABC):
     """
     Base dictionary class
@@ -59,6 +72,12 @@ class WebsterLearners(Dictionary):
                 definition += '<p>{}</p>\n'.format(text)
         return definition
 
+    def _get_transcription(self, tree) -> str:
+        entry = tree.find('entry')
+        if not entry:
+            return ''
+        return entry.find('pr').text
+
     def _get_examples(self, tree) -> str:
         examples = ''
         entry = tree.find('entry')
@@ -79,11 +98,13 @@ class WebsterLearners(Dictionary):
             audio = self._get_audio(tree)
             examples = self._get_examples(tree)
             definition = self._get_definition(tree)
+            transcription = self._get_transcription(tree)
 
             result = {
                 'pronunciation': audio[0] if len(audio) else None,
                 'examples': examples,
-                'definition': definition
+                'definition': definition,
+                'transcription': transcription
             }
             return result
 
@@ -114,11 +135,50 @@ class Oxford(Dictionary):
         return None
 
 
+class BigHugeThesaurus(Thesaurus):
+    """
+    Bighugelabs thesaurus
+    """
+
+    url = 'http://words.bighugelabs.com/api/2'
+    key = settings.NC_BIGHUGELABS_KEY
+
+    def synonyms(self, word: str):
+        url = '{}/{}/{}/json'.format(self.url, self.key, word.lower())
+        response = requests.get(url)
+        synonyms = antonyms = ''
+        if response.status_code == 200:
+            data = response.json()
+            for s, k in data.items():
+
+                def get(key: str) -> str:
+                    result = ''
+                    if key in k:
+                        result = '<p>{}: {}</p>'.format(
+                            s, ', '.join(k[key][:5]))
+                    return result
+
+                synonyms += get('syn')
+                antonyms += get('ant')
+
+        return {'synonyms': synonyms, 'antonyms': antonyms}
+
+
 def definition(word) -> object:
     """
-    Get the word definition
+    Get the word's definition
     """
     if not word:
         return {'error': 'The word parameter not found.'}
     dictionary = WebsterLearners()
     return dictionary.definition(word)
+
+
+def synonyms(word) -> object:
+    """
+    Get the word's synonyms
+    """
+    if not word:
+        return {'error': 'The word parameter not found.'}
+    thesaurus = BigHugeThesaurus()
+    return thesaurus.synonyms(word)

@@ -45,10 +45,11 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
 
     class Meta:
         model = Card
-        fields = ('id', 'word', 'definition', 'examples', 'translation',
-                  'pronunciation', 'complete', 'priority', 'deck', 'image',
-                  'remote_image', 'is_enabled', 'last_showed_at', 'created',
-                  'modified', 'created_by', 'modified_by')
+        fields = ('id', 'word', 'category', 'definition', 'examples',
+                  'synonyms', 'antonyms', 'translation', 'transcription',
+                  'pronunciation', 'complete', 'priority', 'deck', 'note',
+                  'image', 'remote_image', 'is_enabled', 'last_showed_at',
+                  'created', 'modified', 'created_by', 'modified_by')
 
 
 class AttemptSerializer(serializers.HyperlinkedModelSerializer,

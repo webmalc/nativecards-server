@@ -35,4 +35,5 @@ CORS_ORIGIN_ALLOW_ALL = True
 NC_PIXABAY_KEY = 'pixabay key'
 NC_OXFORD_ID = 'oxford id'
 NC_OXFORD_KEY = 'oxford key'
-NC_WEBSTER_LEARNERS_KEY = 'cce9ca9c-e901-4fc4-b6e6-2275a3de9118'
+NC_WEBSTER_LEARNERS_KEY = 'webster key'
+NC_BIGHUGELABS_KEY = 'bighugelabs key'

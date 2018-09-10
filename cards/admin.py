@@ -74,8 +74,9 @@ class CardAdmin(VersionAdmin):
     inlines = (AttemptInlineAdmin, )
     fieldsets = (
         ('General', {
-            'fields': ('word', 'deck', 'definition', 'examples', 'translation',
-                       'pronunciation', 'image', 'remote_image')
+            'fields': ('word', 'deck', 'category', 'definition', 'examples',
+                       'synonyms', 'antonyms', 'translation', 'transcription',
+                       'pronunciation', 'note', 'image', 'remote_image')
         }),
         ('Options', {
             'fields': ('priority', 'complete', 'is_enabled', 'last_showed_at',

@@ -8,7 +8,9 @@ $(document).ready(function($) {
         $('<span id="clear-card">clear</span>').insertAfter($('#id_word'));
         $('#clear-card').click(function() {
             $(`textarea#id_definition, input#id_pronunciation, input#id_word,
-               textarea#id_examples, input#id_translation`).val('');
+               textarea#id_examples, input#id_translation,
+               input#id_transcription, textarea#id_synonyms,
+               textarea#id_antonyms`).val('');
             CKEDITOR.instances['id_examples'].setData('');
             CKEDITOR.instances['id_definition'].setData('');
         });
@@ -20,10 +22,13 @@ $(document).ready(function($) {
             let definitionInput = $('textarea#id_definition');
             let pronunciationInput = $('input#id_pronunciation');
             let examplesInput = $('textarea#id_examples');
+            let transcriptionInput = $('input#id_transcription');
 
             if (definitionInput.val() &&
                 examplesInput.val() &&
-                pronunciationInput.val()) {
+                pronunciationInput.val() &&
+                transcriptionInput.val()
+               ) {
                 return;
             }
             $.get(
@@ -36,6 +41,9 @@ $(document).ready(function($) {
                     if (!pronunciationInput.val()) {
                         pronunciationInput.val(data['pronunciation']);
                     }
+                    if (!transcriptionInput.val()) {
+                        transcriptionInput.val(data['transcription']);
+                    }
                     if (!examplesInput.val()) {
                         examplesInput.val(data['examples']);
                         CKEDITOR.instances['id_examples']
@@ -45,6 +53,35 @@ $(document).ready(function($) {
                         definitionInput.val(data['definition']);
                         CKEDITOR.instances['id_definition']
                             .setData(data['definition']);
+                    }
+                });
+        });
+    }());
+
+    // Get synonyms and antonyms
+    (function() {
+        $('input#id_word').blur(function(event) {
+            let synonymsTextarea = $('textarea#id_synonyms');
+            let antonymsTextarea = $('textarea#id_antonyms');
+            if (synonymsTextarea.val() && antonymsTextarea.val()) {
+                return;
+            }
+            $.get(
+                '/en/cards/synonyms/?word=' + $(this).val(),
+                function(data) {
+                    if (data['error']) {
+                        console.log(data);
+                        return;
+                    }
+                    if (!synonymsTextarea.val()) {
+                        synonymsTextarea.val(data['synonyms']);
+                        CKEDITOR.instances['id_synonyms']
+                            .setData(data['synonyms']);
+                    }
+                    if (!antonymsTextarea.val()) {
+                        antonymsTextarea.val(data['antonyms']);
+                        CKEDITOR.instances['id_antonyms']
+                            .setData(data['antonyms']);
                     }
                 });
         });
