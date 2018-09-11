@@ -4,6 +4,8 @@ from xml.etree import ElementTree
 import requests
 from django.conf import settings
 
+from nativecards.lib.cache import cache_result
+
 
 class Thesaurus(ABC):
     """
@@ -164,6 +166,7 @@ class BigHugeThesaurus(Thesaurus):
         return {'synonyms': synonyms, 'antonyms': antonyms}
 
 
+@cache_result('definition')
 def definition(word) -> object:
     """
     Get the word's definition
@@ -174,6 +177,7 @@ def definition(word) -> object:
     return dictionary.definition(word)
 
 
+@cache_result('synonyms')
 def synonyms(word) -> object:
     """
     Get the word's synonyms

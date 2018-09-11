@@ -64,7 +64,7 @@ class CardAdmin(VersionAdmin):
                     'is_enabled', 'created', 'created_by')
     admin_thumbnail = AdminThumbnail(image_field='image')
     list_display_links = ('id', 'word')
-    list_filter = ('deck', 'priority', 'created_by', 'created',
+    list_filter = ('deck', 'priority', 'category', 'created_by', 'created',
                    'last_showed_at', 'is_enabled')
     search_fields = ('=pk', 'word', 'definition', 'translation', 'examples',
                      'created_by__username', 'created_by__email',

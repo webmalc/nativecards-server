@@ -1,4 +1,4 @@
-from random import shuffle
+from random import choice, shuffle
 
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -31,8 +31,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
                      'created_by__last_name')
 
     serializer_class = CardSerializer
-    filter_fields = ('deck', 'priority', 'complete', 'created_by', 'created',
-                     'last_showed_at', 'is_enabled')
+    filter_fields = ('deck', 'priority', 'category', 'complete', 'created_by',
+                     'created', 'last_showed_at', 'is_enabled')
 
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')
@@ -55,18 +55,29 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
     @action(detail=False, methods=['get'])
     def lesson(self, request):
-        is_latest = bool(request.GET.get('is_latest', 0))
+        is_latest = bool(int(request.GET.get('is_latest', 0)))
+        speak = bool(int(request.GET.get('speak', 0)))
         deck = request.GET.get('deck')
+        category = request.GET.get('category')
         new_cards = Card.objects.get_lesson_new_cards(
             is_latest,
             request.user,
             deck,
+            category,
         )
         old_cards = Card.objects.get_lesson_learned_cards(request.user)
 
         new_cards_data = self.get_serializer(new_cards, many=True).data
         old_cards_data = self.get_serializer(old_cards, many=True).data
         result = new_cards_data * 3 + old_cards_data
+
+        forms = [f[0] for f in Attempt.FORMS]
+        forms.remove('choose')
+        if not speak:
+            forms.remove('speak')
+
+        for w in result:
+            w['form'] = choice(forms)
         shuffle(result)
 
         return Response(result)

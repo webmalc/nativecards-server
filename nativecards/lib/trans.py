@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 
 import requests
 
+from nativecards.lib.cache import cache_result
+
 
 class Translate(ABC):
     """
@@ -34,6 +36,7 @@ class Lingualeo(Translate):
         return []
 
 
+@cache_result('translation')
 def translate(word) -> object:
     """
     Get the word translation

@@ -1,7 +1,10 @@
 import requests
 from django.conf import settings
 
+from nativecards.lib.cache import cache_result
 
+
+@cache_result('images')
 def get_images(word):
     """
     Get images from the pixabay.com

@@ -208,6 +208,7 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
         ('listen', _('listen')),
         ('write', _('write')),
         ('choose', _('choose')),
+        ('speak', _('speak')),
     )
 
     objects = AttemptManager()

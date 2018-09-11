@@ -16,8 +16,13 @@ class CardManager(LookupMixin):
                             'examples', 'created_by__username',
                             'created_by__email', 'created_by__last_name')
 
-    def get_lesson_new_cards(self, is_latest: bool, user,
-                             deck_id: int = None) -> list:
+    def get_lesson_new_cards(
+            self,
+            is_latest: bool,
+            user,
+            deck_id: int = None,
+            category: str = None,
+    ) -> list:
         """
         Get the new cards for a lesson
         """
@@ -26,6 +31,8 @@ class CardManager(LookupMixin):
                 'created_by', 'modified_by', 'deck').order_by('?')
         if deck_id:
             query = query.filter(deck_id=deck_id)
+        if category:
+            query = query.filter(category=category)
         if is_latest:
             date = arrow.utcnow().replace(
                 hour=0, minute=0, second=0, microsecond=0).shift(

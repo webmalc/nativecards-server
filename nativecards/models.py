@@ -66,7 +66,7 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
         default=settings.NC_CARDS_TO_REPEAT,
         verbose_name=_('cards to repeat'),
         help_text=_('number of cards to repeat per the lesson'),
-        validators=[MinValueValidator(1),
+        validators=[MinValueValidator(0),
                     MaxValueValidator(50)])
     lesson_latest_days = models.PositiveIntegerField(
         default=settings.NC_LESSON_LATEST_DAYS,
