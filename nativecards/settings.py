@@ -65,8 +65,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'nativecards.middleware.WhodidMiddleware',
     'nativecards.middleware.DisableAdminI18nMiddleware',
+    'nativecards.middleware.AuthenticationMiddlewareJWT',
+    'nativecards.middleware.WhodidMiddleware',
     'reversion.middleware.RevisionMiddleware',
 ]
 
