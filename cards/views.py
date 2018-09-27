@@ -1,14 +1,13 @@
 from random import choice, shuffle
 
-from rest_framework import mixins, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
-
 from nativecards.lib.dictionary import definition, synonyms
 from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
+from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
@@ -26,7 +25,7 @@ class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
 
 
 class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
-    search_fields = ('=pk', 'word', 'definition', 'translation', 'examples',
+    search_fields = ('=id', 'word', 'definition', 'translation', 'examples',
                      'created_by__username', 'created_by__email',
                      'created_by__last_name')
 

@@ -2,10 +2,9 @@ import arrow
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from imagekit.admin import AdminThumbnail
+from nativecards.admin import ShowAllInlineAdminMixin
 from ordered_model.admin import OrderedModelAdmin
 from reversion.admin import VersionAdmin
-
-from nativecards.admin import ShowAllInlineAdminMixin
 
 from .models import Attempt, Card, Deck
 
@@ -19,7 +18,7 @@ class AttemptAdmin(VersionAdmin):
                     'score', 'created', 'created_by')
     list_display_links = ('id', 'form')
     list_filter = ('is_correct', 'is_hint', 'created_by', 'created')
-    search_fields = ('=pk', 'card__word', 'answer', 'created_by__username',
+    search_fields = ('=id', 'card__word', 'answer', 'created_by__username',
                      'created_by__email', 'created_by__last_name')
     readonly_fields = ('created', 'modified', 'created_by', 'modified_by',
                        'score')
