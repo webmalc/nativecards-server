@@ -33,7 +33,10 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
 
     created_by = serializers.StringRelatedField(many=False, read_only=True)
     modified_by = serializers.StringRelatedField(many=False, read_only=True)
-    priority_display = serializers.CharField(source='get_priority_display')
+    priority_display = serializers.CharField(
+        source='get_priority_display', required=False)
+    category_display = serializers.CharField(
+        source='get_category_display', required=False)
     deck = serializers.PrimaryKeyRelatedField(
         many=False,
         read_only=False,
@@ -46,12 +49,12 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
 
     class Meta:
         model = Card
-        fields = ('id', 'word', 'category', 'definition', 'examples',
-                  'synonyms', 'antonyms', 'translation', 'transcription',
-                  'pronunciation', 'complete', 'priority', 'priority_display',
-                  'deck', 'note', 'image', 'remote_image', 'is_enabled',
-                  'last_showed_at', 'created', 'modified', 'created_by',
-                  'modified_by')
+        fields = ('id', 'word', 'category', 'category_display', 'definition',
+                  'examples', 'synonyms', 'antonyms', 'translation',
+                  'transcription', 'pronunciation', 'complete', 'priority',
+                  'priority_display', 'deck', 'note', 'image', 'remote_image',
+                  'is_enabled', 'last_showed_at', 'created', 'modified',
+                  'created_by', 'modified_by')
 
 
 class AttemptSerializer(serializers.HyperlinkedModelSerializer,

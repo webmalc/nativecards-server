@@ -26,6 +26,7 @@ router.extend(base_router)
 urlpatterns = [
     path('admin/', admin.site.urls),
     re_path(r'^api-token-auth/', obtain_jwt_token),
+    re_path(r'^markdownx/', include('markdownx.urls')),
     re_path(r'^api-token-refresh/', refresh_jwt_token),
     path(r'', include(tf_urls)),
 ]

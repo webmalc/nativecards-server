@@ -2,9 +2,11 @@ import arrow
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from imagekit.admin import AdminThumbnail
-from nativecards.admin import ShowAllInlineAdminMixin
+from markdownx.admin import MarkdownxModelAdmin
 from ordered_model.admin import OrderedModelAdmin
 from reversion.admin import VersionAdmin
+
+from nativecards.admin import ShowAllInlineAdminMixin
 
 from .models import Attempt, Card, Deck
 
@@ -54,7 +56,7 @@ class AttemptInlineAdmin(ShowAllInlineAdminMixin):
 
 
 @admin.register(Card)
-class CardAdmin(VersionAdmin):
+class CardAdmin(VersionAdmin, MarkdownxModelAdmin):
     """
     The cards's admin interface
     """

@@ -3,7 +3,6 @@ from tempfile import NamedTemporaryFile
 from time import time_ns
 
 import requests
-from ckeditor.fields import RichTextField
 from django.conf import settings
 from django.core.validators import (MaxValueValidator, MinLengthValidator,
                                     MinValueValidator)
@@ -12,6 +11,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 from imagekit.models import ProcessedImageField
 from imagekit.processors import ResizeToFit
+from markdownx.models import MarkdownxField
 from ordered_model.models import OrderedModel
 
 import nativecards.lib.settings as config
@@ -113,11 +113,11 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         choices=CATEGORIES,
         default='word',
         verbose_name=_('category'))
-    definition = RichTextField(
+    definition = MarkdownxField(
         db_index=True,
         verbose_name=_('definition'),
         validators=[MinLengthValidator(2)])
-    examples = RichTextField(
+    examples = MarkdownxField(
         null=True,
         blank=True,
         db_index=True,
@@ -130,13 +130,13 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         db_index=True,
         verbose_name=_('translation'),
         validators=[MinLengthValidator(2)])
-    synonyms = RichTextField(
+    synonyms = MarkdownxField(
         null=True,
         blank=True,
         db_index=True,
         verbose_name=_('synonyms'),
         validators=[MinLengthValidator(2)])
-    antonyms = RichTextField(
+    antonyms = MarkdownxField(
         null=True,
         blank=True,
         db_index=True,
@@ -151,7 +151,7 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         validators=[MinLengthValidator(2)])
     pronunciation = models.URLField(
         null=True, blank=True, verbose_name=_('pronunciation'))
-    note = RichTextField(
+    note = MarkdownxField(
         null=True,
         blank=True,
         db_index=True,

@@ -141,7 +141,7 @@ def test_cards_definition_by_admin(admin_client):
     response = admin_client.get(reverse('cards-definition') + '?word=dog')
     assert response.status_code == 200
     assert '.wav' in response.json()['pronunciation']
-    assert '<i>dog</i>' in response.json()['examples']
+    assert '*dog*' in response.json()['examples']
     assert 'animal' in response.json()['definition']
     assert "ˈdɑ:g" in response.json()['transcription']
 

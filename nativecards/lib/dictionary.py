@@ -1,3 +1,4 @@
+import re
 from abc import ABC, abstractmethod
 from xml.etree import ElementTree
 
@@ -71,7 +72,7 @@ class WebsterLearners(Dictionary):
                 text += un.text
             text = text.replace(':', '')
             if text:
-                definition += '<p>{}</p>\n'.format(text)
+                definition += '{}\n\n'.format(text)
         return definition
 
     def _get_transcription(self, tree) -> str:
@@ -87,7 +88,8 @@ class WebsterLearners(Dictionary):
             return ''
         for el in entry.find('def').iter('vi'):
             text = ElementTree.tostring(el).decode('utf-8')
-            text = text.replace('vi>', 'p>').replace('it>', 'i>')
+            text = text.replace('</vi>', '\n').replace('<vi>', '')
+            text = re.sub(r'</?(it|phrase){1}>', '*', text)
             if text:
                 examples += '{}\n'.format(text)
         return examples
@@ -156,8 +158,7 @@ class BigHugeThesaurus(Thesaurus):
                 def get(key: str) -> str:
                     result = ''
                     if key in k:
-                        result = '<p>{}: {}</p>'.format(
-                            s, ', '.join(k[key][:5]))
+                        result = '{}: {}\n\n'.format(s, ', '.join(k[key][:5]))
                     return result
 
                 synonyms += get('syn')

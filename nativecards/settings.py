@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django_filters',
     'annoying',
     'ckeditor',
+    'markdownx',
 
     # Nativecards apps
     'nativecards',

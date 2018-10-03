@@ -10,9 +10,7 @@ $(document).ready(function($) {
             $(`textarea#id_definition, input#id_pronunciation, input#id_word,
                textarea#id_examples, input#id_translation,
                input#id_transcription, textarea#id_synonyms,
-               textarea#id_antonyms`).val('');
-            CKEDITOR.instances['id_examples'].setData('');
-            CKEDITOR.instances['id_definition'].setData('');
+               textarea#id_antonyms`).val('').trigger('change');
         });
     }());
 
@@ -45,14 +43,12 @@ $(document).ready(function($) {
                         transcriptionInput.val(data['transcription']);
                     }
                     if (!examplesInput.val()) {
-                        examplesInput.val(data['examples']);
-                        CKEDITOR.instances['id_examples']
-                            .setData(data['examples']);
+                        examplesInput.val(data['examples']).
+                        get(0).dispatchEvent(new Event('input'));
                     }
                     if (!definitionInput.val()) {
-                        definitionInput.val(data['definition']);
-                        CKEDITOR.instances['id_definition']
-                            .setData(data['definition']);
+                        definitionInput.val(data['definition']).
+                        get(0).dispatchEvent(new Event('input'));
                     }
                 });
         });
@@ -74,14 +70,12 @@ $(document).ready(function($) {
                         return;
                     }
                     if (!synonymsTextarea.val()) {
-                        synonymsTextarea.val(data['synonyms']);
-                        CKEDITOR.instances['id_synonyms']
-                            .setData(data['synonyms']);
+                        synonymsTextarea.val(data['synonyms']).
+                        get(0).dispatchEvent(new Event('input'));
                     }
                     if (!antonymsTextarea.val()) {
-                        antonymsTextarea.val(data['antonyms']);
-                        CKEDITOR.instances['id_antonyms']
-                            .setData(data['antonyms']);
+                        antonymsTextarea.val(data['antonyms']).
+                        get(0).dispatchEvent(new Event('input'));
                     }
                 });
         });
@@ -98,7 +92,6 @@ $(document).ready(function($) {
                 '/en/cards/translation/?word=' + $(this).val(),
                 function(data) {
                     if (data['error']) {
-                        console.log(data);
                         return;
                     }
                     transInput.val(data['translation']);
