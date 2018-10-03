@@ -78,7 +78,7 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
     play_audio_on_open = models.BooleanField(
         default=True,
         db_index=True,
-        help_text=_('play an audio when the card is opening'),
+        help_text=_('play audio when the card is opening'),
         verbose_name=_('play audio on open'))
 
     def __str__(self):
