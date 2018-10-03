@@ -75,6 +75,12 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
         validators=[MinValueValidator(5),
                     MaxValueValidator(50)])
 
+    play_audio_on_open = models.BooleanField(
+        default=True,
+        db_index=True,
+        help_text=_('play an audio when the card is opening'),
+        verbose_name=_('play audio on open'))
+
     def __str__(self):
         return "{}'s settings".format(self.created_by)
 
