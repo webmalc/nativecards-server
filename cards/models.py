@@ -115,6 +115,8 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         verbose_name=_('category'))
     definition = MarkdownxField(
         db_index=True,
+        null=True,
+        blank=True,
         verbose_name=_('definition'),
         validators=[MinLengthValidator(2)])
     examples = MarkdownxField(
@@ -168,8 +170,6 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         null=True, blank=True, verbose_name=_('last showed at'))
     deck = models.ForeignKey(
         Deck,
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
         db_index=True,
         related_name='cards',
@@ -198,6 +198,7 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
 
     class Meta:
         ordering = ('word', )
+        unique_together = (("word", "deck"), )
 
 
 class Attempt(CommonInfo, TimeStampedModel):  # type: ignore

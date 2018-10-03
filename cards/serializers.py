@@ -40,7 +40,7 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
     deck = serializers.PrimaryKeyRelatedField(
         many=False,
         read_only=False,
-        required=False,
+        required=True,
         queryset=Deck.objects.all())
 
     def get_fields(self, *args, **kwargs):

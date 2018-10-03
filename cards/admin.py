@@ -86,6 +86,12 @@ class CardAdmin(VersionAdmin, MarkdownxModelAdmin):
     )
     list_select_related = ('created_by', 'deck')
 
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['deck'].initial = Deck.objects.get_default(
+            request.user)
+        return form
+
     def audio(self, obj):
         if not obj.pronunciation:
             return None

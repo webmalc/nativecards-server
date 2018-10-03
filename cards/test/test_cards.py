@@ -10,20 +10,12 @@ from nativecards.models import Settings
 pytestmark = pytest.mark.django_db
 
 
-def test_cards_set_default_deck(admin):
-    card = Card()
-    card.word = 'word'
-    card.created_by = admin
-    card.save()
-
-    assert card.deck.description == 'the main deck'
-
-
 def test_cards_limit_complete_deck(admin):
     card = Card()
     card.word = 'word'
     card.complete = 122
     card.created_by = admin
+    card.deck_id = 1
     card.save()
 
     assert card.complete == 100
@@ -65,6 +57,7 @@ def test_cards_display_another_user_by_admin(admin_client):
 def test_cards_create_by_admin(admin_client):
     data = json.dumps({
         'word': 'new test word',
+        'deck': 1,
         'definition': 'test word definition',
         'remote_image': 'https://via.placeholder.com/550x400'
     })
@@ -165,8 +158,9 @@ def test_cards_lesson_by_admin(admin_client, admin):
     assert response.status_code == 200
     data_two = response.json()
 
-    Card.objects.create(word='new word', created_by=admin)
-    Card.objects.create(word='completed word', created_by=admin, complete=100)
+    Card.objects.create(word='new word', created_by=admin, deck_id=1)
+    Card.objects.create(
+        word='completed word', created_by=admin, complete=100, deck_id=1)
     response = admin_client.get(reverse('cards-lesson') + '?is_latest=1')
     assert response.status_code == 200
     data_latest = response.json()
