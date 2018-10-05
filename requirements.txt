@@ -21,7 +21,7 @@ cryptography==2.3.1
 cssselect2==0.2.1
 decorator==4.3.0
 defusedxml==0.5.0
-Django==2.1
+Django==2.1.2
 django-ajax-selects==1.7.0
 django-annoying==0.10.4
 django-appconf==1.0.2
