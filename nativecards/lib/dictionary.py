@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from xml.etree import ElementTree
 
 import requests
-from django.conf import settings
 
+from django.conf import settings
 from nativecards.lib.cache import cache_result
 
 
@@ -76,10 +76,10 @@ class WebsterLearners(Dictionary):
         return definition
 
     def _get_transcription(self, tree) -> str:
-        entry = tree.find('entry')
-        if not entry:
-            return ''
-        return entry.find('pr').text
+        result = getattr(tree.find('./entry/pr'), 'text', None)
+        if not result:
+            result = getattr(tree.find('./entry/vr/pr'), 'text', '')
+        return result
 
     def _get_examples(self, tree) -> str:
         examples = ''

@@ -14,6 +14,7 @@ def cache_result(key):
         @wraps(func)
         def func_wrapper(*args, **kwargs):
             key_with_args = '{}_{}_{}'.format(key, str(args), str(kwargs))
+            key_with_args = key_with_args.replace(' ', '_')
             cached_result = cache.get(key_with_args)
             if cached_result is not None:
                 return cached_result
