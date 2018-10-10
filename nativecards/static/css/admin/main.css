@@ -1,6 +1,172 @@
+/* Variables */
+/* DARK THEME */
 body {
   height: 100%;
+  background-color: #191919;
 }
+body input,
+body select,
+body button,
+body textarea {
+  background-color: #333 !important;
+  border-color: #242424 !important;
+  color: #d3d3d3 !important;
+}
+#changelist {
+  background-color: #191919;
+}
+#changelist #toolbar {
+  background-color: #242424 !important;
+  border: 0px !important;
+}
+#changelist div.actions {
+  background-color: #242424 !important;
+}
+#changelist div.results {
+  background-color: #242424 !important;
+}
+p.paginator {
+  background-color: #242424 !important;
+  border: 0px !important;
+}
+p.paginator a,
+p.paginator a:link,
+p.paginator a:visited {
+  color: #d3d3d3 !important;
+  background-color: #333;
+}
+p.paginator .showall {
+  background-color: transparent !important;
+}
+p.paginator a:hover,
+p.paginator a:focus {
+  color: #ffffff !important;
+}
+#result_list {
+  color: #999999 !important;
+}
+#result_list thead th {
+  border-top: 0px !important;
+  background-color: #191919 !important;
+}
+#result_list thead th.sorted,
+#result_list thead th a:hover,
+#result_list thead th:hover {
+  background-color: #151515 !important;
+}
+.row1 {
+  background: #242424 !important;
+}
+.row2 {
+  background: #333 !important;
+}
+.inline-related th {
+  background-color: #222 !important;
+  color: #d3d3d3 !important;
+}
+.add-row td {
+  background-color: #222 !important;
+  border: 0px !important;
+}
+a,
+a:link,
+a:visited {
+  color: #d3d3d3;
+}
+a:hover,
+a:focus {
+  color: #ffffff;
+}
+#branding h1,
+#branding h1 a:link,
+#branding h1 a:visited {
+  color: #d3d3d3;
+}
+#user-tools a:focus,
+#user-tools a:hover {
+  border-bottom-color: #ffffff;
+  color: #ffffff;
+}
+#header {
+  background-color: #151515;
+  color: #d3d3d3;
+}
+.module {
+  background-color: #242424;
+}
+.module caption {
+  background-color: #151515;
+}
+.module caption a,
+.module caption a:visited,
+.module caption a:link {
+  color: #d3d3d3;
+}
+.module th,
+.module td {
+  border-bottom-color: #333;
+}
+div.breadcrumbs {
+  background-color: #222;
+  color: #999999 !important;
+}
+#content {
+  color: #999999 !important;
+}
+thead th {
+  border-top: 0px !important;
+  background-color: #151515 !important;
+  color: #d3d3d3;
+}
+fieldset h2 {
+  background-color: #151515 !important;
+  color: #d3d3d3 !important;
+}
+.form-row {
+  border: 0px !important;
+}
+.form-row label {
+  color: #999999 !important;
+}
+.submit-row {
+  background-color: #242424 !important;
+  border: 0px !important;
+}
+h1 {
+  color: #d3d3d3;
+}
+#content-related {
+  background-color: #242424;
+  color: #d3d3d3;
+}
+#content-related h2 {
+  background-color: #151515 !important;
+  color: #d3d3d3 !important;
+  border-bottom: 0px !important;
+}
+#changelist-filter {
+  background-color: #242424 !important;
+  color: #d3d3d3;
+}
+#changelist-filter h2 {
+  background-color: #151515 !important;
+  color: #d3d3d3 !important;
+}
+#changelist-filter li.selected {
+  border-left-color: #333 !important;
+}
+#changelist-filter li.selected a {
+  color: #ffffff !important;
+}
+#changelist-filter a:hover,
+#changelist-filter a:focus {
+  color: #ffffff !important;
+}
+.object-tools a:link,
+.object-tools a:visited {
+  background-color: #333;
+}
+/* END DARK THEME */
 .sortedm2m-item img {
   max-width: 40px;
   padding: 5px;

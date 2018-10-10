@@ -1,6 +1,179 @@
+/* Variables */
+@dark: #191919;
+@strong-dark: #151515;
+@light-dark: #242424;
+@gray: #333;
+@strong-gray: #222;
+@white: #d3d3d3;
+@dark-white: #999999;
+@strong-white: #f1f1f1;
+@pure-white: #ffffff;
+
+/* DARK THEME */
 body {
     height: 100%;
+    background-color: @dark;
+
+    input, select, button, textarea {
+        background-color: @gray !important;
+        border-color: @light-dark !important;
+        color: @white !important;
+    }
 }
+#changelist {
+    background-color: @dark;
+
+    #toolbar {
+        background-color: @light-dark !important; 
+        border: 0px !important;
+    }
+    div.actions {
+        background-color: @light-dark !important;
+    }
+    div.results {
+        background-color: @light-dark !important;
+    }
+}
+p.paginator {
+    background-color: @light-dark !important;
+    border: 0px !important;
+    a, a:link, a:visited {
+        color: @white !important;
+        background-color: @gray;
+    }
+    .showall {
+        background-color: transparent !important;
+    }
+    a:hover, a:focus {
+        color: @pure-white !important;
+    }
+}
+#result_list {
+    color: @dark-white !important;
+    thead {
+        th {
+            border-top: 0px !important;
+            background-color: @dark !important;
+        } 
+        th.sorted, th a:hover, th:hover  {
+            background-color: @strong-dark !important;
+        }
+    }
+}
+.row1 {
+    background: @light-dark !important; 
+} 
+.row2 {
+    background: @gray !important; 
+} 
+.inline-related {
+    th {
+        background-color: @strong-gray !important;
+        color: @white !important;
+    }
+}
+.add-row {
+    td {
+        background-color: @strong-gray !important;
+        border: 0px !important;
+    } 
+}
+a, a:link, a:visited {
+    color: @white;
+}
+a:hover, a:focus {
+    color: @pure-white;
+}
+#branding h1, #branding h1 a:link, #branding h1 a:visited {
+    color: @white;
+
+}
+#user-tools a:focus, #user-tools a:hover {
+    border-bottom-color: @pure-white;
+    color: @pure-white;
+}
+#header {
+    background-color: @strong-dark; 
+    color: @white;
+}
+.module {
+    background-color: @light-dark; 
+
+    caption {
+        background-color: @strong-dark; 
+        a, a:visited, a:link {
+            color: @white;
+        }
+    }
+    th, td {
+        border-bottom-color: @gray;  
+    }
+}
+div.breadcrumbs {
+    background-color: @strong-gray;
+    color: @dark-white !important; 
+}
+#content {
+    color: @dark-white !important;
+}
+thead {
+    th {
+        border-top: 0px !important;
+        background-color: @strong-dark !important;
+        color: @white;
+    }   
+}
+fieldset {
+    h2 {
+        background-color: @strong-dark !important;
+        color: @white !important;
+    }
+}
+.form-row {
+    // border-bottom-color: @gray !important;
+    border: 0px !important;
+    label {
+        color: @dark-white !important;
+    }
+}
+.submit-row {
+    background-color: @light-dark !important;
+    border: 0px !important;
+}
+h1 {
+    color: @white;
+}
+#content-related {
+    background-color: @light-dark; 
+    color: @white;
+    h2 {
+        background-color: @strong-dark !important;
+        color: @white !important;
+        border-bottom: 0px !important;  
+    }
+}
+#changelist-filter {
+    background-color: @light-dark !important; 
+    color: @white;
+    h2 {
+        background-color: @strong-dark !important;
+        color: @white !important;
+    }
+    li.selected {
+        border-left-color: @gray !important;
+        a {
+            color: @pure-white !important;
+        }
+    }
+    a:hover, a:focus {
+        color: @pure-white !important;
+    }
+}
+.object-tools a:link, .object-tools a:visited {
+    background-color: @gray;
+}
+/* END DARK THEME */
+
 .sortedm2m-item {
     img {
         max-width: 40px;
@@ -8,6 +181,7 @@ body {
         cursor: move;
     }
 }
+
 .text-red {
     color: #dd4b39;
 }

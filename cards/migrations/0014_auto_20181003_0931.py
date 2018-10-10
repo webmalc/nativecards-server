@@ -2,6 +2,19 @@
 
 from django.db import migrations
 
+from cards.models import Deck
+
+
+def prepare(apps, schema_editor):
+    if not Deck.objects.filter(pk=1).count():
+        deck = Deck()
+        deck.id = 1
+        deck.title = 'main'
+        deck.description = 'the default deck'
+        deck.is_default = True
+        deck.created_by_id = 1
+        deck.save()
+
 
 class Migration(migrations.Migration):
 
@@ -22,4 +35,5 @@ class Migration(migrations.Migration):
             name='deck',
             unique_together=set(),
         ),
+        migrations.RunPython(prepare),
     ]
