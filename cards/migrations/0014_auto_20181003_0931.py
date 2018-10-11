@@ -35,5 +35,5 @@ class Migration(migrations.Migration):
             name='deck',
             unique_together=set(),
         ),
-        migrations.RunPython(prepare),
+        # migrations.RunPython(prepare),
     ]

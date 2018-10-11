@@ -1,7 +1,13 @@
 {% extends "rest_framework/base.html" %}
+{% load static %}
 {% load i18n %}
 
 {% block branding %}
 <a class="navbar-brand" rel="nofollow" href="/">Nativecards API</a>
+{% endblock %}
+
+{% block style %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/rest_framework/main.css' %}">
 {% endblock %}
 

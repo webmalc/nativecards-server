@@ -1,0 +1,78 @@
+/* Variables */
+@dark: #191919;
+@strong-dark: #151515;
+@light-dark: #242424;
+@gray: #333;
+@strong-gray: #222;
+@white: #d3d3d3;
+@dark-white: #999999;
+@strong-white: #f1f1f1;
+@pure-white: #ffffff;
+@green: #2a7c2a;
+
+/* DARK THEME */
+body {
+    height: 100%;
+    background-color: @dark;
+    color: @dark-white;
+
+    input, select, button, textarea, .btn-primary {
+        background-color: @gray !important;
+        color: @white !important;
+        border: 1px solid @light-dark !important;
+    }
+}
+.pln, .str, .atv   {
+    color: @dark-white;
+}
+.lit, .kwd {
+    color: @green; 
+}
+pre, .tab-content, .modal-content, .dropdown-menu {
+    background-color: @light-dark !important; 
+    border: 0px !important;
+    color: @dark-white;
+}
+.dropdown-menu {
+    a:hover, a:focus {
+        background-color: @dark !important;
+    }
+}
+.nav-tabs {
+    color: @dark-white;
+    a:link, a:visited, a:hover, a:focus, a {
+        border:0px !important;
+    }
+    a:hover, a:focus {
+        background-color: @light-dark !important; 
+    }
+    li {
+        background-color: @strong-dark;
+        border:0px !important;
+    }
+    li.active a {
+        background-color: @light-dark; 
+    }
+}
+.list-group-item {
+    background-color: @dark !important;
+    border-color: @gray !important;
+} 
+.navbar, .modal-header, {
+    background-color: @strong-dark;
+    .navbar-brand {
+        color: @white; 
+    }
+    border: 0px !important;
+}
+.breadcrumb {
+    background-color: @strong-gray;
+    color: @dark-white; 
+}
+
+a, a:link, a:visited {
+    color: @white !important;
+}
+a:hover, a:focus {
+    color: @pure-white !important;
+}

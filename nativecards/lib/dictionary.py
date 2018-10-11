@@ -3,8 +3,8 @@ from abc import ABC, abstractmethod
 from xml.etree import ElementTree
 
 import requests
-
 from django.conf import settings
+
 from nativecards.lib.cache import cache_result
 
 
@@ -97,6 +97,7 @@ class WebsterLearners(Dictionary):
     def definition(self, word: str):
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
+
         if response.status_code == 200:
             tree = ElementTree.fromstring(response.text)
             audio = self._get_audio(tree)
