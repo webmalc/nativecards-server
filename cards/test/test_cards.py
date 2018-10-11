@@ -10,6 +10,35 @@ from nativecards.models import Settings
 pytestmark = pytest.mark.django_db
 
 
+def test_cards_get_random_words(admin):
+    with pytest.raises(ValueError) as e:
+        Card.objects.select_random_words()
+        assert e == 'the user and words fields are empty at the same time'
+    words = Card.objects.select_random_words(admin)
+    assert len(words) == 2
+
+    random_words = Card.objects.get_random_words(admin)
+    words = Card.objects.select_random_words(
+        words=random_words, additional='additional')
+    assert len(words) == 2
+
+    for i in range(10):
+        card = Card()
+        card.word = 'word' + str(i)
+        card.complete = 122
+        card.created_by = admin
+        card.deck_id = 1
+        card.save()
+
+    words = Card.objects.select_random_words(admin, additional='additional')
+    words_next = Card.objects.select_random_words(
+        admin, additional='additional')
+    assert len(words) == 4
+    assert words != words_next
+
+    assert 'additional' in words
+
+
 def test_cards_limit_complete_deck(admin):
     card = Card()
     card.word = 'word'
@@ -169,6 +198,7 @@ def test_cards_lesson_by_admin(admin_client, admin):
 
     assert len(data_one) == 6
     assert len(data_two) == 6
+    assert data_one[0]['word'] in data_one[0]['choices']
     assert data_one != data_two
     assert len(data_latest) == 4
     assert set(words) == {'completed word', 'new word'}

@@ -1,4 +1,5 @@
-from typing import Dict
+from random import sample, shuffle
+from typing import Dict, Iterable, List
 
 import arrow
 from django.apps import apps
@@ -15,6 +16,38 @@ class CardManager(LookupMixin):
     lookup_search_fields = ('=pk', 'word', 'definition', 'translation',
                             'examples', 'created_by__username',
                             'created_by__email', 'created_by__last_name')
+
+    def get_random_words(self, user, limit: int = 100) -> Iterable[str]:
+        """
+        Get random words from the user dictionary
+        """
+        words = self.filter(created_by=user).values_list(
+            'word', flat=True).order_by('?')[:limit]
+        return words
+
+    def select_random_words(self,
+                            user=None,
+                            words: Iterable[str] = None,
+                            additional: str = None,
+                            limit: int = 3) -> List[str]:
+        """
+        Select random words from the user dictionary
+        """
+        if not words and not user:
+            raise ValueError(
+                'the user and words fields are empty at the same time')
+        if not words:
+            words = self.get_random_words(user)
+        words = list(words)
+        if additional:
+            limit += 1
+        choices = sample(words, min([len(words), limit]))
+        if additional and additional not in choices:
+            del choices[0]
+            choices.append(additional)
+        shuffle(choices)
+
+        return choices
 
     def get_lesson_new_cards(
             self,

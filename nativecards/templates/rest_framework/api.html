@@ -11,3 +11,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/rest_framework/main.css' %}">
 {% endblock %}
 
+
+{% block userlinks %}
+    {{ block.super }}
+    <li><a href="/admin">admin</a></li>
+{% endblock %}

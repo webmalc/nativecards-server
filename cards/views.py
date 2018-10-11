@@ -1,13 +1,14 @@
 from random import choice, shuffle
 
-from nativecards.lib.dictionary import definition, synonyms
-from nativecards.lib.pixabay import get_images
-from nativecards.lib.trans import translate
-from nativecards.viewsets import UserViewSetMixin
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
+
+from nativecards.lib.dictionary import definition, synonyms
+from nativecards.lib.pixabay import get_images
+from nativecards.lib.trans import translate
+from nativecards.viewsets import UserViewSetMixin
 
 from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
@@ -64,19 +65,24 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
             deck,
             category,
         )
-        old_cards = Card.objects.get_lesson_learned_cards(request.user)
+        manager = Card.objects
+        old_cards = manager.get_lesson_learned_cards(request.user)
+        random_words = manager.get_random_words(request.user)
 
         new_cards_data = self.get_serializer(new_cards, many=True).data
         old_cards_data = self.get_serializer(old_cards, many=True).data
         result = new_cards_data * 3 + old_cards_data
 
         forms = [f[0] for f in Attempt.FORMS]
-        forms.remove('choose')
         if not speak:
             forms.remove('speak')
 
         for w in result:
             w['form'] = choice(forms)
+            w['choices'] = manager.select_random_words(
+                words=random_words,
+                additional=w['word'],
+            )
         shuffle(result)
 
         return Response(result)
