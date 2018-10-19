@@ -1,14 +1,13 @@
 from random import choice, shuffle
 
-from rest_framework import mixins, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework_extensions.cache.mixins import CacheResponseMixin
-
 from nativecards.lib.dictionary import definition, synonyms
 from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
+from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
@@ -59,13 +58,14 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         speak = bool(int(request.GET.get('speak', 0)))
         deck = request.GET.get('deck')
         category = request.GET.get('category')
-        new_cards = Card.objects.get_lesson_new_cards(
+
+        manager = Card.objects
+        new_cards = manager.get_lesson_new_cards(
             is_latest,
             request.user,
             deck,
             category,
         )
-        manager = Card.objects
         old_cards = manager.get_lesson_learned_cards(request.user)
         random_words = manager.get_random_words(request.user)
 

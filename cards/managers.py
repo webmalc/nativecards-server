@@ -2,10 +2,9 @@ from random import sample, shuffle
 from typing import Dict, Iterable, List
 
 import arrow
-from django.apps import apps
-
 import cards
 import nativecards.lib.settings as config
+from django.apps import apps
 from nativecards.managers import LookupMixin
 
 
