@@ -19,6 +19,7 @@ def test_settings_get_by_admin(admin_client):
     assert response.status_code == 200
     assert data['cards_to_repeat'] == settings.NC_CARDS_TO_REPEAT
     assert data['attempts_to_remember'] == settings.NC_ATTEMPTS_TO_REMEMBER
+    assert data['attempts_per_day'] == 60
 
 
 def test_settings_update_by_admin(admin_client):

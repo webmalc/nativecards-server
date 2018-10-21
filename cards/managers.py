@@ -2,10 +2,12 @@ from random import sample, shuffle
 from typing import Dict, Iterable, List
 
 import arrow
+from django.apps import apps
+
 import cards
 import nativecards.lib.settings as config
-from django.apps import apps
 from nativecards.managers import LookupMixin
+from nativecards.models import Settings
 
 
 class CardManager(LookupMixin):
@@ -98,6 +100,7 @@ class AttemptManager(LookupMixin):
         cards_query = apps.get_model('cards.Card').objects.filter(
             created_by=user)
         query = self.filter(created_by=user)
+        settings = Settings.objects.get_by_user(user)
 
         today = arrow.utcnow().replace(
             hour=0, minute=0, second=0, microsecond=0)
@@ -107,12 +110,18 @@ class AttemptManager(LookupMixin):
         today = today.datetime
 
         today_query = query.filter(created__gte=today)
+        today_attempts = today_query.count()
         week_query = query.filter(created__gte=week)
         month_query = query.filter(created__gte=month)
+        to_complete = settings.attempts_per_day
 
         return {
             'today_attempts':
-            today_query.count(),
+            today_attempts,
+            'today_attempts_to_complete':
+            to_complete,
+            'today_attempts_remain':
+            to_complete - today_attempts,
             'today_correct_attempts':
             today_query.filter(is_correct=True).count(),
             'today_incorrect_attempts':
