@@ -74,12 +74,22 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
         help_text=_('number of days for getting the latest added cards'),
         validators=[MinValueValidator(5),
                     MaxValueValidator(50)])
-
+    lessons_per_day = models.PositiveIntegerField(
+        default=settings.NC_LESSONS_PER_DAY,
+        verbose_name=_('lessons per day'),
+        help_text=_('number of lessons to complete per day'),
+        validators=[MinValueValidator(0),
+                    MaxValueValidator(50)])
     play_audio_on_open = models.BooleanField(
         default=True,
         db_index=True,
         help_text=_('play audio when the card is opening'),
         verbose_name=_('play audio on open'))
+
+    @property
+    def attempts_per_day(self) -> int:
+        return self.lessons_per_day * self.cards_per_lesson * \
+            settings.NC_CARDS_REPEAT_IN_LESSON
 
     def __str__(self):
         return "{}'s settings".format(self.created_by)

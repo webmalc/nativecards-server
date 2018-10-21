@@ -15,9 +15,9 @@ class SettingsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Settings
         fields = ('id', 'attempts_to_remember', 'cards_per_lesson',
-                  'cards_to_repeat', 'lesson_latest_days',
-                  'play_audio_on_open', 'created', 'modified', 'created_by',
-                  'modified_by')
+                  'cards_to_repeat', 'lesson_latest_days', 'lessons_per_day',
+                  'attempts_per_day', 'play_audio_on_open', 'created',
+                  'modified', 'created_by', 'modified_by')
 
 
 class NestedUpdateSerializerMixin(object):

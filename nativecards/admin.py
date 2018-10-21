@@ -192,19 +192,21 @@ class SettingsAdmin(VersionAdmin):
     """
     form = SettingsAdminForm
     list_display = ('id', 'attempts_to_remember', 'cards_per_lesson',
-                    'cards_to_repeat', 'lesson_latest_days',
+                    'cards_to_repeat', 'lesson_latest_days', 'lessons_per_day',
                     'play_audio_on_open', 'created', 'created_by')
     list_display_links = ('id', 'attempts_to_remember', 'cards_per_lesson',
                           'cards_to_repeat', 'lesson_latest_days')
     list_filter = ('created_by', 'created')
     search_fields = ('=pk', 'created_by__username', 'created_by__email',
                      'created_by__last_name')
-    readonly_fields = ('created', 'modified', 'created_by', 'modified_by')
+    readonly_fields = ('created', 'modified', 'created_by', 'modified_by',
+                       'attempts_per_day')
     fieldsets = (
         ('General', {
             'fields':
             ('attempts_to_remember', 'cards_per_lesson', 'cards_to_repeat',
-             'lesson_latest_days', 'play_audio_on_open')
+             'lesson_latest_days', 'lessons_per_day', 'attempts_per_day',
+             'play_audio_on_open')
         }),
         ('Options', {
             'fields': ('created', 'modified', 'created_by', 'modified_by')

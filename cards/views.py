@@ -1,14 +1,16 @@
 from copy import deepcopy
 from random import choice, shuffle
 
-from nativecards.lib.dictionary import definition, synonyms
-from nativecards.lib.pixabay import get_images
-from nativecards.lib.trans import translate
-from nativecards.viewsets import UserViewSetMixin
+from django.conf import settings
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
+
+from nativecards.lib.dictionary import definition, synonyms
+from nativecards.lib.pixabay import get_images
+from nativecards.lib.trans import translate
+from nativecards.viewsets import UserViewSetMixin
 
 from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
@@ -72,7 +74,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
         new_cards_data = self.get_serializer(new_cards, many=True).data
         old_cards_data = self.get_serializer(old_cards, many=True).data
-        cards = new_cards_data * 3 + old_cards_data
+        cards = new_cards_data * settings.NC_CARDS_REPEAT_IN_LESSON
+        cards += old_cards_data
 
         forms = [f[0] for f in Attempt.FORMS]
         if not speak:
