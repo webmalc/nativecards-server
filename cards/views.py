@@ -1,3 +1,4 @@
+from copy import deepcopy
 from random import choice, shuffle
 
 from nativecards.lib.dictionary import definition, synonyms
@@ -71,18 +72,20 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
         new_cards_data = self.get_serializer(new_cards, many=True).data
         old_cards_data = self.get_serializer(old_cards, many=True).data
-        result = new_cards_data * 3 + old_cards_data
+        cards = new_cards_data * 3 + old_cards_data
 
         forms = [f[0] for f in Attempt.FORMS]
         if not speak:
             forms.remove('speak')
 
-        for w in result:
+        result = []
+        for w in cards:
             w['form'] = choice(forms)
             w['choices'] = manager.select_random_words(
                 words=random_words,
                 additional=w['word'],
             )
+            result.append(deepcopy(w))
         shuffle(result)
 
         return Response(result)
