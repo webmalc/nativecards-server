@@ -88,8 +88,9 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
 
     @property
     def attempts_per_day(self) -> int:
-        return self.lessons_per_day * self.cards_per_lesson * \
-            settings.NC_CARDS_REPEAT_IN_LESSON + self.cards_to_repeat
+        return self.lessons_per_day * (
+            self.cards_per_lesson * settings.NC_CARDS_REPEAT_IN_LESSON +
+            self.cards_to_repeat)
 
     def __str__(self):
         return "{}'s settings".format(self.created_by)
