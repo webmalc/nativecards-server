@@ -2,6 +2,7 @@ from copy import deepcopy
 from random import choice, shuffle
 
 from django.conf import settings
+from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -27,14 +28,27 @@ class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
         return self.filter_by_user(Deck.objects.all())
 
 
+class CardFilter(filters.FilterSet):
+    complete__gte = filters.NumberFilter(
+        field_name='complete', label='complete greater', lookup_expr='gte')
+
+    complete__lte = filters.NumberFilter(
+        field_name='complete', label='complete less', lookup_expr='lte')
+
+    class Meta:
+        model = Card
+        fields = ('deck', 'priority', 'category', 'complete', 'complete__gte',
+                  'complete__lte', 'created_by', 'created', 'last_showed_at',
+                  'is_enabled')
+
+
 class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
     search_fields = ('=id', 'word', 'definition', 'translation', 'examples',
                      'created_by__username', 'created_by__email',
                      'created_by__last_name')
 
     serializer_class = CardSerializer
-    filter_fields = ('deck', 'priority', 'category', 'complete', 'created_by',
-                     'created', 'last_showed_at', 'is_enabled')
+    filter_class = CardFilter
 
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')

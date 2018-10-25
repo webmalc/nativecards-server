@@ -99,17 +99,21 @@ class WebsterLearners(Dictionary):
         response = requests.get(url)
 
         if response.status_code == 200:
-            tree = ElementTree.fromstring(response.text)
-            audio = self._get_audio(tree)
-            examples = self._get_examples(tree)
-            definition = self._get_definition(tree)
-            transcription = self._get_transcription(tree)
+            try:
+                tree = ElementTree.fromstring(response.text)
+                audio = self._get_audio(tree)
+                examples = self._get_examples(tree)
+                definition = self._get_definition(tree)
+                transcription = self._get_transcription(tree)
+            except ElementTree.ParseError:
+                audio = []
+                examples = definition = transcription = None
 
             result = {
                 'pronunciation': audio[0] if len(audio) else None,
-                'examples': examples,
-                'definition': definition,
-                'transcription': transcription
+                'examples': examples or None,
+                'definition': definition or None,
+                'transcription': transcription or None
             }
             return result
 

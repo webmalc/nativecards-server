@@ -61,10 +61,28 @@ def test_cards_list_by_user(client):
 
 def test_cards_list_by_admin(admin_client):
     response = admin_client.get(reverse('cards-list') + '?ordering=id')
-    data = response.json()['results']
     assert response.status_code == 200
+    data = response.json()['results']
     assert len(data) == 2
     assert data[0]['definition'] == 'word one definition'
+
+
+def test_cards_list_filter_by_admin(admin_client):
+    response = admin_client.get(
+        reverse('cards-list') + '?ordering=id&complete__lte=20')
+
+    assert response.status_code == 200
+    data = response.json()['results']
+    assert len(data) == 1
+    assert data[0]['complete'] == 20
+
+    response = admin_client.get(
+        reverse('cards-list') + '?ordering=id&complete__gte=40')
+
+    assert response.status_code == 200
+    data = response.json()['results']
+    assert len(data) == 1
+    assert data[0]['complete'] == 50
 
 
 def test_cards_display_by_user(client):
