@@ -1,0 +1,55 @@
+- name: Nativecards deploy - git pull/clone
+  git:
+    repo: "{{nativecards.repo}}"
+    dest: "{{nativecards.path}}"
+  tags: deploy  
+
+- name: Nativecards deploy - install nmp dependencies
+  npm:
+    path: "{{nativecards.path}}"
+  tags: deploy  
+
+- name: Nativecards deploy - upgrade pip
+  pip:
+    state: latest
+    virtualenv: "{{nativecards.venv}}"
+    name: "pip"
+    extra_args: --upgrade
+  tags: deploy  
+
+- name: Nativecards deploy - pip requirements
+  pip:
+    state: latest
+    virtualenv: "{{nativecards.venv}}"
+    requirements: "{{nativecards.path}}requirements.txt"
+  tags: deploy  
+
+- name: Nativecards deploy - migrate, static, messages
+  shell: "{{nativecards.venv}}bin/python manage.py {{item}}"
+  args:
+    chdir: "{{nativecards.path}}"
+    executable: /bin/bash
+  with_items:
+    - makemigrations --no-input
+    - migrate --no-input
+    - collectstatic --no-input
+    # - compilemessages
+  tags: deploy  
+
+- name: Nativecards deploy - restart supervisor
+  supervisorctl:
+    name: "{{item}}"
+    state: restarted
+  with_items:
+    - nativecards
+  become: true
+  tags: deploy  
+
+- name: Nativecards deploy - kill extra uwsgi
+  shell: "pkill -9 uwsgi"
+  tags: deploy  
+
+- name: Nativecards deploy - restart nginx
+  service: name=nginx state=restarted
+  become: true
+  tags: deploy  

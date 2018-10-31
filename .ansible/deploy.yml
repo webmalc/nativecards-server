@@ -1,0 +1,8 @@
+---
+
+- name: Deploy nativecards backend
+  hosts: all
+  remote_user: ubuntu
+
+  roles:
+    - role: deploy

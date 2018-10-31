@@ -1,0 +1,5 @@
+---
+nativecards:
+  path: /home/ubuntu/projects/nativecards-server/
+  repo: git@github.com:webmalc/nativecards-server.git
+  venv: /home/ubuntu/.virtualenvs/nativecards/

@@ -1,5 +1,6 @@
 import re
 from abc import ABC, abstractmethod
+from typing import List
 from xml.etree import ElementTree
 
 import requests
@@ -42,7 +43,7 @@ class WebsterLearners(Dictionary):
     audio_url = 'https://media.merriam-webster.com/soundc11/'
     key = settings.NC_WEBSTER_LEARNERS_KEY
 
-    def _get_audio(self, tree) -> list:
+    def _get_audio(self, tree) -> List[str]:
         data = []
         for el in tree.iter('wav'):
             filename = el.text
@@ -99,6 +100,8 @@ class WebsterLearners(Dictionary):
         response = requests.get(url)
 
         if response.status_code == 200:
+            audio = []  # type: List[str]
+            examples = definition = transcription = None
             try:
                 tree = ElementTree.fromstring(response.text)
                 audio = self._get_audio(tree)
@@ -106,8 +109,7 @@ class WebsterLearners(Dictionary):
                 definition = self._get_definition(tree)
                 transcription = self._get_transcription(tree)
             except ElementTree.ParseError:
-                audio = []
-                examples = definition = transcription = None
+                pass
 
             result = {
                 'pronunciation': audio[0] if len(audio) else None,
