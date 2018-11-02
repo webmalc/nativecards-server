@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     # Nativecards apps
     'nativecards',
     'cards',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -155,7 +156,7 @@ LOCALE_PATHS = (
     os.path.join(os.path.dirname(__file__), "app_locale"),
 )
 
-EMAIL_SUBJECT_PREFIX = '[Nativecards]: '
+EMAIL_SUBJECT_PREFIX = 'Nativecards: '
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
 INTERNAL_IPS = ['127.0.0.1']
 

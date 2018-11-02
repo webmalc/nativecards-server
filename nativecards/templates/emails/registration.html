@@ -1,0 +1,18 @@
+{% extends 'emails/base.html' %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Your registration was successful" %}
+{% endblock %}
+
+{% block content %}
+{% blocktrans %}
+    <p>Hello, {{ username }}!</p>
+    <p>Thank you for registering in 'Nativecards'!</p>
+    <p>To confirm your account, please follow the link: {{ url }}</p>
+    <p>Good luck in learning English.</p>
+
+{% endblocktrans %}
+
+{% endblock %}

@@ -8,10 +8,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from rest_framework.routers import SimpleRouter
-from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 from two_factor.urls import urlpatterns as tf_urls
 
 from cards.urls import router as cards_router
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+from users.urls import router as users_router
 
 from .routers import DefaultRouter
 from .views import SettingsViewSet
@@ -21,6 +22,7 @@ base_router.register(r'settings', SettingsViewSet, 'settings')
 
 router = DefaultRouter()
 router.extend(cards_router)
+router.extend(users_router)
 router.extend(base_router)
 
 urlpatterns = [

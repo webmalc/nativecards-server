@@ -64,6 +64,13 @@ p.paginator a:focus {
   background-color: #222 !important;
   color: #d3d3d3 !important;
 }
+.inline-related h3 {
+  background-color: #222 !important;
+  border: 0px !important;
+}
+.inline-related fieldset {
+  background-color: #242424 !important;
+}
 .add-row td {
   background-color: #222 !important;
   border: 0px !important;

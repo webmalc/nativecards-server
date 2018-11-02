@@ -1,0 +1,11 @@
+{% extends 'emails/base.html' %}
+{% load humanize %}
+{% load i18n %}
+
+{% block title %}
+    {% trans "Message from Nativecards" %}
+{% endblock %}
+
+{% block content %}
+    {{ text|safe }}
+{% endblock %}
