@@ -22,7 +22,7 @@ class UserAdmin(BaseUserAdmin):
     def is_verified(self, obj):
         return obj.profile.is_verified
 
-    is_verified.boolean = True
+    is_verified.boolean = True  # type: ignore
 
 
 admin.site.unregister(User)

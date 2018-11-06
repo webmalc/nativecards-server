@@ -4,7 +4,21 @@ import pytest
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+from cards.models import Deck
+
 pytestmark = pytest.mark.django_db
+
+
+def test_default_deck_creation():
+    user = User()
+    user.username = 'newtestuser@example.com'
+    user.email = 'newtestuser@example.com'
+    user.set_password('testpassword')
+    user.save()
+
+    deck = Deck.objects.get_default(user)
+    assert deck.title == 'main'
+    assert deck.is_default is True
 
 
 def test_user_get_by_user(client):
@@ -25,20 +39,87 @@ def test_user_get_by_admin(admin_client):
     }
 
 
-def test_user_register_by_user(admin_client, client, mailoutbox):
+def test_user_verification_by_user(client):
+    profile = User.objects.get(username='user@example.com').profile
+    profile.verification_code = 'b' * 100
+    profile.is_verified = False
+    profile.save()
+
+    data = json.dumps({'profile': 'a' * 60})
+    url = reverse('users-verification')
+    response = client.post(url, data=data, content_type="application/json")
+    assert response.status_code == 400
+    assert response.json() == {
+        'non_field_errors': ['Invalid verification token']
+    }
+
+    data = json.dumps({'profile': 'b' * 100})
+    url = reverse('users-verification')
+    response = client.post(url, data=data, content_type="application/json")
+
+    assert response.status_code == 200
+    assert response.json() == {'status': True}
+    profile.refresh_from_db()
+    assert profile.is_verified is True
+    assert profile.verification_code is None
+
+
+def test_user_change_password_by_user(client):
+    data = json.dumps({'password': '123456', 'password_two': '654321'})
+    response = client.patch(
+        reverse('users-password'), data=data, content_type="application/json")
+    assert response.status_code == 401
+
+
+def test_user_change_password_by_admin(admin_client):
+    data = json.dumps({'password': '12345678', 'password_two': '87654321'})
+    url = reverse('users-password')
+    response = admin_client.patch(
+        url, data=data, content_type="application/json")
+    assert response.status_code == 400
+    assert response.json() == {
+        'password':
+        ['This password is too common.', 'This password is entirely numeric.']
+    }
+
+    data = json.dumps({
+        'password': 'hard120password',
+        'password_two': 'hard121password'
+    })
+    response = admin_client.patch(
+        url, data=data, content_type="application/json")
+    assert response.status_code == 400
+    assert response.json() == {'non_field_errors': ["Passwords don't match."]}
+
+    data = json.dumps({
+        'password': 'hard121password',
+        'password_two': 'hard121password'
+    })
+    response = admin_client.patch(
+        url, data=data, content_type="application/json")
+    assert response.status_code == 200
+
+    user = User.objects.get(username='admin')
+    assert response.json() == {'status': True}
+    assert user.check_password('hard121password') is True
+
+
+def test_user_register_by_user(client, mailoutbox):
     data = json.dumps({
         'email': 'admin@example.com',
         'password_new': 'password'
     })
-    response = admin_client.post(
+    response = client.post(
         reverse('users-register'), data=data, content_type="application/json")
     assert response.status_code == 400
-    assert response.json() == [{
-        'email': ['A user with that email already exists.']
-    }]
+    assert response.json() == {
+        'non_field_errors': [{
+            'email': ['A user with that email already exists.']
+        }]
+    }
 
     data = json.dumps({'email': 'newuser@example.com', 'password_new': '12'})
-    response = admin_client.post(
+    response = client.post(
         reverse('users-register'), data=data, content_type="application/json")
 
     assert response.status_code == 400
@@ -54,7 +135,7 @@ It must contain at least 8 characters.', 'This password is too common.',
         'email': 'newuser@example.com',
         'password_new': 'super_password'
     })
-    response = admin_client.post(
+    response = client.post(
         reverse('users-register'), data=data, content_type="application/json")
 
     assert response.status_code == 201
@@ -92,3 +173,7 @@ It must contain at least 8 characters.', 'This password is too common.',
     assert 'Your registration was successful' in mail.alternatives[0][0]
     assert user.profile.verification_code in mail.alternatives[0][0]
     assert user.username in mail.alternatives[0][0]
+
+    deck = Deck.objects.get_default(user)
+    assert deck.title == 'main'
+    assert deck.is_default is True
