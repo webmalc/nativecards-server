@@ -2,9 +2,33 @@ import json
 
 import pytest
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.test import TestCase
 from django.urls import reverse
 
+from nativecards.lib.settings import clear_mermory_cache, get
+from nativecards.models import Settings
+
 pytestmark = pytest.mark.django_db
+
+
+class CalcTestCase(TestCase):
+    def test_calc_api_cache(self):
+        admin = User.objects.get(username='admin')
+        clear_mermory_cache(admin)
+        with self.assertNumQueries(2):
+            assert get('attempts_to_remember', admin) == 10
+        with self.assertNumQueries(0):
+            assert get('attempts_to_remember', admin) == 10
+
+        settings = Settings.objects.get_by_user(admin)
+        settings.attempts_to_remember = 5
+        settings.save()
+
+        with self.assertNumQueries(1):
+            assert get('attempts_to_remember', admin) == 5
+        with self.assertNumQueries(0):
+            assert get('attempts_to_remember', admin) == 5
 
 
 def test_settings_get_by_user(client):

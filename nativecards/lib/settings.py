@@ -7,6 +7,9 @@ RELOAD = False  # type: ignore
 
 
 def get(id: str, user=None):
+    """
+    Get settings
+    """
     default = getattr(settings, 'NC_' + id.upper(), None)
     if user:
         if user.id not in SETTINGS or RELOAD:
@@ -14,3 +17,10 @@ def get(id: str, user=None):
             SETTINGS[user.id] = user_settings
         return getattr(SETTINGS[user.id], id, default)
     return default
+
+
+def clear_mermory_cache(user):
+    """
+    Clear user settings in-memory cache
+    """
+    return SETTINGS.pop(user.id, None)

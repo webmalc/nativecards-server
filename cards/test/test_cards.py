@@ -3,7 +3,6 @@ import json
 import pytest
 from django.urls import reverse
 
-import nativecards.lib.settings as config
 from cards.models import Card
 from nativecards.models import Settings
 
@@ -192,7 +191,6 @@ def test_cards_lesson_by_user(client):
 
 
 def test_cards_lesson_by_admin(admin_client, admin):
-    config.RELOAD = True
     settings = Settings.objects.get_by_user(admin)
     settings.lesson_latest_days = 1
     settings.save()

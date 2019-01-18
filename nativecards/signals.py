@@ -2,12 +2,22 @@ from django.core.cache import cache
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
-from .models import CachedModel
+from nativecards.lib.settings import clear_mermory_cache
+
+from .models import CachedModel, Settings
 
 
 def _clear_cache(instance):
     if isinstance(instance, CachedModel):
         cache.clear()
+
+
+@receiver(post_save, sender=Settings, dispatch_uid='settings_post_save')
+def settings_post_save(sender, **kwargs):
+    """
+    Settings post save
+    """
+    clear_mermory_cache(kwargs['instance'].created_by)
 
 
 @receiver(post_save, dispatch_uid='cached_model_post_save')

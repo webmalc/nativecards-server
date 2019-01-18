@@ -60,7 +60,7 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
         default=settings.NC_CARDS_PER_LESSON,
         verbose_name=_('cards per lesson'),
         help_text=_('number of cards to study per the lesson'),
-        validators=[MinValueValidator(5),
+        validators=[MinValueValidator(1),
                     MaxValueValidator(50)])
     cards_to_repeat = models.PositiveIntegerField(
         default=settings.NC_CARDS_TO_REPEAT,
