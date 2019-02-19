@@ -1,7 +1,3 @@
-from copy import deepcopy
-from random import choice, shuffle
-
-from django.conf import settings
 from django_filters import rest_framework as filters
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -13,6 +9,7 @@ from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
 
+from .lesson import LessonGenerator
 from .models import Attempt, Card, Deck
 from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
 
@@ -71,41 +68,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
     @action(detail=False, methods=['get'])
     def lesson(self, request):
-        is_latest = bool(int(request.GET.get('is_latest', 0)))
-        speak = bool(int(request.GET.get('speak', 0)))
-        deck = request.GET.get('deck')
-        category = request.GET.get('category')
-
-        manager = Card.objects
-        new_cards = manager.get_lesson_new_cards(
-            is_latest,
-            request.user,
-            deck,
-            category,
-        )
-        old_cards = manager.get_lesson_learned_cards(request.user)
-        random_words = manager.get_random_words(request.user)
-
-        new_cards_data = self.get_serializer(new_cards, many=True).data
-        old_cards_data = self.get_serializer(old_cards, many=True).data
-        cards = new_cards_data * settings.NC_CARDS_REPEAT_IN_LESSON
-        cards += old_cards_data
-
-        forms = [f[0] for f in Attempt.FORMS]
-        if not speak:
-            forms.remove('speak')
-
-        result = []
-        for w in cards:
-            w['form'] = choice(forms)
-            w['choices'] = manager.select_random_words(
-                words=random_words,
-                additional=w['word'],
-            )
-            result.append(deepcopy(w))
-        shuffle(result)
-
-        return Response(result)
+        lesson = LessonGenerator(request, self.get_serializer)
+        return Response(lesson.get_lesson_cards())
 
 
 class AttemptViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
