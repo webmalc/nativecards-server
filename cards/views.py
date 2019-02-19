@@ -22,7 +22,7 @@ class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
                      'created_by__email', 'created_by__last_name')
 
     serializer_class = DeckSerializer
-    filter_fields = ('is_default', 'is_enabled', 'created')
+    filterset_fields = ('is_default', 'is_enabled', 'created')
 
     def get_queryset(self):
         return self.filter_by_user(Deck.objects.all())
@@ -48,7 +48,7 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
                      'created_by__last_name')
 
     serializer_class = CardSerializer
-    filter_class = CardFilter
+    filterset_class = CardFilter
 
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')
@@ -115,7 +115,7 @@ class AttemptViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
                      'created_by__email', 'created_by__last_name')
 
     serializer_class = AttemptSerializer
-    filter_fields = ('is_correct', 'is_hint', 'created_by', 'created')
+    filterset_fields = ('is_correct', 'is_hint', 'created_by', 'created')
 
     def get_queryset(self):
         return self.filter_by_user(Attempt.objects.all())
