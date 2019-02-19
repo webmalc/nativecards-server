@@ -1,3 +1,6 @@
+from time import time_ns
+
+from django.contrib.auth.models import User
 from django.db import models
 
 from users import models as user_models
@@ -17,3 +20,21 @@ class ProfileManager(models.Manager):
                 verification_code=code, is_verified=False)
         except user_models.Profile.DoesNotExist:  # ignore
             return None
+
+    @staticmethod
+    def create_user(email: str, password: str) -> User:
+        """
+        Create a user account by email
+        """
+        user = User()
+        user.username = email
+        user.email = email
+        user.set_password(password)
+        user.full_clean()
+        user.save()
+        code = User.objects.make_random_password(60) + str(time_ns())
+        user.profile.verification_code = code
+        user.profile.is_verified = False
+        user.profile.save()
+
+        return user

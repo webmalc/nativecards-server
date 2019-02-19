@@ -5,9 +5,8 @@ from django.core.cache import cache
 
 def cache_result(key):
     """
-    Save function result in cache
+    Save function result in the cache
     key - cache key
-    timeout - cache timeout in seconds
     """
 
     def cache_decorator(func):

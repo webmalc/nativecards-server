@@ -1,15 +1,13 @@
-from time import time_ns
-
 from django.contrib.auth.models import User
 from django.core.validators import ValidationError
 from rest_framework import serializers, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_jwt.settings import api_settings
 
-from nativecards.lib.messengers import mailer
-
+from .jwt import get_user_token
+from .mailer import send_registration_email
+from .managers import ProfileManager
 from .serializers import (PasswordSerializer, UserSerializer,
                           VerificationSerializer)
 
@@ -67,38 +65,17 @@ class UsersViewSet(viewsets.GenericViewSet):
         email = data['email']
         password = data['password_new']
 
-        user = User()
-        user.username = email
-        user.email = email
-        user.set_password(password)
         try:
-            user.full_clean()
-            user.save()
-            code = User.objects.make_random_password(60) + str(time_ns())
-            user.profile.verification_code = code
-            user.profile.is_verified = False
-            user.profile.save()
-
+            user = ProfileManager.create_user(email, password)
         except ValidationError as error:
             raise serializers.ValidationError(error)
 
-        mailer.mail_user(
-            subject='Welcome to Nativecards',
-            template='emails/registration.html',
-            data={
-                'url': code,
-                'username': user.username
-            },
-            user=user)
-
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
+        send_registration_email(user)
 
         return Response(
             {
                 'status': True,
-                'token': token
-            }, status=status.HTTP_201_CREATED)
+                'token': get_user_token(user),
+            },
+            status=status.HTTP_201_CREATED,
+        )
