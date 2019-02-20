@@ -57,6 +57,23 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
                   'created_by', 'modified_by')
 
 
+class LessonCardSerializer(CardSerializer):
+    """
+    The card serializer for the user lesson
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['form'] = serializers.CharField(read_only=True)
+        self.fields['choices'] = serializers.ListField(
+            child=serializers.CharField(),
+            read_only=True,
+        )
+
+    class Meta(CardSerializer.Meta):
+        pass
+
+
 class AttemptSerializer(serializers.HyperlinkedModelSerializer,
                         UserSerializerMixin):
     """

@@ -11,7 +11,8 @@ from nativecards.viewsets import UserViewSetMixin
 
 from .lesson import LessonGenerator
 from .models import Attempt, Card, Deck
-from .serializers import AttemptSerializer, CardSerializer, DeckSerializer
+from .serializers import (AttemptSerializer, CardSerializer, DeckSerializer,
+                          LessonCardSerializer)
 
 
 class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
@@ -40,12 +41,16 @@ class CardFilter(filters.FilterSet):
 
 
 class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
-    search_fields = ('=id', 'word', 'definition', 'translation', 'examples',
-                     'created_by__username', 'created_by__email',
-                     'created_by__last_name')
+    search_fields = ('=id', 'word', 'translation', 'created_by__username',
+                     'created_by__email', 'created_by__last_name')
 
     serializer_class = CardSerializer
     filterset_class = CardFilter
+
+    def get_serializer_class(self):
+        if self.action == 'lesson':
+            return LessonCardSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         return self.filter_by_user(Card.objects.all()).select_related('deck')
@@ -68,8 +73,9 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
     @action(detail=False, methods=['get'])
     def lesson(self, request):
-        lesson = LessonGenerator(request, self.get_serializer)
-        return Response(lesson.get_lesson_cards())
+        lesson = LessonGenerator(request)
+        return Response(
+            self.get_serializer(lesson.get_lesson_cards(), many=True).data)
 
 
 class AttemptViewSet(mixins.CreateModelMixin, mixins.ListModelMixin,
