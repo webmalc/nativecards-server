@@ -56,6 +56,8 @@ class CardManager(LookupMixin):
             user,
             deck_id: int = None,
             category: str = None,
+            complete_gt: int = None,
+            ordering: str = None,
     ) -> list:
         """
         Get the new cards for a lesson
@@ -63,6 +65,10 @@ class CardManager(LookupMixin):
         query = self.filter(
             created_by=user, complete__lt=100).select_related(
                 'created_by', 'modified_by', 'deck').order_by('?')
+        if ordering:
+            query = query.order_by(ordering)
+        if complete_gt:
+            query = query.filter(complete__gt=complete_gt)
         if deck_id:
             query = query.filter(deck_id=deck_id)
         if category:

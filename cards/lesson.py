@@ -14,16 +14,29 @@ class LessonGenerator(object):
     Class for generating the user lesson
     """
 
+    ORDERING = [
+        'complete',
+        'priority',
+        'created',
+    ]
+
     def __init__(self, request: HttpRequest, serializer) -> None:
         self.request = request
         self.user = self.request.user
         self.serializer = serializer
+        self.manager = Card.objects
+        self._set_filter_params_from_query()
+        self.attempt_forms = self._get_attempt_forms()
+
+    def _set_filter_params_from_query(self):
         self.is_latest = bool(int(self.request.GET.get('is_latest', 0)))
         self.speak = bool(int(self.request.GET.get('speak', 0)))
-        self.deck = self.request.GET.get('deck')
+        self.complete_gt = self.request.GET.get('complete__gt')
+        ordering = self.request.GET.get('ordering')
+        self.ORDERING.extend(['-' + v for v in self.ORDERING])
+        self.ordering = ordering if ordering in self.ORDERING else None
+        self.deck_id = self.request.GET.get('deck')
         self.category = self.request.GET.get('category')
-        self.manager = Card.objects
-        self.attempt_forms = self._get_attempt_forms()
 
     def _get_attempt_forms(self):
         """
@@ -39,10 +52,12 @@ class LessonGenerator(object):
         Get cards objects for the lesson
         """
         new_cards = self.manager.get_lesson_new_cards(
-            self.is_latest,
-            self.user,
-            self.deck,
-            self.category,
+            is_latest=self.is_latest,
+            user=self.user,
+            deck_id=self.deck_id,
+            category=self.category,
+            complete_gt=self.complete_gt,
+            ordering=self.ordering,
         )
         old_cards = self.manager.get_lesson_learned_cards(self.user)
 

@@ -190,10 +190,48 @@ def test_cards_lesson_by_user(client):
     assert response.status_code == 401
 
 
-def test_cards_lesson_by_admin(admin_client, admin):
+def test_cards_lesson_ordered(admin_client, admin):
+    settings = Settings.objects.get_by_user(admin)
+    settings.cards_per_lesson = 1
+    settings.save()
+    response = admin_client.get(
+        reverse('cards-lesson') + '?deck=1&ordering=-priority')
+    assert response.status_code == 200
+    data_ordered = response.json()
+
+    assert min([d['priority'] for d in data_ordered]) > 1
+
+
+def test_cards_lesson_priority(admin_client, admin):
+    response = admin_client.get(
+        reverse('cards-lesson') + '?deck=1&complete__gt=49&ordering=invalid')
+    assert response.status_code == 200
+    data_complete_gt = response.json()
+
+    assert min([d['complete'] for d in data_complete_gt]) > 49
+
+
+def test_cards_lesson_latest_days(admin_client, admin):
     settings = Settings.objects.get_by_user(admin)
     settings.lesson_latest_days = 1
     settings.save()
+
+    Card.objects.create(word='new word', created_by=admin, deck_id=1)
+    Card.objects.create(
+        word='completed word', created_by=admin, complete=100, deck_id=1)
+
+    response = admin_client.get(reverse('cards-lesson') + '?is_latest=1')
+    assert response.status_code == 200
+    data_latest = response.json()
+
+    words = [d['word'] for d in data_latest]
+    words.sort()
+
+    assert len(data_latest) == 4
+    assert set(words) == {'completed word', 'new word'}
+
+
+def test_cards_lesson_by_admin(admin_client, admin):
 
     response = admin_client.get(reverse('cards-lesson') + '?deck=1')
     assert response.status_code == 200
@@ -203,18 +241,7 @@ def test_cards_lesson_by_admin(admin_client, admin):
     assert response.status_code == 200
     data_two = response.json()
 
-    Card.objects.create(word='new word', created_by=admin, deck_id=1)
-    Card.objects.create(
-        word='completed word', created_by=admin, complete=100, deck_id=1)
-    response = admin_client.get(reverse('cards-lesson') + '?is_latest=1')
-    assert response.status_code == 200
-    data_latest = response.json()
-    words = [d['word'] for d in data_latest]
-    words.sort()
-
     assert len(data_one) == 6
     assert len(data_two) == 6
     assert data_one[0]['word'] in data_one[0]['choices']
     assert data_one != data_two
-    assert len(data_latest) == 4
-    assert set(words) == {'completed word', 'new word'}
