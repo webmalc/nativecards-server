@@ -1,3 +1,7 @@
+"""
+Lesson module
+"""
+
 from copy import deepcopy
 from random import choice, shuffle
 from typing import List
@@ -8,7 +12,7 @@ from django.http import HttpRequest
 from .models import Attempt, Card
 
 
-class LessonGenerator(object):
+class LessonGenerator():
     """
     Class for generating the list of card for the user lesson
     """
@@ -29,7 +33,8 @@ class LessonGenerator(object):
     def _set_filter_params_from_query(self):
         self.is_latest = bool(int(self.request.GET.get('is_latest', 0)))
         self.speak = bool(int(self.request.GET.get('speak', 0)))
-        self.complete_gt = self.request.GET.get('complete__gt')
+        self.complete_gte = self.request.GET.get('complete__gte')
+        self.complete_lte = self.request.GET.get('complete__lte')
         ordering = self.request.GET.get('ordering')
         self.ORDERING.extend(['-' + v for v in self.ORDERING])
         self.ordering = ordering if ordering in self.ORDERING else None
@@ -55,7 +60,8 @@ class LessonGenerator(object):
                 user=self.user,
                 deck_id=self.deck_id,
                 category=self.category,
-                complete_gt=self.complete_gt,
+                complete_lte=self.complete_lte,
+                complete_gte=self.complete_gte,
                 ordering=self.ordering,
             ))
         old_cards = list(self.manager.get_lesson_learned_cards(self.user))

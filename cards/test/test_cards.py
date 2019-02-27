@@ -202,13 +202,22 @@ def test_cards_lesson_ordered(admin_client, admin):
     assert min([d['priority'] for d in data_ordered]) > 1
 
 
-def test_cards_lesson_priority(admin_client, admin):
+def test_cards_lesson_priority_gte(admin_client, admin):
     response = admin_client.get(
-        reverse('cards-lesson') + '?deck=1&complete__gt=49&ordering=invalid')
+        reverse('cards-lesson') + '?deck=1&complete__gte=49&ordering=invalid')
     assert response.status_code == 200
-    data_complete_gt = response.json()
+    data = response.json()
 
-    assert min([d['complete'] for d in data_complete_gt]) > 49
+    assert min([d['complete'] for d in data]) > 49
+
+
+def test_cards_lesson_priority_lte(admin_client, admin):
+    response = admin_client.get(
+        reverse('cards-lesson') + '?deck=1&complete__lte=30&ordering=invalid')
+    assert response.status_code == 200
+    data = response.json()
+
+    assert max([d['complete'] for d in data]) < 30
 
 
 def test_cards_lesson_latest_days(admin_client, admin):
@@ -245,3 +254,17 @@ def test_cards_lesson_by_admin(admin_client, admin):
     assert len(data_two) == 6
     assert data_one[0]['word'] in data_one[0]['choices']
     assert data_one != data_two
+
+
+def test_cards_lesson_not_include_completed_cards(admin_client, admin):
+    settings = Settings.objects.get_by_user(admin)
+    settings.cards_to_repeat = 0
+    settings.save()
+    Card.objects.create(word='new word', created_by=admin, deck_id=1)
+    Card.objects.create(
+        word='completed word', created_by=admin, complete=100, deck_id=1)
+    response = admin_client.get(reverse('cards-lesson') + '?deck=1')
+    assert response.status_code == 200
+    data = response.json()
+
+    assert max([d['complete'] for d in data]) < 100
