@@ -66,6 +66,16 @@ def test_cards_list_by_admin(admin_client):
     assert data[0]['definition'] == 'word one definition'
 
 
+def test_cards_list_word_starts_with(admin_client, admin):
+    Card.objects.create(word='ord', created_by=admin, deck_id=1)
+    response = admin_client.get(
+        reverse('cards-list') + '?word_starts=ord&ordering=id')
+    assert response.status_code == 200
+    data = response.json()['results']
+    assert len(data) == 1
+    assert data[0]['word'] == 'ord'
+
+
 def test_cards_list_filter_by_admin(admin_client):
     response = admin_client.get(
         reverse('cards-list') + '?ordering=id&complete__lte=20')

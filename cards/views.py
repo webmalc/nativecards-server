@@ -33,6 +33,9 @@ class CardFilter(filters.FilterSet):
     complete__lte = filters.NumberFilter(
         field_name='complete', label='complete less', lookup_expr='lte')
 
+    word_starts = filters.CharFilter(
+        field_name='word', label='word starts with', lookup_expr='istartswith')
+
     class Meta:
         model = Card
         fields = ('deck', 'priority', 'category', 'complete', 'complete__gte',
