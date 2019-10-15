@@ -22,10 +22,11 @@ class Lingualeo(Translate):
     """
     Lingualeo translation class
     """
-    url = 'https://api.lingualeo.com/gettranslates?word='
+    url = 'https://api.lingualeo.com/gettranslates?port=1001&word='
 
     def translate(self, word: str) -> list:
         result = requests.get(self.url + word.lower())
+
         if result.status_code == 200:
             data = result.json()
             if 'error_msg' in data and data['error_msg']:
@@ -43,5 +44,6 @@ def translate(word) -> object:
     """
     if not word:
         return {'error': 'The word parameter not found.'}
+
     trans = Lingualeo()
     return {'translation': ', '.join(trans.translate(word))}
