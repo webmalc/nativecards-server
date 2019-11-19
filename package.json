@@ -4,7 +4,7 @@
     "description": "The backend server for Nativecards app",
     "main": "index.js",
     "dependencies": {
-        "jquery": "^3.2.1"
+        "jquery": ">=3.4.0"
     },
     "devDependencies": {},
     "scripts": {
