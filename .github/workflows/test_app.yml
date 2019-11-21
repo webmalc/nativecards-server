@@ -1,4 +1,4 @@
-name: Python application
+name: Nativecards backend testing
 
 on: [push]
 
@@ -42,10 +42,10 @@ jobs:
         pip install -r requirements_dev.txt
     - name: Run the database migration
       run: |
-        manage.py migrate --no-input
+        python manage.py migrate --no-input
     - name: Run compilemessages
       run: |
-        manage.py compilemessages
+        python manage.py compilemessages
     - name: Test the app
       run: |
         pytest --pep8 --flakes
