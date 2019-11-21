@@ -11,7 +11,7 @@ jobs:
       postgres:
         image: postgres
         ports: ["5432:5432"]
-        environments:
+        env:
           POSTGRES_DB: nativecards 
           POSTGRES_USER: postgres 
           POSTGRES_PASSWORD: postgres
