@@ -21,7 +21,8 @@ jobs:
         python-version: 3.7
     - name: Install environments
       run: |
-          sudo apt-get update; apt-get install -y gettext sqlite3 libsqlite3-dev;
+          sudo apt-get update
+          sudo apt-get install -y gettext sqlite3 libsqlite3-dev
           cp -n nativecards/settings/.env_dist nativecards/settings/.env
           cp -n nativecards/settings/.env_test_dist nativecards/settings/.env_test
     - name: Install dependencies
