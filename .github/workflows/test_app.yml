@@ -8,6 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     
     services: 
+      postgres:
+        image: postgres
+        ports: ["5432:5432"]
+        environments:
+          POSTGRES_DB: nativecards 
+          POSTGRES_USER: postgres 
+          POSTGRES_PASSWORD: postgres
       redis: 
         image: redis
       memcached: 
@@ -33,9 +40,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements_dev.txt
+    - name: Run the database migration
+      run: |
+        manage.py migrate --no-input
     - name: Run compilemessages
       run: |
-        python manage.py compilemessages
+        manage.py compilemessages
     - name: Test the app
       run: |
         pytest --pep8 --flakes
