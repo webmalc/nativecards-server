@@ -43,9 +43,6 @@ jobs:
     - name: Run the database migration
       run: |
         python manage.py migrate --no-input
-    - name: Run compilemessages
-      run: |
-        python manage.py compilemessages
     - name: Test the app
       run: |
         pytest --pep8 --flakes
