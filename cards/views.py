@@ -27,14 +27,17 @@ class DeckViewSet(CacheResponseMixin, viewsets.ModelViewSet, UserViewSetMixin):
 
 
 class CardFilter(filters.FilterSet):
-    complete__gte = filters.NumberFilter(
-        field_name='complete', label='complete greater', lookup_expr='gte')
+    complete__gte = filters.NumberFilter(field_name='complete',
+                                         label='complete greater',
+                                         lookup_expr='gte')
 
-    complete__lte = filters.NumberFilter(
-        field_name='complete', label='complete less', lookup_expr='lte')
+    complete__lte = filters.NumberFilter(field_name='complete',
+                                         label='complete less',
+                                         lookup_expr='lte')
 
-    word_starts = filters.CharFilter(
-        field_name='word', label='word starts with', lookup_expr='istartswith')
+    word_starts = filters.CharFilter(field_name='word',
+                                     label='word starts with',
+                                     lookup_expr='istartswith')
 
     class Meta:
         model = Card
