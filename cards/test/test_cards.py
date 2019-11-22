@@ -4,6 +4,7 @@ import pytest
 from django.urls import reverse
 
 from cards.models import Card
+from cards.views import get_images, synonyms
 from nativecards.models import Settings
 
 pytestmark = pytest.mark.django_db
@@ -17,8 +18,8 @@ def test_cards_get_random_words(admin):
     assert len(words) == 2
 
     random_words = Card.objects.get_random_words(admin)
-    words = Card.objects.select_random_words(
-        words=random_words, additional='additional')
+    words = Card.objects.select_random_words(words=random_words,
+                                             additional='additional')
     assert len(words) == 2
 
     for i in range(10):
@@ -30,8 +31,8 @@ def test_cards_get_random_words(admin):
         card.save()
 
     words = Card.objects.select_random_words(admin, additional='additional')
-    words_next = Card.objects.select_random_words(
-        admin, additional='additional')
+    words_next = Card.objects.select_random_words(admin,
+                                                  additional='additional')
     assert len(words) == 4
     assert words != words_next
 
@@ -117,8 +118,9 @@ def test_cards_create_by_admin(admin_client):
         'definition': 'test word definition',
         'remote_image': 'https://via.placeholder.com/550x400'
     })
-    response = admin_client.post(
-        reverse('cards-list'), data=data, content_type="application/json")
+    response = admin_client.post(reverse('cards-list'),
+                                 data=data,
+                                 content_type="application/json")
     data = response.json()
 
     assert data['word'] == 'new test word'
@@ -131,19 +133,39 @@ def test_cards_create_by_admin(admin_client):
 
 
 def test_cards_images_by_user(client):
+    """
+    Should return an authentication error
+    """
     response = client.get(reverse('cards-images'))
     assert response.status_code == 401
 
 
-def test_cards_images_by_admin(admin_client):
-    response = admin_client.get(reverse('cards-images'))
-    assert response.status_code == 200
-    assert response.json()['error'] == 'The word parameter not found.'
+def test_cards_images_by_admin(admin_client, mocker):
+    """
+    Should return a JSON response with images information
+    """
+    with mocker.patch(
+            'cards.views.get_images',
+            mocker.MagicMock(
+                return_value={'error': 'The word parameter not found.'})):
+        response = admin_client.get(reverse('cards-images'))
+        assert response.status_code == 200
+        assert response.json()['error'] == 'The word parameter not found.'
 
-    response = admin_client.get(reverse('cards-images') + '?word=dog')
-    assert response.status_code == 200
-    assert len(response.json()) == 5
-    assert 'previewURL' in response.json()[0]
+    with mocker.patch(
+            'cards.views.get_images',
+            mocker.MagicMock(return_value=[{
+                'previewURL': 'image1.png'
+            }, {
+                'previewURL': 'image2.png'
+            }, {
+                'previewURL': 'image3.png'
+            }])):
+
+        response = admin_client.get(reverse('cards-images') + '?word=dog')
+        assert response.status_code == 200
+        assert len(response.json()) == 3
+        assert response.json()[0]['previewURL'] == 'image1.png'
 
 
 def test_cards_translation_by_user(client):
@@ -162,37 +184,73 @@ def test_cards_translation_by_admin(admin_client):
 
 
 def test_cards_synonyms_by_user(client):
+    """
+    Should return an authentication error
+    """
     response = client.get(reverse('cards-synonyms'))
     assert response.status_code == 401
 
 
-def test_cards_synonyms_by_admin(admin_client):
-    response = admin_client.get(reverse('cards-synonyms'))
-    assert response.status_code == 200
-    assert response.json()['error'] == 'The word parameter not found.'
+def test_cards_synonyms_by_admin(admin_client, mocker):
+    """
+    Should return a JSON response with synonyms information
+    """
 
-    response = admin_client.get(reverse('cards-synonyms') + '?word=love')
-    assert response.status_code == 200
-    assert 'beloved' in response.json()['synonyms']
-    assert 'hate' in response.json()['antonyms']
+    with mocker.patch(
+            'cards.views.synonyms',
+            mocker.MagicMock(
+                return_value={'error': 'The word parameter not found.'})):
+        response = admin_client.get(reverse('cards-synonyms'))
+        assert response.status_code == 200
+        assert response.json()['error'] == 'The word parameter not found.'
+
+    with mocker.patch(
+            'cards.views.synonyms',
+            mocker.MagicMock(return_value={
+                'synonyms': 'beloved, word',
+                'antonyms': 'hate, word'
+            })):
+        response = admin_client.get(reverse('cards-synonyms') + '?word=love')
+        assert response.status_code == 200
+        assert 'beloved' in response.json()['synonyms']
+        assert 'hate' in response.json()['antonyms']
 
 
 def test_cards_definition_by_user(client):
+    """
+    Should return an authentication error
+    """
     response = client.get(reverse('cards-definition'))
     assert response.status_code == 401
 
 
-def test_cards_definition_by_admin(admin_client):
-    response = admin_client.get(reverse('cards-definition'))
-    assert response.status_code == 200
-    assert response.json()['error'] == 'The word parameter not found.'
+def test_cards_definition_by_admin(admin_client, mocker):
+    """
+    Should return a JSON response with a definition
+    """
+    with mocker.patch(
+            'cards.views.definition',
+            mocker.MagicMock(
+                return_value={'error': 'The word parameter not found.'})):
+        response = admin_client.get(reverse('cards-definition'))
+        assert response.status_code == 200
+        assert response.json()['error'] == 'The word parameter not found.'
 
-    response = admin_client.get(reverse('cards-definition') + '?word=dog')
-    assert response.status_code == 200
-    assert '.wav' in response.json()['pronunciation']
-    assert '*dog*' in response.json()['examples']
-    assert 'animal' in response.json()['definition']
-    assert "ˈdɑ:g" in response.json()['transcription']
+    with mocker.patch(
+            'cards.views.definition',
+            mocker.MagicMock(
+                return_value={
+                    'pronunciation': 'test.wav',
+                    'examples': '*dog*',
+                    'definition': 'favorite animal',
+                    'transcription': 'ˈdɑ:g',
+                })):
+        response = admin_client.get(reverse('cards-definition') + '?word=dog')
+        assert response.status_code == 200
+        assert '.wav' in response.json()['pronunciation']
+        assert '*dog*' in response.json()['examples']
+        assert 'animal' in response.json()['definition']
+        assert "ˈdɑ:g" in response.json()['transcription']
 
 
 def test_cards_lesson_by_user(client):
@@ -236,8 +294,10 @@ def test_cards_lesson_latest_days(admin_client, admin):
     settings.save()
 
     Card.objects.create(word='new word', created_by=admin, deck_id=1)
-    Card.objects.create(
-        word='completed word', created_by=admin, complete=100, deck_id=1)
+    Card.objects.create(word='completed word',
+                        created_by=admin,
+                        complete=100,
+                        deck_id=1)
 
     response = admin_client.get(reverse('cards-lesson') + '?is_latest=1')
     assert response.status_code == 200
@@ -271,8 +331,10 @@ def test_cards_lesson_not_include_completed_cards(admin_client, admin):
     settings.cards_to_repeat = 0
     settings.save()
     Card.objects.create(word='new word', created_by=admin, deck_id=1)
-    Card.objects.create(
-        word='completed word', created_by=admin, complete=100, deck_id=1)
+    Card.objects.create(word='completed word',
+                        created_by=admin,
+                        complete=100,
+                        deck_id=1)
     response = admin_client.get(reverse('cards-lesson') + '?deck=1')
     assert response.status_code == 200
     data = response.json()
