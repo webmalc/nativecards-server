@@ -1,10 +1,12 @@
+"""
+The test module for the cards application
+"""
 import json
 
 import pytest
 from django.urls import reverse
 
 from cards.models import Card
-from cards.views import get_images, synonyms
 from nativecards.models import Settings
 
 pytestmark = pytest.mark.django_db
