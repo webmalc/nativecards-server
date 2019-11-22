@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
-from nativecards.lib.dictionary import definition, get_synonyms
+from nativecards.lib.dictionary import get_defenition, get_synonyms
 from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
@@ -75,7 +75,7 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
 
     @action(detail=False, methods=['get'])
     def definition(self, request):
-        return Response(definition(request.GET.get('word')))
+        return Response(get_defenition(request.GET.get('word')))
 
     @action(detail=False, methods=['get'])
     def lesson(self, request):

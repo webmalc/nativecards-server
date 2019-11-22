@@ -28,7 +28,7 @@ class Dictionary(ABC):
     """
 
     @abstractmethod
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         """
         Get the definition
         """
@@ -95,7 +95,7 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
 
@@ -130,7 +130,7 @@ class Oxford(Dictionary):
     id = settings.NC_OXFORD_ID
     key = settings.NC_OXFORD_KEY
 
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         url = self.url + '/entries/en/' + word.lower(
         ) + '/definitions;examples;pronunciations'
         result = requests.get(url,
@@ -175,14 +175,14 @@ class BigHugeThesaurus(Thesaurus):
 
 
 @cache_result('definition')
-def definition(word) -> object:
+def get_defenition(word) -> object:
     """
     Get the word's definition
     """
     if not word:
         return {'error': 'The word parameter not found.'}
     dictionary = WebsterLearners()
-    return dictionary.definition(word)
+    return dictionary.get_defenition(word)
 
 
 @cache_result('synonyms')
