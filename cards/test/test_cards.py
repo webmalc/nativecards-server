@@ -199,7 +199,7 @@ def test_cards_synonyms_by_admin(admin_client, mocker):
     """
 
     with mocker.patch(
-            'cards.views.synonyms',
+            'cards.views.get_synonyms',
             mocker.MagicMock(
                 return_value={'error': 'The word parameter not found.'})):
         response = admin_client.get(reverse('cards-synonyms'))
@@ -207,7 +207,7 @@ def test_cards_synonyms_by_admin(admin_client, mocker):
         assert response.json()['error'] == 'The word parameter not found.'
 
     with mocker.patch(
-            'cards.views.synonyms',
+            'cards.views.get_synonyms',
             mocker.MagicMock(return_value={
                 'synonyms': 'beloved, word',
                 'antonyms': 'hate, word'
