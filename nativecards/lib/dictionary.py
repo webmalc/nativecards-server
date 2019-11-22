@@ -15,7 +15,7 @@ class Thesaurus(ABC):
     """
 
     @abstractmethod
-    def synonyms(self, word: str):
+    def get_synonyms(self, word: str):
         """
         Get the synonyms
         """
@@ -133,11 +133,11 @@ class Oxford(Dictionary):
     def definition(self, word: str):
         url = self.url + '/entries/en/' + word.lower(
         ) + '/definitions;examples;pronunciations'
-        result = requests.get(
-            url, headers={
-                'app_id': self.id,
-                'app_key': self.key
-            })
+        result = requests.get(url,
+                              headers={
+                                  'app_id': self.id,
+                                  'app_key': self.key
+                              })
         if result.status_code == 200:
             data = result.json()
             # TODO: complete !!!
@@ -154,7 +154,7 @@ class BigHugeThesaurus(Thesaurus):
     url = 'http://words.bighugelabs.com/api/2'
     key = settings.NC_BIGHUGELABS_KEY
 
-    def synonyms(self, word: str):
+    def get_synonyms(self, word: str):
         url = '{}/{}/{}/json'.format(self.url, self.key, word.lower())
         response = requests.get(url)
         synonyms = antonyms = ''
@@ -186,11 +186,11 @@ def definition(word) -> object:
 
 
 @cache_result('synonyms')
-def synonyms(word) -> object:
+def get_synonyms(word) -> object:
     """
     Get the word's synonyms
     """
     if not word:
         return {'error': 'The word parameter not found.'}
     thesaurus = BigHugeThesaurus()
-    return thesaurus.synonyms(word)
+    return thesaurus.get_synonyms(word)
