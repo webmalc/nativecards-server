@@ -102,6 +102,8 @@ rest_client.txt
 #Project
 local_settings.py
 settings_local.py
+/nativecards/settings/.env
+/nativecards/settings/.env_test
 /nbproject/private/
 node_modules
 google_api_key.json
