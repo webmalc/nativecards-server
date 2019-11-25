@@ -291,8 +291,10 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES':
-    ('rest_framework.authentication.SessionAuthentication', )
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
 }
 
 if not DEBUG and ENV.list('LOGGING', default=False):  # pragma: no cover
@@ -312,6 +314,15 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60 * 24 * 7,
     'DEFAULT_CACHE_ERRORS': False,
     'DEFAULT_USE_CACHE': 'default'
+}
+
+# Simplejwt
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True
 }
 
 # Ckeditor

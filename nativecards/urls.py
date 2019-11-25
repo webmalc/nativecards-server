@@ -8,6 +8,8 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path
 from rest_framework.routers import SimpleRouter
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 from two_factor.urls import urlpatterns as tf_urls
 
 from cards.urls import router as cards_router
@@ -26,6 +28,12 @@ router.extend(base_router)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^api-token-auth/',
+            TokenObtainPairView.as_view(),
+            name='token_obtain_pair'),
+    re_path(r'^api-token-refresh/',
+            TokenRefreshView.as_view(),
+            name='token_refresh'),
     re_path(r'^markdownx/', include('markdownx.urls')),
     path(r'', include(tf_urls)),
 ]
