@@ -19,8 +19,7 @@ class UsersViewSet(viewsets.GenericViewSet):
     def get_permissions(self):
         if self.action in ['register', 'verification']:
             return (AllowAny(), )
-        else:
-            return super().get_permissions()
+        return super().get_permissions()
 
     def get_queryset(self):
         return User.objects.filter(pk=self.request.user.pk)

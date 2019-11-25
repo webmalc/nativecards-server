@@ -1,5 +1,5 @@
 """
-Django settings for nativecards project.
+Django settings for billing project.
 """
 
 import datetime
@@ -8,20 +8,45 @@ import os
 import raven
 from kombu import Queue
 
-try:
-    from .settings_local import *
-    from .settings_local import DEBUG
-    import psycopg2
-except ImportError:  # pragma: no cover
-    # Fall back to psycopg2cffi
-    from psycopg2cffi import compat
-    compat.register()
+from .env import ENV, ROOT
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SITE_ROOT = ROOT()
+BASE_DIR = SITE_ROOT
+
+DATABASES = {'default': ENV.db()}
+
+locals().update(ENV.email())
+DEFAULT_FROM_EMAIL = ENV.str('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = ENV.str('SERVER_EMAIL')
+
+ADMINS = [(x, x) for x in ENV.tuple('ADMINS')]
+MANAGERS = ADMINS
+
+SECRET_KEY = ENV.str('SECRET_KEY')
+ALLOWED_HOSTS = ENV.list('ALLOWED_HOSTS')
+
+DEBUG = ENV.bool('DEBUG')
+TEMPLATE_DEBUG = ENV.bool('TEMPLATE_DEBUG')
+TESTS = ENV.bool('TESTS', default=False)
+
+# Celery
+CELERY_LOGLEVEL = ENV.str('CELERY_LOGLEVEL')
+BROKER_URL = ENV.str('BROKER_URL')
+CELERY_RESULT_BACKEND = ENV.str('CELERY_RESULT_BACKEND')
+CELERY_ALWAYS_EAGER = ENV.bool('CELERY_ALWAYS_EAGER', default=False)
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = ENV.bool(
+    'CELERY_EAGER_PROPAGATES_EXCEPTIONS', default=False)
+if ENV.str('BROKER_BACKEND', default=None):
+    BROKER_BACKEND = ENV.str('BROKER_BACKEND')
+
+# Django-cors
+CORS_ORIGIN_ALLOW_ALL = ENV.bool('CORS_ORIGIN_ALLOW_ALL', default=False)
+CORS_ORIGIN_REGEX_WHITELIST = []
+for domain in ENV.list('CORS_ORIGIN_REGEX_WHITELIST', default=[]):
+    CORS_ORIGIN_REGEX_WHITELIST.append(
+        r'^(https?:\/\/)?([a-zA-Z0-9\-]+\.)?{}$'.format(domain))
 
 # Application definition
-
 INSTALLED_APPS = [
     'corsheaders',
     'raven.contrib.django.raven_compat',
@@ -53,6 +78,8 @@ INSTALLED_APPS = [
     'cards',
     'users',
 ]
+
+SITE_ID = 1
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -116,10 +143,15 @@ UserAttributeSimilarityValidator',
 ]
 
 LANGUAGE_CODE = 'en'
+
 LANGUAGES = (
     ('en', 'English'),
     ('ru', 'Russian'),
+    ('de', 'German'),
+    ('fr', 'French'),
+    ('tr', 'Turkish'),
 )
+MODELTRANSLATION_LANGUAGES = ('en', 'ru')
 
 TIME_ZONE = 'UTC'
 
@@ -129,28 +161,28 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.1/howto/static-files/
-
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
+
+INTERNAL_IPS = ['127.0.0.1']
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'billing/static'),
+    os.path.join(BASE_DIR, 'node_modules'),
+)
+
+STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'nativecards/static'),
     os.path.join(BASE_DIR, 'node_modules'),
 )
 
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-)
-
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'), )
+
 LOCALE_PATHS = (
     os.path.join(os.path.dirname(__file__), "locale"),
     os.path.join(os.path.dirname(__file__), "app_locale"),
@@ -158,7 +190,6 @@ LOCALE_PATHS = (
 
 EMAIL_SUBJECT_PREFIX = 'Nativecards: '
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
-INTERNAL_IPS = ['127.0.0.1']
 
 # Logs
 LOGGING = {
@@ -166,14 +197,13 @@ LOGGING = {
     'disable_existing_loggers': False,
     'root': {
         'level': 'WARNING',
-        'handlers': ['sentry'],  # , 'watchtower'],
+        'handlers': ENV.list('LOGGING', default=[])
     },
     'formatters': {
         'verbose': {
             'format':
             "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            'datefmt':
-            "%d/%b/%Y %H:%M:%S"
+            'datefmt': "%d/%b/%Y %H:%M:%S"
         },
         'simple': {
             'format': '%(levelname)s %(message)s'
@@ -221,6 +251,11 @@ LOGGING = {
     }
 }
 
+if not ENV.list('LOGGING', default=False):
+    LOGGING.pop('root', None)
+    LOGGING['loggers']['nativecards']['handlers'].remove('sentry')
+    del LOGGING['handlers']['sentry']
+
 # Two factor auth
 LOGIN_URL = 'two_factor:login'
 LOGOUT_URL = "admin:logout"
@@ -232,7 +267,6 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
-CELERY_ALWAYS_EAGER = False
 CELERY_APP = 'nativecards'
 CELERY_QUEUES = (
     Queue('default'),
@@ -240,7 +274,6 @@ CELERY_QUEUES = (
 )
 CELERY_DEFAULT_QUEUE = 'default'
 CELERYD_TASK_SOFT_TIME_LIMIT = 60 * 5
-# CELERYBEAT_SCHEDULE = {}
 
 # Django restframework
 REST_FRAMEWORK = {
@@ -265,26 +298,17 @@ REST_FRAMEWORK = {
     )
 }
 
-SITE_ID = 1
-
-if not DEBUG:  # pragma: no cover
+if not DEBUG and ENV.list('LOGGING', default=False):  # pragma: no cover
     # Sentry raven
     RAVEN_CONFIG = {
-        'dsn':
-        'https://52126dbda9494c668b7b9dff7722c901:\
+        'dsn': 'https://52126dbda9494c668b7b9dff7722c901:\
 31b56314232c436fb812b98568a5f589@sentry.io/200649',
-        'release':
-        raven.fetch_git_sha(os.path.dirname(os.pardir)),
+        'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
     }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-        'TIMEOUT': 60 * 60 * 24 * 7,
-        # 'LOCATION': 'unix:/tmp/memcached.sock',
-    }
-}
+# Cache
+CACHES = {'default': ENV.cache()}
+CACHES['default']['TIMEOUT'] = 60 * 60 * 24 * 7
 
 # DRM estensions
 REST_FRAMEWORK_EXTENSIONS = {
@@ -305,12 +329,3 @@ CKEDITOR_CONFIGS = {
         'toolbar': 'Basic',
     },
 }
-
-# Nativecards
-NC_IMAGE_WIDTH = 150
-NC_ATTEMPTS_TO_REMEMBER = 10
-NC_CARDS_PER_LESSON = 10
-NC_CARDS_TO_REPEAT = 5
-NC_LESSON_LATEST_DAYS = 21
-NC_LESSONS_PER_DAY = 2
-NC_CARDS_REPEAT_IN_LESSON = 3

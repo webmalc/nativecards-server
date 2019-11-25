@@ -15,7 +15,7 @@ class Thesaurus(ABC):
     """
 
     @abstractmethod
-    def synonyms(self, word: str):
+    def get_synonyms(self, word: str):
         """
         Get the synonyms
         """
@@ -28,7 +28,7 @@ class Dictionary(ABC):
     """
 
     @abstractmethod
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         """
         Get the definition
         """
@@ -95,7 +95,7 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
 
@@ -130,14 +130,14 @@ class Oxford(Dictionary):
     id = settings.NC_OXFORD_ID
     key = settings.NC_OXFORD_KEY
 
-    def definition(self, word: str):
+    def get_defenition(self, word: str):
         url = self.url + '/entries/en/' + word.lower(
         ) + '/definitions;examples;pronunciations'
-        result = requests.get(
-            url, headers={
-                'app_id': self.id,
-                'app_key': self.key
-            })
+        result = requests.get(url,
+                              headers={
+                                  'app_id': self.id,
+                                  'app_key': self.key
+                              })
         if result.status_code == 200:
             data = result.json()
             # TODO: complete !!!
@@ -154,7 +154,7 @@ class BigHugeThesaurus(Thesaurus):
     url = 'http://words.bighugelabs.com/api/2'
     key = settings.NC_BIGHUGELABS_KEY
 
-    def synonyms(self, word: str):
+    def get_synonyms(self, word: str):
         url = '{}/{}/{}/json'.format(self.url, self.key, word.lower())
         response = requests.get(url)
         synonyms = antonyms = ''
@@ -175,22 +175,22 @@ class BigHugeThesaurus(Thesaurus):
 
 
 @cache_result('definition')
-def definition(word) -> object:
+def get_defenition(word) -> object:
     """
     Get the word's definition
     """
     if not word:
         return {'error': 'The word parameter not found.'}
     dictionary = WebsterLearners()
-    return dictionary.definition(word)
+    return dictionary.get_defenition(word)
 
 
 @cache_result('synonyms')
-def synonyms(word) -> object:
+def get_synonyms(word) -> object:
     """
     Get the word's synonyms
     """
     if not word:
         return {'error': 'The word parameter not found.'}
     thesaurus = BigHugeThesaurus()
-    return thesaurus.synonyms(word)
+    return thesaurus.get_synonyms(word)
