@@ -1,30 +1,8 @@
-from django.contrib.auth.middleware import get_user
 from django.db.models import signals
 from django.urls import resolve
 from django.utils.deprecation import MiddlewareMixin
-from django.utils.functional import SimpleLazyObject, curry
+from django.utils.functional import curry
 from django.utils.translation import activate
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-
-
-class AuthenticationMiddlewareJWT(MiddlewareMixin):
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
-        request.user = SimpleLazyObject(
-            lambda: self.__class__.get_jwt_user(request))
-        return self.get_response(request)
-
-    @staticmethod
-    def get_jwt_user(request):
-        user = get_user(request)
-        if user.is_authenticated:
-            return user
-        jwt_authentication = JSONWebTokenAuthentication()
-        if jwt_authentication.get_jwt_value(request):
-            user, jwt = jwt_authentication.authenticate(request)
-        return user
 
 
 class DisableAdminI18nMiddleware(MiddlewareMixin):
@@ -51,13 +29,12 @@ class WhodidMiddleware(MiddlewareMixin):
                 user = None
 
             mark_whodid = curry(self.mark_whodid, user)
-            signals.pre_save.connect(
-                mark_whodid,
-                dispatch_uid=(
-                    self.__class__,
-                    request,
-                ),
-                weak=False)
+            signals.pre_save.connect(mark_whodid,
+                                     dispatch_uid=(
+                                         self.__class__,
+                                         request,
+                                     ),
+                                     weak=False)
 
     def process_response(self, request, response):
         signals.pre_save.disconnect(dispatch_uid=(

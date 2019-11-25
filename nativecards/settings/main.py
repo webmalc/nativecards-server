@@ -95,7 +95,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'nativecards.middleware.DisableAdminI18nMiddleware',
-    'nativecards.middleware.AuthenticationMiddlewareJWT',
     'nativecards.middleware.WhodidMiddleware',
     'reversion.middleware.RevisionMiddleware',
 ]
@@ -292,10 +291,8 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    )
+    'DEFAULT_AUTHENTICATION_CLASSES':
+    ('rest_framework.authentication.SessionAuthentication', )
 }
 
 if not DEBUG and ENV.list('LOGGING', default=False):  # pragma: no cover
@@ -315,12 +312,6 @@ REST_FRAMEWORK_EXTENSIONS = {
     'DEFAULT_CACHE_RESPONSE_TIMEOUT': 60 * 60 * 24 * 7,
     'DEFAULT_CACHE_ERRORS': False,
     'DEFAULT_USE_CACHE': 'default'
-}
-
-# Django REST framework JWT
-JWT_AUTH = {
-    'JWT_ALLOW_REFRESH': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=7),
 }
 
 # Ckeditor
