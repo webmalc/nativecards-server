@@ -1,3 +1,6 @@
+"""
+The cards admin module
+"""
 import arrow
 from django.contrib import admin
 from django.utils.safestring import mark_safe
@@ -16,8 +19,8 @@ class AttemptAdmin(VersionAdmin):
     """
     The attempt's admin interface
     """
-    list_display = ('id', 'form', 'card', 'is_correct', 'is_hint', 'answer',
-                    'score', 'created', 'created_by')
+    list_display = ('id', 'form', 'card', 'is_correct', 'is_hint',
+                    'hints_count', 'answer', 'score', 'created', 'created_by')
     list_display_links = ('id', 'form')
     list_filter = ('is_correct', 'is_hint', 'created_by', 'created')
     search_fields = ('=id', 'card__word', 'answer', 'created_by__username',
@@ -27,11 +30,12 @@ class AttemptAdmin(VersionAdmin):
     raw_id_fields = ('card', )
     fieldsets = (
         ('General', {
-            'fields': ('form', 'card', 'is_correct', 'is_hint', 'answer')
+            'fields':
+            ('form', 'card', 'is_correct', 'is_hint', 'hints_count', 'answer')
         }),
         ('Options', {
-            'fields': ('score', 'created', 'modified', 'created_by',
-                       'modified_by')
+            'fields':
+            ('score', 'created', 'modified', 'created_by', 'modified_by')
         }),
     )
     list_select_related = ('created_by', 'card')
@@ -42,8 +46,8 @@ class AttemptInlineAdmin(ShowAllInlineAdminMixin):
     The attempt's inline admin interface
     """
     model = Attempt
-    fields = ('form', 'is_correct', 'is_hint', 'answer', 'score', 'created',
-              'all')
+    fields = ('form', 'is_correct', 'is_hint', 'hints_count', 'answer',
+              'score', 'created', 'all')
     verbose_name_plural = "Last attempts (1 month)"
     readonly_fields = ('created', 'score', 'all')
     show_change_link = True
@@ -86,13 +90,17 @@ class CardAdmin(VersionAdmin, MarkdownxModelAdmin):
     )
     list_select_related = ('created_by', 'deck')
 
-    def get_form(self, request, obj=None, **kwargs):
-        form = super().get_form(request, obj, **kwargs)
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, change, **kwargs)
         form.base_fields['deck'].initial = Deck.objects.get_default(
             request.user)
         return form
 
-    def audio(self, obj):
+    @staticmethod
+    def audio(obj):
+        """
+        Get the HTML code for the word pronunciation audio file
+        """
         if not obj.pronunciation:
             return None
         html = """

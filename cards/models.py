@@ -1,3 +1,6 @@
+"""
+The cards models module
+"""
 import shutil
 from tempfile import NamedTemporaryFile
 from time import time_ns
@@ -14,10 +17,10 @@ from imagekit.processors import ResizeToFit
 from markdownx.models import MarkdownxField
 from ordered_model.models import OrderedModel
 
-import nativecards.lib.settings as config
 from nativecards.models import CachedModel, CommonInfo
 
 from .managers import AttemptManager, CardManager, DeckManager
+from .score import calc_score
 
 
 class ImageMixin(models.Model):
@@ -33,10 +36,14 @@ class ImageMixin(models.Model):
         blank=True,
         verbose_name=_('image'),
     )
-    remote_image = models.URLField(
-        null=True, blank=True, verbose_name=_('remote image url'))
+    remote_image = models.URLField(null=True,
+                                   blank=True,
+                                   verbose_name=_('remote image url'))
 
     def get_remote_image(self):
+        """
+        Saves the image from the remote URL
+        """
         if self.remote_image and not self.image:
             response = requests.get(self.remote_image, stream=True)
             img_temp = NamedTemporaryFile(delete=True)
@@ -63,10 +70,11 @@ class Deck(  # type: ignore
 
     objects = DeckManager()
 
-    is_default = models.BooleanField(
-        default=False, db_index=True, verbose_name=_('is default'))
+    is_default = models.BooleanField(default=False,
+                                     db_index=True,
+                                     verbose_name=_('is default'))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Invoke the parent save method
         super().save(*args, **kwargs)
 
@@ -75,9 +83,9 @@ class Deck(  # type: ignore
 
         # Update the is default field
         if self.is_default:
-            Deck.objects.filter(
-                is_default=True, created_by=self.created_by).exclude(
-                    pk=self.pk).update(is_default=False)
+            Deck.objects.filter(is_default=True,
+                                created_by=self.created_by).exclude(
+                                    pk=self.pk).update(is_default=False)
 
     class Meta(OrderedModel.Meta):
         pass
@@ -102,85 +110,77 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
 
     objects = CardManager()
 
-    word = models.CharField(
-        max_length=255,
-        db_index=True,
-        validators=[MinLengthValidator(2)],
-        verbose_name=_('word'))
-    category = models.CharField(
-        max_length=30,
-        db_index=True,
-        choices=CATEGORIES,
-        default='word',
-        verbose_name=_('category'))
-    definition = MarkdownxField(
-        db_index=True,
-        null=True,
-        blank=True,
-        verbose_name=_('definition'),
-        validators=[MinLengthValidator(2)])
-    examples = MarkdownxField(
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('examples'),
-        validators=[MinLengthValidator(2)])
-    translation = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('translation'),
-        validators=[MinLengthValidator(2)])
-    synonyms = MarkdownxField(
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('synonyms'),
-        validators=[MinLengthValidator(2)])
-    antonyms = MarkdownxField(
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('antonyms'),
-        validators=[MinLengthValidator(2)])
-    transcription = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('transcription'),
-        validators=[MinLengthValidator(2)])
-    pronunciation = models.URLField(
-        null=True, blank=True, verbose_name=_('pronunciation'))
-    note = MarkdownxField(
-        null=True,
-        blank=True,
-        db_index=True,
-        verbose_name=_('note'),
-        validators=[MinLengthValidator(2)])
+    word = models.CharField(max_length=255,
+                            db_index=True,
+                            validators=[MinLengthValidator(2)],
+                            verbose_name=_('word'))
+    category = models.CharField(max_length=30,
+                                db_index=True,
+                                choices=CATEGORIES,
+                                default='word',
+                                verbose_name=_('category'))
+    definition = MarkdownxField(db_index=True,
+                                null=True,
+                                blank=True,
+                                verbose_name=_('definition'),
+                                validators=[MinLengthValidator(2)])
+    examples = MarkdownxField(null=True,
+                              blank=True,
+                              db_index=True,
+                              verbose_name=_('examples'),
+                              validators=[MinLengthValidator(2)])
+    translation = models.CharField(max_length=255,
+                                   null=True,
+                                   blank=True,
+                                   db_index=True,
+                                   verbose_name=_('translation'),
+                                   validators=[MinLengthValidator(2)])
+    synonyms = MarkdownxField(null=True,
+                              blank=True,
+                              db_index=True,
+                              verbose_name=_('synonyms'),
+                              validators=[MinLengthValidator(2)])
+    antonyms = MarkdownxField(null=True,
+                              blank=True,
+                              db_index=True,
+                              verbose_name=_('antonyms'),
+                              validators=[MinLengthValidator(2)])
+    transcription = models.CharField(max_length=255,
+                                     null=True,
+                                     blank=True,
+                                     db_index=True,
+                                     verbose_name=_('transcription'),
+                                     validators=[MinLengthValidator(2)])
+    pronunciation = models.URLField(null=True,
+                                    blank=True,
+                                    verbose_name=_('pronunciation'))
+    note = MarkdownxField(null=True,
+                          blank=True,
+                          db_index=True,
+                          verbose_name=_('note'),
+                          validators=[MinLengthValidator(2)])
     complete = models.PositiveIntegerField(
         default=0,
         verbose_name=_('complete'),
         validators=[MinValueValidator(0),
                     MaxValueValidator(100)])
-    priority = models.PositiveIntegerField(
-        default=2, choices=PRIORITY, verbose_name=_('priority'), db_index=True)
-    last_showed_at = models.DateTimeField(
-        null=True, blank=True, verbose_name=_('last showed at'))
-    deck = models.ForeignKey(
-        Deck,
-        on_delete=models.CASCADE,
-        db_index=True,
-        related_name='cards',
-        verbose_name=_('deck'))
+    priority = models.PositiveIntegerField(default=2,
+                                           choices=PRIORITY,
+                                           verbose_name=_('priority'),
+                                           db_index=True)
+    last_showed_at = models.DateTimeField(null=True,
+                                          blank=True,
+                                          verbose_name=_('last showed at'))
+    deck = models.ForeignKey(Deck,
+                             on_delete=models.CASCADE,
+                             db_index=True,
+                             related_name='cards',
+                             verbose_name=_('deck'))
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Limit the complete field
-        if self.complete < 0:
-            self.complete = 0
-        if self.complete > 100:
-            self.complete = 100
+        self.complete = max(0, self.complete)
+        self.complete = min(100, self.complete)
 
         # Invoke the parent save method
         super().save(*args, **kwargs)
@@ -213,47 +213,47 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
 
     objects = AttemptManager()
 
-    card = models.ForeignKey(
-        Card,
-        on_delete=models.CASCADE,
-        db_index=True,
-        related_name='attempts',
-        verbose_name=_('card'))
-    is_correct = models.BooleanField(
-        db_index=True, verbose_name=_('is correct'))
-    is_hint = models.BooleanField(
-        default=False, db_index=True, verbose_name=_('is hint'))
-    answer = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-        db_index=True,
-        validators=[MinLengthValidator(2)],
-        verbose_name=_('answer'))
+    card = models.ForeignKey(Card,
+                             on_delete=models.CASCADE,
+                             db_index=True,
+                             related_name='attempts',
+                             verbose_name=_('card'))
+    is_correct = models.BooleanField(db_index=True,
+                                     verbose_name=_('is correct'))
+    is_hint = models.BooleanField(default=False,
+                                  db_index=True,
+                                  verbose_name=_('is hint'))
+
+    hints_count = models.PositiveIntegerField(default=0,
+                                              db_index=True,
+                                              verbose_name=_('hints count'))
+    answer = models.CharField(max_length=255,
+                              blank=True,
+                              null=True,
+                              db_index=True,
+                              validators=[MinLengthValidator(2)],
+                              verbose_name=_('answer'))
     score = models.PositiveIntegerField(
         default=0,
         verbose_name=_('score'),
         validators=[MinValueValidator(0),
                     MaxValueValidator(100)])
-    form = models.CharField(
-        max_length=30, db_index=True, choices=FORMS, verbose_name=_('form'))
+    form = models.CharField(max_length=30,
+                            db_index=True,
+                            choices=FORMS,
+                            verbose_name=_('form'))
 
     def _set_score(self):
         """
         Calc the score
         """
         if not self.pk:
-            self.score = 100 // config.get('attempts_to_remember',
-                                           self.card.created_by)
-            if self.is_hint and self.is_correct:
-                self.score = self.score // 2
-            if self.is_hint and not self.is_correct:
-                self.score = self.score * 2
-            complete = self.score if self.is_correct else -self.score
-            self.card.complete = self.card.complete + complete
+            score = calc_score(self)
+            self.score = abs(score)
+            self.card.complete = max(0, self.card.complete + score)
             self.card.save()
 
-    def save(self, *args, **kwargs):
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Calc the card complete field
         self._set_score()
 
@@ -261,8 +261,8 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return '{} at {}'.format(
-            str(self.card), self.created.strftime('%d.%m.%Y %H:%M'))
+        return '{} at {}'.format(str(self.card),
+                                 self.created.strftime('%d.%m.%Y %H:%M'))
 
     class Meta:
         ordering = ('-created', )

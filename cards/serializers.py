@@ -1,11 +1,21 @@
+"""
+The cards serializers module
+"""
 from rest_framework import serializers
 
 from .models import Attempt, Card, Deck
 
 
 class UserSerializerMixin():
-    def fiter_field(self, fields, key, Model):
-        fields[key].queryset = Model.objects.filter(
+    """
+    The mixin class for filtering by the user
+    """
+
+    def filter_field(self, fields, key, model):
+        """
+        Filter field by the user
+        """
+        fields[key].queryset = model.objects.filter(
             created_by=self.context['request'].user)
         return fields
 
@@ -33,19 +43,21 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
 
     created_by = serializers.StringRelatedField(many=False, read_only=True)
     modified_by = serializers.StringRelatedField(many=False, read_only=True)
-    priority_display = serializers.CharField(
-        source='get_priority_display', required=False)
-    category_display = serializers.CharField(
-        source='get_category_display', required=False)
-    deck = serializers.PrimaryKeyRelatedField(
-        many=False,
-        read_only=False,
-        required=True,
-        queryset=Deck.objects.all())
+    priority_display = serializers.CharField(source='get_priority_display',
+                                             required=False)
+    category_display = serializers.CharField(source='get_category_display',
+                                             required=False)
+    deck = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=False,
+                                              required=True,
+                                              queryset=Deck.objects.all())
 
-    def get_fields(self, *args, **kwargs):
+    def get_fields(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """
+        Get the serializer fields
+        """
         fields = super().get_fields(*args, **kwargs)
-        return self.fiter_field(fields, 'deck', Deck)
+        return self.filter_field(fields, 'deck', Deck)
 
     class Meta:
         model = Card
@@ -81,17 +93,20 @@ class AttemptSerializer(serializers.HyperlinkedModelSerializer,
     """
     created_by = serializers.StringRelatedField(many=False, read_only=True)
     modified_by = serializers.StringRelatedField(many=False, read_only=True)
-    card = serializers.PrimaryKeyRelatedField(
-        many=False,
-        read_only=False,
-        required=False,
-        queryset=Card.objects.all())
+    card = serializers.PrimaryKeyRelatedField(many=False,
+                                              read_only=False,
+                                              required=False,
+                                              queryset=Card.objects.all())
 
-    def get_fields(self, *args, **kwargs):
+    def get_fields(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        """
+        Get the serializer fields
+        """
         fields = super().get_fields(*args, **kwargs)
-        return self.fiter_field(fields, 'card', Card)
+        return self.filter_field(fields, 'card', Card)
 
     class Meta:
         model = Attempt
-        fields = ('id', 'card', 'form', 'is_correct', 'is_hint', 'answer',
-                  'score', 'created', 'modified', 'created_by', 'modified_by')
+        fields = ('id', 'card', 'form', 'is_correct', 'is_hint', 'hints_count',
+                  'answer', 'score', 'created', 'modified', 'created_by',
+                  'modified_by')
