@@ -1,3 +1,6 @@
+"""
+The users app views module
+"""
 from django.contrib.auth.models import User
 from django.core.validators import ValidationError
 from rest_framework import serializers, status, viewsets
@@ -13,6 +16,9 @@ from .serializers import (PasswordSerializer, UserSerializer,
 
 
 class UsersViewSet(viewsets.GenericViewSet):
+    """
+    The user model viewset
+    """
 
     serializer_class = UserSerializer
 
@@ -26,6 +32,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['get'])
     def get(self, request):
+        """
+        Get an user data
+        """
         user = User.objects.get(pk=self.request.user.pk)
         serializer = self.get_serializer(user)
 
@@ -33,6 +42,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'])
     def verification(self, request):
+        """
+        Users email verification
+        """
         serializer = VerificationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -46,6 +58,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['patch'])
     def password(self, request):
+        """
+        Change the current user password
+        """
         serializer = PasswordSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -58,6 +73,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'])
     def register(self, request):
+        """
+        Register a new user
+        """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
@@ -71,10 +89,13 @@ class UsersViewSet(viewsets.GenericViewSet):
 
         send_registration_email(user)
 
+        tokens = get_user_token(user)
+
         return Response(
             {
                 'status': True,
-                'token': get_user_token(user),
+                'token': tokens['access'],
+                'refresh': tokens['refresh']
             },
             status=status.HTTP_201_CREATED,
         )

@@ -66,16 +66,18 @@ def test_user_verification_by_user(client):
 
 def test_user_change_password_by_user(client):
     data = json.dumps({'password': '123456', 'password_two': '654321'})
-    response = client.patch(
-        reverse('users-password'), data=data, content_type="application/json")
+    response = client.patch(reverse('users-password'),
+                            data=data,
+                            content_type="application/json")
     assert response.status_code == 401
 
 
 def test_user_change_password_by_admin(admin_client):
     data = json.dumps({'password': '12345678', 'password_two': '87654321'})
     url = reverse('users-password')
-    response = admin_client.patch(
-        url, data=data, content_type="application/json")
+    response = admin_client.patch(url,
+                                  data=data,
+                                  content_type="application/json")
     assert response.status_code == 400
     assert response.json() == {
         'password':
@@ -86,8 +88,9 @@ def test_user_change_password_by_admin(admin_client):
         'password': 'hard120password',
         'password_two': 'hard121password'
     })
-    response = admin_client.patch(
-        url, data=data, content_type="application/json")
+    response = admin_client.patch(url,
+                                  data=data,
+                                  content_type="application/json")
     assert response.status_code == 400
     assert response.json() == {'non_field_errors': ["Passwords don't match."]}
 
@@ -95,8 +98,9 @@ def test_user_change_password_by_admin(admin_client):
         'password': 'hard121password',
         'password_two': 'hard121password'
     })
-    response = admin_client.patch(
-        url, data=data, content_type="application/json")
+    response = admin_client.patch(url,
+                                  data=data,
+                                  content_type="application/json")
     assert response.status_code == 200
 
     user = User.objects.get(username='admin')
@@ -105,12 +109,16 @@ def test_user_change_password_by_admin(admin_client):
 
 
 def test_user_register_by_user(client, mailoutbox):
+    """
+    Test a new user registration
+    """
     data = json.dumps({
         'email': 'admin@example.com',
         'password_new': 'password'
     })
-    response = client.post(
-        reverse('users-register'), data=data, content_type="application/json")
+    response = client.post(reverse('users-register'),
+                           data=data,
+                           content_type="application/json")
     assert response.status_code == 400
     assert response.json() == {
         'non_field_errors': [{
@@ -119,8 +127,9 @@ def test_user_register_by_user(client, mailoutbox):
     }
 
     data = json.dumps({'email': 'newuser@example.com', 'password_new': '12'})
-    response = client.post(
-        reverse('users-register'), data=data, content_type="application/json")
+    response = client.post(reverse('users-register'),
+                           data=data,
+                           content_type="application/json")
 
     assert response.status_code == 400
     assert response.json() == {
@@ -135,16 +144,18 @@ It must contain at least 8 characters.', 'This password is too common.',
         'email': 'newuser@example.com',
         'password_new': 'super_password'
     })
-    response = client.post(
-        reverse('users-register'), data=data, content_type="application/json")
+    response = client.post(reverse('users-register'),
+                           data=data,
+                           content_type="application/json")
 
     assert response.status_code == 201
     json_data = response.json()
     user = User.objects.get(username='newuser@example.com')
     token = json_data['token']
+    refresh = json_data['refresh']
 
     assert token is not None
-    assert json_data['token'] is not None
+    assert refresh is not None
     assert user.email == 'newuser@example.com'
     assert user.username == 'newuser@example.com'
     assert user.is_staff is False
@@ -152,19 +163,21 @@ It must contain at least 8 characters.', 'This password is too common.',
     assert user.is_active is True
     assert user.check_password('super_password') is True
 
-    response = client.post(
-        '/api-token-refresh/',
-        data={'token': token},
-        content_type="application/json")
+    response = client.post('/api-token-refresh/',
+                           data={'refresh': refresh},
+                           content_type="application/json")
     assert response.status_code == 200
-    token = response.json()['token']
+
+    token = response.json()['access']
+    refresh = json_data['refresh']
     assert token is not None
+    assert refresh is not None
 
     response = client.get(reverse('api-root'))
     assert response.status_code == 401
 
-    response = client.get(
-        reverse('api-root'), HTTP_AUTHORIZATION='JWT ' + token)
+    response = client.get(reverse('api-root'),
+                          HTTP_AUTHORIZATION='JWT ' + token)
     assert response.status_code == 200
     assert len(mailoutbox) == 1
     mail = mailoutbox[0]
