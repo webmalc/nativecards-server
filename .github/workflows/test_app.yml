@@ -22,29 +22,40 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python 3.8
+    - name: Set up Python 3.7
       uses: actions/setup-python@v1
       with:
-        python-version: 3.8
+        python-version: 3.7
+
     - name: Install environments
       run: |
           sudo apt-get update
           sudo apt-get install -y gettext sqlite3 libsqlite3-dev libpq-dev python3.7-dev
+
     - name: Copy configs
       run: |
           cp -n nativecards/settings/.env_dist nativecards/settings/.env
           cp -n nativecards/settings/.env_test_dist nativecards/settings/.env_test
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
     - name: Install dev dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements_dev.txt
+
     - name: Run the database migration
       run: |
         python manage.py migrate --no-input
+
     - name: Test the app
       run: |
-        pytest --pep8 --flakes
+        pytest --pep8 --flakes --cov=./
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}

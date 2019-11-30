@@ -3,6 +3,7 @@ omit =
     fabfile.py
     nativecards/wsgi.py
     */apps.py
+    */migrations/*
     manage.py
 
 [report]
