@@ -9,13 +9,16 @@ from django.urls import reverse
 from cards.models import Card
 from nativecards.models import Settings
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 def test_cards_get_random_words(admin):
-    with pytest.raises(ValueError) as e:
+    """
+    Test the select_random_words method
+    """
+    with pytest.raises(ValueError) as error:
         Card.objects.select_random_words()
-        assert e == 'the user and words fields are empty at the same time'
+        assert error == 'the user and words fields are empty at the same time'
     words = Card.objects.select_random_words(admin)
     assert len(words) == 2
 
@@ -41,7 +44,22 @@ def test_cards_get_random_words(admin):
     assert 'additional' in words
 
 
+def test_cards_default_deck(admin):
+    """
+    Should set the default deck for user
+    """
+    card = Card()
+    card.word = 'word'
+    card.created_by = admin
+    card.save()
+
+    assert card.deck_id == 1
+
+
 def test_cards_limit_complete_deck(admin):
+    """
+    The card complete field can't be less then zero
+    """
     card = Card()
     card.word = 'word'
     card.complete = 122
@@ -57,11 +75,17 @@ def test_cards_limit_complete_deck(admin):
 
 
 def test_cards_list_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('cards-list'))
     assert response.status_code == 401
 
 
 def test_cards_list_by_admin(admin_client):
+    """
+    Should return the cards list
+    """
     response = admin_client.get(reverse('cards-list') + '?ordering=id')
     assert response.status_code == 200
     data = response.json()['results']
@@ -70,6 +94,9 @@ def test_cards_list_by_admin(admin_client):
 
 
 def test_cards_list_word_starts_with(admin_client, admin):
+    """
+    Should search a word by the query
+    """
     Card.objects.create(word='ord', created_by=admin, deck_id=1)
     response = admin_client.get(
         reverse('cards-list') + '?word_starts=ord&ordering=id')
@@ -80,6 +107,9 @@ def test_cards_list_word_starts_with(admin_client, admin):
 
 
 def test_cards_list_filter_by_admin(admin_client):
+    """
+    Should return the filtered cards list
+    """
     response = admin_client.get(
         reverse('cards-list') + '?ordering=id&complete__lte=20')
 
@@ -98,22 +128,34 @@ def test_cards_list_filter_by_admin(admin_client):
 
 
 def test_cards_display_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('cards-detail', args=[2]))
     assert response.status_code == 401
 
 
 def test_cards_display_by_admin(admin_client):
+    """
+    Should return a word entry
+    """
     response = admin_client.get(reverse('cards-detail', args=[2]))
     assert response.status_code == 200
     assert response.json()['word'] == 'word two'
 
 
 def test_cards_display_another_user_by_admin(admin_client):
+    """
+    Should return 404 error code for non authenticated users
+    """
     response = admin_client.get(reverse('cards-detail', args=[3]))
     assert response.status_code == 404
 
 
 def test_cards_create_by_admin(admin_client):
+    """
+    Should create a word entry
+    """
     data = json.dumps({
         'word': 'new test word',
         'deck': 1,
@@ -171,11 +213,17 @@ def test_cards_images_by_admin(admin_client, mocker):
 
 
 def test_cards_translation_by_user(client):
+    """
+    Should return an authentication error
+    """
     response = client.get(reverse('cards-translation'))
     assert response.status_code == 401
 
 
 def test_cards_translation_by_admin(admin_client):
+    """
+    Should return a word translations
+    """
     response = admin_client.get(reverse('cards-translation'))
     assert response.status_code == 200
     assert response.json()['error'] == 'The word parameter not found.'
@@ -195,7 +243,7 @@ def test_cards_synonyms_by_user(client):
 
 def test_cards_synonyms_by_admin(admin_client, mocker):
     """
-    Should return a JSON response with synonyms information
+    Should return a JSON response with the synonyms information
     """
 
     with mocker.patch(
@@ -256,11 +304,17 @@ def test_cards_definition_by_admin(admin_client, mocker):
 
 
 def test_cards_lesson_by_user(client):
+    """
+    Should return an authentication error
+    """
     response = client.get(reverse('cards-lesson'))
     assert response.status_code == 401
 
 
 def test_cards_lesson_ordered(admin_client, admin):
+    """
+    Should return the ordered word list
+    """
     settings = Settings.objects.get_by_user(admin)
     settings.cards_per_lesson = 1
     settings.save()
@@ -272,7 +326,10 @@ def test_cards_lesson_ordered(admin_client, admin):
     assert min([d['priority'] for d in data_ordered]) > 1
 
 
-def test_cards_lesson_priority_gte(admin_client, admin):
+def test_cards_lesson_complete_gte(admin_client):
+    """
+    Should return the word list filtered by the complete field
+    """
     response = admin_client.get(
         reverse('cards-lesson') + '?deck=1&complete__gte=49&ordering=invalid')
     assert response.status_code == 200
@@ -281,7 +338,10 @@ def test_cards_lesson_priority_gte(admin_client, admin):
     assert min([d['complete'] for d in data]) > 49
 
 
-def test_cards_lesson_priority_lte(admin_client, admin):
+def test_cards_lesson_complete_lte(admin_client):
+    """
+    Should return the word list filtered by the complete field
+    """
     response = admin_client.get(
         reverse('cards-lesson') + '?deck=1&complete__lte=30&ordering=invalid')
     assert response.status_code == 200
@@ -290,7 +350,27 @@ def test_cards_lesson_priority_lte(admin_client, admin):
     assert max([d['complete'] for d in data]) < 30
 
 
+def test_cards_lesson_category(admin_client, admin):
+    """
+    Should return the lesson list filtered by the category field
+    """
+    Card.objects.create(word='new word',
+                        created_by=admin,
+                        deck_id=1,
+                        category='phrase')
+    response = admin_client.get(
+        reverse('cards-lesson') + '?deck=1&category=phrase')
+    assert response.status_code == 200
+    data = response.json()
+    categories = {d['category'] for d in data}
+    assert len(categories) == 1
+    assert categories.pop() == 'phrase'
+
+
 def test_cards_lesson_latest_days(admin_client, admin):
+    """
+    Should return the lesson list filtered by the is_latest field
+    """
     settings = Settings.objects.get_by_user(admin)
     settings.lesson_latest_days = 1
     settings.save()
@@ -312,8 +392,10 @@ def test_cards_lesson_latest_days(admin_client, admin):
     assert set(words) == {'completed word', 'new word'}
 
 
-def test_cards_lesson_by_admin(admin_client, admin):
-
+def test_cards_lesson_by_admin(admin_client):
+    """
+    Should return the lesson list
+    """
     response = admin_client.get(reverse('cards-lesson') + '?deck=1')
     assert response.status_code == 200
     data_one = response.json()
@@ -329,6 +411,9 @@ def test_cards_lesson_by_admin(admin_client, admin):
 
 
 def test_cards_lesson_not_include_completed_cards(admin_client, admin):
+    """
+    Should return the lesson list without the completed words
+    """
     settings = Settings.objects.get_by_user(admin)
     settings.cards_to_repeat = 0
     settings.save()

@@ -43,7 +43,7 @@ urlpatterns += i18n_patterns(
     re_path(r'^', include(router.urls)),
 )
 
-if settings.DEBUG:
+if settings.DEBUG or settings.TESTS:
     import debug_toolbar
 
     urlpatterns += [

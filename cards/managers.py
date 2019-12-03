@@ -1,16 +1,19 @@
+"""
+The cards managers module
+"""
 from random import sample, shuffle
 from typing import Dict, Iterable, List
 
 import arrow
 from django.apps import apps
+from django.db import models
 
 import cards
 import nativecards.lib.settings as config
-from nativecards.managers import LookupMixin
 from nativecards.models import Settings
 
 
-class CardManager(LookupMixin):
+class CardManager(models.Manager):
     """"
     The card objects manager
     """
@@ -64,9 +67,10 @@ class CardManager(LookupMixin):
         Get the new cards for a lesson
         """
         complete_lte = complete_lte if complete_lte else 99
-        query = self.filter(
-            created_by=user, complete__lte=complete_lte).select_related(
-                'created_by', 'modified_by', 'deck').order_by('?')
+        query = self.filter(created_by=user,
+                            complete__lte=complete_lte).select_related(
+                                'created_by', 'modified_by',
+                                'deck').order_by('?')
         if ordering:
             query = query.order_by(ordering)
         if complete_gte:
@@ -87,13 +91,12 @@ class CardManager(LookupMixin):
         """
         Get the learned cards for a lesson
         """
-        query = self.filter(
-            created_by=user, complete=100).select_related(
-                'created_by', 'modified_by', 'deck').order_by('?')
+        query = self.filter(created_by=user, complete=100).select_related(
+            'created_by', 'modified_by', 'deck').order_by('?')
         return query[:config.get('cards_to_repeat', user)]
 
 
-class AttemptManager(LookupMixin):
+class AttemptManager(models.Manager):
     """"
     The attempt objects manager
     """
@@ -110,8 +113,10 @@ class AttemptManager(LookupMixin):
         query = self.filter(created_by=user)
         settings = Settings.objects.get_by_user(user)
 
-        today = arrow.utcnow().replace(
-            hour=0, minute=0, second=0, microsecond=0)
+        today = arrow.utcnow().replace(hour=0,
+                                       minute=0,
+                                       second=0,
+                                       microsecond=0)
 
         week = today.shift(days=-7).datetime
         month = today.shift(months=-1).datetime
@@ -155,7 +160,7 @@ class AttemptManager(LookupMixin):
         }
 
 
-class DeckManager(LookupMixin):
+class DeckManager(models.Manager):
     """"
     The deck manager
     """

@@ -9,7 +9,7 @@ from django.urls import reverse
 from nativecards.lib.settings import clear_mermory_cache, get
 from nativecards.models import Settings
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 class CalcTestCase(TestCase):
@@ -31,6 +31,13 @@ class CalcTestCase(TestCase):
             assert get('attempts_to_remember', admin) == 5
 
 
+def test_settings_get_default():
+    """
+    Should return the default value if the user is not provided
+    """
+    assert get('attempts_to_remember') == 10
+
+
 def test_settings_get_by_user(client):
     response = client.get(reverse('settings-get'))
     assert response.status_code == 401
@@ -48,8 +55,9 @@ def test_settings_get_by_admin(admin_client):
 
 def test_settings_update_by_admin(admin_client):
     data = json.dumps({'cards_to_repeat': 22, 'attempts_to_remember': 5})
-    response = admin_client.patch(
-        reverse('settings-save'), data=data, content_type="application/json")
+    response = admin_client.patch(reverse('settings-save'),
+                                  data=data,
+                                  content_type="application/json")
     assert response.status_code == 200
     response = admin_client.get(reverse('settings-get'))
     data = response.json()

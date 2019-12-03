@@ -172,6 +172,8 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
                                           blank=True,
                                           verbose_name=_('last showed at'))
     deck = models.ForeignKey(Deck,
+                             null=True,
+                             blank=True,
                              on_delete=models.CASCADE,
                              db_index=True,
                              related_name='cards',

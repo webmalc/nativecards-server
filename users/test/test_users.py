@@ -2,9 +2,11 @@ import json
 
 import pytest
 from django.contrib.auth.models import User
+from django.core.validators import ValidationError
 from django.urls import reverse
 
 from cards.models import Deck
+from users.managers import ProfileManager
 
 pytestmark = pytest.mark.django_db
 
@@ -190,3 +192,35 @@ It must contain at least 8 characters.', 'This password is too common.',
     deck = Deck.objects.get_default(user)
     assert deck.title == 'main'
     assert deck.is_default is True
+
+
+def test_user_register_validation_errors_by_user(client, mocker):
+    """
+    Test validation errors raised during the user registration
+    """
+
+    def raise_error(email: str, passowrd: str) -> None:
+        raise ValidationError('test')
+
+    ProfileManager.create_user = mocker.MagicMock(side_effect=raise_error)
+
+    data = json.dumps({
+        'email': 'newuser@example.com',
+        'password_new': 'super_password'
+    })
+    response = client.post(reverse('users-register'),
+                           data=data,
+                           content_type="application/json")
+
+    assert response.status_code == 400
+    assert 'test' in str(response.content)
+
+
+def test_user_admin_list_display(admin_client, mocker):
+    """
+    Test validation errors raised during the user registration
+    """
+    response = admin_client.post(reverse('admin:auth_user_changelist'))
+    content = str(response.content)
+    assert 'column-is_verified' in content
+    assert 'icon-yes.svg' in content

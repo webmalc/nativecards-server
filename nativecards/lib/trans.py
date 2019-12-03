@@ -1,13 +1,16 @@
+"""
+The translate module
+"""
 from abc import ABC, abstractmethod
 
 import requests
 
-from nativecards.lib.cache import cache_result
+from nativecards.lib.cache import cache_result  # pylint: disable=import-error
 
 
 class Translate(ABC):
     """
-    Base translation class
+    The base translation class
     """
 
     @abstractmethod
@@ -15,18 +18,16 @@ class Translate(ABC):
         """
         Get the translation
         """
-        pass
 
 
 class Lingualeo(Translate):
     """
-    Lingualeo translation class
+    The Lingualeo translation class
     """
     url = 'https://api.lingualeo.com/gettranslates?port=1001&word='
 
     def translate(self, word: str) -> list:
         result = requests.get(self.url + word.lower())
-
         if result.status_code == 200:
             data = result.json()
             if 'error_msg' in data and data['error_msg']:

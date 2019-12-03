@@ -4,6 +4,7 @@ omit =
     nativecards/wsgi.py
     */apps.py
     */migrations/*
+    */test/*
     manage.py
 
 [report]
