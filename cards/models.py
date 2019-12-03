@@ -19,8 +19,8 @@ from ordered_model.models import OrderedModel
 
 from nativecards.models import CachedModel, CommonInfo
 
+from .lesson.score import calc_score
 from .managers import AttemptManager, CardManager, DeckManager
-from .score import calc_score
 
 
 class ImageMixin(models.Model):

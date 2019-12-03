@@ -12,7 +12,7 @@ from nativecards.lib.pixabay import get_images
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
 
-from .lesson import LessonGenerator
+from .lesson.generator import LessonGenerator
 from .models import Attempt, Card, Deck
 from .serializers import (AttemptSerializer, CardSerializer, DeckSerializer,
                           LessonCardSerializer)
