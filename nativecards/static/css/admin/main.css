@@ -223,9 +223,6 @@ input[type="tel"]:focus {
 .admin-filter-select {
   max-width: 210px;
 }
-.ajax-select-link {
-  font-weight: bold;
-}
 #changelist-filter .selected a {
   font-weight: bold;
 }

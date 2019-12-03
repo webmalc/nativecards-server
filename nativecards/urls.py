@@ -1,7 +1,6 @@
 """
 Nativecards URL Configuration
 """
-from ajax_select import urls as ajax_select_urls
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
@@ -38,10 +37,7 @@ urlpatterns = [
     path(r'', include(tf_urls)),
 ]
 
-urlpatterns += i18n_patterns(
-    re_path(r'^ajax_select/', include(ajax_select_urls)),
-    re_path(r'^', include(router.urls)),
-)
+urlpatterns += i18n_patterns(re_path(r'^', include(router.urls)), )
 
 if settings.DEBUG or settings.TESTS:
     import debug_toolbar
