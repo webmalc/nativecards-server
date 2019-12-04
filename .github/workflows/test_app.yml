@@ -57,6 +57,5 @@ jobs:
 
     - name: Coveralls
       run: |
-        COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }} coveralls
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        echo 'repo_token: ${{ secrets.COVERALLS_TOKEN }}' >> .coveralls.yml
+        coveralls
