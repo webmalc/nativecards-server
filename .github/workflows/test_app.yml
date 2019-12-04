@@ -54,8 +54,3 @@ jobs:
     - name: Test the app
       run: |
         pytest --pep8 --flakes --cov=./
-
-    - name: Coveralls
-      run: |
-        echo 'repo_token: ${{ secrets.COVERALLS_TOKEN }}' >> .coveralls.yml
-        coveralls
