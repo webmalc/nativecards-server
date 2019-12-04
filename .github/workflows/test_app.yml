@@ -57,6 +57,6 @@ jobs:
 
     - name: Coveralls
       run: |
-        ${{ secrets.COVERALLS_TOKEN }} coveralls
+        COVERALLS_REPO_TOKEN=${{ secrets.COVERALLS_TOKEN }} coveralls
       env:
         COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
