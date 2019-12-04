@@ -99,31 +99,50 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
+    def _get_word_defenition(self, tree):
+        """
+        Returns the word definition
+        """
+        audio = []  # type: List[str]
+        examples = definition = transcription = None
+        audio = self._get_audio(tree)
+        examples = self._get_examples(tree)
+        definition = self._get_definition(tree)
+        transcription = self._get_transcription(tree)
+
+        return {
+            'pronunciation': audio[0] if audio else None,
+            'examples': examples or None,
+            'definition': definition or None,
+            'transcription': transcription or None
+        }
+
+    def _get_phrasal_verb_defenition(self, tree):
+        """
+        Returns the phrasal verb word definition
+        """
+        return {
+            'pronunciation': None,
+            'examples': None,
+            'definition': None,
+            'transcription': None
+        }
+
     def get_defenition(self, word: str):
         """
-        Returns the word defenition
+        Returns the word or phrase definition
         """
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
         if response.status_code == 200:
-            audio = []  # type: List[str]
-            examples = definition = transcription = None
             try:
                 tree = ElementTree.fromstring(response.text)
-                audio = self._get_audio(tree)
-                examples = self._get_examples(tree)
-                definition = self._get_definition(tree)
-                transcription = self._get_transcription(tree)
             except ElementTree.ParseError:
-                pass
-
-            result = {
-                'pronunciation': audio[0] if audio else None,
-                'examples': examples or None,
-                'definition': definition or None,
-                'transcription': transcription or None
-            }
-            return result
+                return None
+            category = guess_category(word)
+            if category == 'phrasal_verb':
+                return self._get_phrasal_verb_defenition(tree)
+            return self._get_word_defenition(tree)
 
         return None
 
@@ -168,6 +187,19 @@ def get_defenition(word) -> object:
         return {'error': 'The word parameter not found.'}
     dictionary = WebsterLearners()
     return dictionary.get_defenition(word)
+
+
+def guess_category(word: str) -> str:
+    """
+    Try to guess the word category
+    """
+    pieces = word.split(' ')
+    category = 'word'
+    if 1 < len(pieces) <= 3:
+        category = 'phrasal_verb'
+    if len(pieces) > 3:
+        category = 'phrase'
+    return category
 
 
 @cache_result('synonyms')

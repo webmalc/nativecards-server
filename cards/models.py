@@ -17,6 +17,7 @@ from imagekit.processors import ResizeToFit
 from markdownx.models import MarkdownxField
 from ordered_model.models import OrderedModel
 
+from nativecards.lib.dictionary import guess_category
 from nativecards.models import CachedModel, CommonInfo
 
 from .lesson.score import calc_score
@@ -115,9 +116,10 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
                             validators=[MinLengthValidator(2)],
                             verbose_name=_('word'))
     category = models.CharField(max_length=30,
+                                null=True,
+                                blank=True,
                                 db_index=True,
                                 choices=CATEGORIES,
-                                default='word',
                                 verbose_name=_('category'))
     definition = MarkdownxField(db_index=True,
                                 null=True,
@@ -179,10 +181,19 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
                              related_name='cards',
                              verbose_name=_('deck'))
 
+    def _guess_and_set_category(self) -> None:
+        """
+        Try to guess and set the word category
+        """
+        if not self.category:
+            self.category = guess_category(self.word)
+
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Limit the complete field
         self.complete = max(0, self.complete)
         self.complete = min(100, self.complete)
+
+        self._guess_and_set_category()
 
         # Invoke the parent save method
         super().save(*args, **kwargs)

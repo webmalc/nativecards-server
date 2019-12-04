@@ -44,6 +44,39 @@ def test_cards_get_random_words(admin):
     assert 'additional' in words
 
 
+def test_cards_guess_and_set_category(admin):
+    """
+    Should guess and set the word category
+    """
+    card = Card()
+    card.word = 'word'
+    card.created_by = admin
+    card.save()
+
+    assert card.category == 'word'
+
+    card = Card()
+    card.word = 'come up with'
+    card.created_by = admin
+    card.save()
+
+    assert card.category == 'phrasal_verb'
+
+    card = Card()
+    card.word = 'get over'
+    card.created_by = admin
+    card.save()
+
+    assert card.category == 'phrasal_verb'
+
+    card = Card()
+    card.word = 'to put it mildly'
+    card.created_by = admin
+    card.save()
+
+    assert card.category == 'phrase'
+
+
 def test_cards_default_deck(admin):
     """
     Should set the default deck for user

@@ -9,12 +9,34 @@ from django.conf import settings
 from nativecards.lib.dictionary import get_defenition, get_synonyms
 
 
-def test_get_definition(mocker):
+def test_get_phrasal_word_definition(mocker):
+    """
+    Should return a dictionary with the definition
+    and other information about the phrasal word
+    """
+    path = os.path.join(settings.FIXTURE_DIRS[0],
+                        'test/webster/word_definition.xml')
+    with open(path, 'r') as xml:
+        xml = xml.read().replace('\n', '')
+    response = requests.Response()
+    response.status_code = 200
+    response._content = xml.encode()  # pylint: disable=protected-access
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_defenition('come up with')
+
+    assert result['definition'] is None
+    assert result['pronunciation'] is None
+    assert result['examples'] is None
+    assert result['transcription'] is None
+
+
+def test_get_word_definition(mocker):
     """
     Should return a dictionary with the definition
     and other information about the word
     """
-    path = os.path.join(settings.FIXTURE_DIRS[0], 'test/definition.xml')
+    path = os.path.join(settings.FIXTURE_DIRS[0],
+                        'test/webster/word_definition.xml')
     with open(path, 'r') as xml:
         xml = xml.read().replace('\n', '')
     response = requests.Response()
@@ -50,10 +72,7 @@ def test_get_definition_errors(mocker):
     requests.get = mocker.MagicMock(return_value=response)
     result = get_defenition('card')
 
-    assert result['definition'] is None
-    assert result['pronunciation'] is None
-    assert result['examples'] is None
-    assert result['transcription'] is None
+    assert result is None
 
     response = requests.Response()
     response.status_code = 200
