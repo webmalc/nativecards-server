@@ -1,4 +1,4 @@
-name: Nativecards backend testing
+name: tests
 
 on: [push]
 

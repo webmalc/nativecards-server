@@ -26,6 +26,7 @@ def test_get_definition(mocker):
     assert 'cat00001.wav' in result['pronunciation']
     assert 'I have two dogs and a *cat*' in result['examples']
     assert 'a small animal that is related to lions' in result['definition']
+    assert 'test content' in result['definition']
     assert result['transcription'] == 'ˈkæt'
 
 
@@ -48,6 +49,18 @@ def test_get_definition_errors(mocker):
     response._content = 'invalid'.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
     result = get_defenition('card')
+
+    assert result['definition'] is None
+    assert result['pronunciation'] is None
+    assert result['examples'] is None
+    assert result['transcription'] is None
+
+    response = requests.Response()
+    response.status_code = 200
+    content = '<?xml version="1.0" encoding="utf-8"?><entry_list></entry_list>'
+    response._content = content.encode()  # pylint: disable=protected-access
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_defenition('man')
 
     assert result['definition'] is None
     assert result['pronunciation'] is None
