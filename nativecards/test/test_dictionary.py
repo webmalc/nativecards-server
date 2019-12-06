@@ -15,7 +15,7 @@ def test_get_phrasal_word_definition(mocker):
     and other information about the phrasal word
     """
     path = os.path.join(settings.FIXTURE_DIRS[0],
-                        'test/webster/word_definition.xml')
+                        'test/webster/come_definition.xml')
     with open(path, 'r') as xml:
         xml = xml.read().replace('\n', '')
     response = requests.Response()
@@ -24,9 +24,9 @@ def test_get_phrasal_word_definition(mocker):
     requests.get = mocker.MagicMock(return_value=response)
     result = get_defenition('come up with')
 
-    assert result['definition'] is None
+    assert 'to get or think of' in result['definition']
+    assert 'We finally *came up with* a' in result['examples']
     assert result['pronunciation'] is None
-    assert result['examples'] is None
     assert result['transcription'] is None
 
 
@@ -36,7 +36,7 @@ def test_get_word_definition(mocker):
     and other information about the word
     """
     path = os.path.join(settings.FIXTURE_DIRS[0],
-                        'test/webster/word_definition.xml')
+                        'test/webster/cat_definition.xml')
     with open(path, 'r') as xml:
         xml = xml.read().replace('\n', '')
     response = requests.Response()

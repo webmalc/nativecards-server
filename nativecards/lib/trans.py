@@ -47,4 +47,4 @@ def translate(word) -> object:
         return {'error': 'The word parameter not found.'}
 
     trans = Lingualeo()
-    return {'translation': ', '.join(trans.translate(word))}
+    return {'translation': ', '.join(trans.translate(word.lower()))}

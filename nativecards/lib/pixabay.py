@@ -16,7 +16,7 @@ def get_images(word):
         return {'error': 'The word parameter not found.'}
 
     url = 'https://pixabay.com/api/?key={}&q={}&min_width={}&\
-orientation=horizontal'.format(settings.NC_PIXABAY_KEY, word,
+orientation=horizontal'.format(settings.NC_PIXABAY_KEY, word.lower(),
                                settings.NC_IMAGE_WIDTH)
     result = requests.get(url)
 

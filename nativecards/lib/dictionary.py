@@ -30,10 +30,19 @@ class Dictionary(ABC):
     """
 
     @abstractmethod
-    def get_defenition(self, word: str):
+    def get_entry(self, word: str) -> dict:
+        """
+        Get the word or phrase entry
+        """
+
+    def process(self, word: str) -> dict:
         """
         Get the definition
         """
+        info = self.get_entry(word)
+        if info and 'pronunciation' in info and not info['pronunciation']:
+            info['pronunciation'] = None
+        return info
 
 
 class WebsterLearners(Dictionary):
@@ -79,6 +88,32 @@ class WebsterLearners(Dictionary):
         return definition
 
     @staticmethod
+    def _get_phrasal_verb_definition(root) -> str:
+        """
+        Get definition of the phrasal verb
+        """
+        definition = ''
+        for element in root.iter('dt'):
+            text = element.text if element.text else ''
+            text = text.replace(':', '')
+            if text:
+                definition += '{}\n\n'.format(text)
+        return definition
+
+    @staticmethod
+    def _get_phrasal_verb_examples(root) -> str:
+        """
+        Get examples for the phrasal verb
+        """
+        examples = ''
+        for element in root.iter('vi'):
+            text = ElementTree.tostring(element).decode('utf-8')
+            text = re.sub(r'</?(it|phrase){1}>', '*', text)
+            if text:
+                examples += '{}\n\n'.format(text)
+        return examples
+
+    @staticmethod
     def _get_transcription(tree) -> str:
         result = getattr(tree.find('./entry/pr'), 'text', None)
         if not result:
@@ -99,9 +134,9 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
-    def _get_word_defenition(self, tree):
+    def _get_word_info(self, tree):
         """
-        Returns the word definition
+        Returns the word information
         """
         audio = []  # type: List[str]
         examples = definition = transcription = None
@@ -117,20 +152,25 @@ class WebsterLearners(Dictionary):
             'transcription': transcription or None
         }
 
-    def _get_phrasal_verb_defenition(self, tree):
+    def _get_phrasal_verb_info(self, tree, word: str):
         """
-        Returns the phrasal verb word definition
+        Returns the phrasal verb word information
         """
+        root = tree.find(".//dre[.='{}']/..".format(word))
+        examples = definition = None
+        if root:
+            definition = self._get_phrasal_verb_definition(root)
+            examples = self._get_phrasal_verb_examples(root)
         return {
             'pronunciation': None,
-            'examples': None,
-            'definition': None,
+            'examples': examples or None,
+            'definition': definition or None,
             'transcription': None
         }
 
-    def get_defenition(self, word: str):
+    def get_entry(self, word: str):
         """
-        Returns the word or phrase definition
+        Returns the word or phrase entry
         """
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
@@ -141,8 +181,8 @@ class WebsterLearners(Dictionary):
                 return None
             category = guess_category(word)
             if category == 'phrasal_verb':
-                return self._get_phrasal_verb_defenition(tree)
-            return self._get_word_defenition(tree)
+                return self._get_phrasal_verb_info(tree, word)
+            return self._get_word_info(tree)
 
         return None
 
@@ -186,7 +226,18 @@ def get_defenition(word) -> object:
     if not word:
         return {'error': 'The word parameter not found.'}
     dictionary = WebsterLearners()
-    return dictionary.get_defenition(word)
+    return dictionary.process(word.lower())
+
+
+@cache_result('synonyms')
+def get_synonyms(word) -> object:
+    """
+    Get the word's synonyms
+    """
+    if not word:
+        return {'error': 'The word parameter not found.'}
+    thesaurus = BigHugeThesaurus()
+    return thesaurus.get_synonyms(word.lower())
 
 
 def guess_category(word: str) -> str:
@@ -200,14 +251,3 @@ def guess_category(word: str) -> str:
     if len(pieces) > 3:
         category = 'phrase'
     return category
-
-
-@cache_result('synonyms')
-def get_synonyms(word) -> object:
-    """
-    Get the word's synonyms
-    """
-    if not word:
-        return {'error': 'The word parameter not found.'}
-    thesaurus = BigHugeThesaurus()
-    return thesaurus.get_synonyms(word)
