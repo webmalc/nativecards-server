@@ -5,6 +5,7 @@ import os
 
 import requests
 from django.conf import settings
+from gtts import gTTS
 
 from nativecards.lib.dictionary import get_defenition, get_synonyms
 
@@ -14,6 +15,7 @@ def test_get_phrasal_word_definition(mocker):
     Should return a dictionary with the definition
     and other information about the phrasal word
     """
+    gTTS.save = mocker.MagicMock(return_value='some value')
     path = os.path.join(settings.FIXTURE_DIRS[0],
                         'test/webster/come_definition.xml')
     with open(path, 'r') as xml:
@@ -36,6 +38,7 @@ def test_get_word_definition(mocker):
     Should return a dictionary with the definition
     and other information about the word
     """
+    gTTS.save = mocker.MagicMock(return_value='some value')
     path = os.path.join(settings.FIXTURE_DIRS[0],
                         'test/webster/cat_definition.xml')
     with open(path, 'r') as xml:
@@ -57,6 +60,7 @@ def test_get_definition_errors(mocker):
     """
     Should return None when an error occurred
     """
+    gTTS.save = mocker.MagicMock(return_value='some value')
     result = get_defenition('')
     assert result['error'] == 'The word parameter not found.'
 

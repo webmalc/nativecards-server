@@ -10,9 +10,7 @@ pytest-cache==1.0
 pytest-cov==2.6.1
 pytest-flakes==4.0.0
 pytest-mypy==0.3.2
-pytest-pylint==0.14.0
 pytest-xdist==1.22.5
-pylint-django==2.0.13
 yapf==0.27.0
 tox==3.9.0
 twine==1.13.0
@@ -26,3 +24,7 @@ virtualenv-clone==0.3.0
 pep8==1.7.1
 flake8==3.7.9
 coveralls==1.9.1
+pylint==2.4.4
+pylint-django==2.0.13
+pylint-plugin-utils==0.6
+pytest-pylint==0.14.0

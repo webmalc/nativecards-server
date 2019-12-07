@@ -1,26 +1,20 @@
 """
 The tests module for the dictionary module
 """
-import os
-
 import pytest
-from django.conf import settings
+from gtts import gTTS
 
 from nativecards.lib.audio import get_audio
 
 
-def test_get_word_definition():
+def test_get_word_definition(mocker):
     """
     Should return create a file with the word pronunciation
     """
-    fullpath = os.path.join(settings.MEDIA_ROOT, 'audio/test_test_word.mp3')
-    if os.path.isfile(fullpath):
-        os.remove(fullpath)
+    gTTS.save = mocker.MagicMock(return_value='some value')
     url = get_audio('test test word')
 
     assert url == 'http://localhost:8000/media/audio/test_test_word.mp3'
-    assert os.path.isfile(fullpath)
-    os.remove(fullpath)
 
 
 def test_get_definition_errors():
