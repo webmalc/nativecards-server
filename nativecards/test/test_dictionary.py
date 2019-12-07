@@ -86,9 +86,7 @@ def test_get_definition_errors(mocker):
     requests.get = mocker.MagicMock(return_value=response)
     result = get_defenition('man')
 
-    assert result['definition'] is None
-    assert result['examples'] is None
-    assert result['transcription'] is None
+    assert result is None
 
 
 def test_get_synonyms(mocker):

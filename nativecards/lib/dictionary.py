@@ -3,13 +3,14 @@ The dictionary module
 """
 import re
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from xml.etree import ElementTree
 
 import requests
 from django.conf import settings
+from django.utils.module_loading import import_string
 
-from nativecards.lib.audio import get_audio
+from nativecards.lib.audio import get_audio  # pylint: disable=import-error
 from nativecards.lib.cache import cache_result  # pylint: disable=import-error
 
 
@@ -25,24 +26,46 @@ class Thesaurus(ABC):
         """
 
 
+class DefinitionEntry():
+    """
+    The definition entry class
+    """
+    pronunciation = None  # type: Optional[str]
+    examples = None  # type: Optional[str]
+    definition = None  # type: Optional[str]
+    transcription = None  # type: Optional[str]
+
+    def __init__(
+            self,
+            definition: Optional[str],
+            examples: Optional[str],
+            pronunciation: Optional[str] = None,
+            transcription: Optional[str] = None,
+    ):
+        self.pronunciation = pronunciation or None
+        self.examples = examples or None
+        self.definition = definition or None
+        self.transcription = transcription or None
+
+
 class Dictionary(ABC):
     """
     Base dictionary class
     """
 
     @abstractmethod
-    def get_entry(self, word: str) -> dict:
+    def get_entry(self, word: str) -> Optional[DefinitionEntry]:
         """
         Get the word or phrase entry
         """
 
-    def process(self, word: str) -> dict:
+    def process(self, word: str) -> Optional[DefinitionEntry]:
         """
         Get the definition
         """
         info = self.get_entry(word)
-        if info and 'pronunciation' in info and not info['pronunciation']:
-            info['pronunciation'] = get_audio(word)
+        if info and not info.pronunciation:
+            info.pronunciation = get_audio(word)
         return info
 
 
@@ -109,7 +132,7 @@ class WebsterLearners(Dictionary):
         examples = ''
         for element in root.iter('vi'):
             text = ElementTree.tostring(element).decode('utf-8')
-            text = re.sub(r'</?(it|phrase){1}>', '*', text)
+            text = re.sub(r'</?(it|phrase|vi){1}>', '*', text)
             if text:
                 examples += '{}\n\n'.format(text)
         return examples
@@ -135,7 +158,7 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
-    def _get_word_info(self, tree):
+    def _get_word_info(self, tree) -> Optional[DefinitionEntry]:
         """
         Returns the word information
         """
@@ -146,14 +169,17 @@ class WebsterLearners(Dictionary):
         definition = self._get_definition(tree)
         transcription = self._get_transcription(tree)
 
-        return {
-            'pronunciation': audio[0] if audio else None,
-            'examples': examples or None,
-            'definition': definition or None,
-            'transcription': transcription or None
-        }
+        result = DefinitionEntry(
+            definition,
+            examples,
+            audio[0] if audio else None,
+            transcription,
+        )
 
-    def _get_phrasal_verb_info(self, tree, word: str):
+        return result
+
+    def _get_phrasal_verb_info(self, tree,
+                               word: str) -> Optional[DefinitionEntry]:
         """
         Returns the phrasal verb word information
         """
@@ -162,14 +188,10 @@ class WebsterLearners(Dictionary):
         if root:
             definition = self._get_phrasal_verb_definition(root)
             examples = self._get_phrasal_verb_examples(root)
-        return {
-            'pronunciation': None,
-            'examples': examples or None,
-            'definition': definition or None,
-            'transcription': None
-        }
 
-    def get_entry(self, word: str):
+        return DefinitionEntry(definition, examples)
+
+    def get_entry(self, word: str) -> Optional[DefinitionEntry]:
         """
         Returns the word or phrase entry
         """
@@ -220,18 +242,23 @@ class BigHugeThesaurus(Thesaurus):
 
 
 @cache_result('definition')
-def get_defenition(word) -> object:
+def get_defenition(word) -> Optional[dict]:
     """
     Get the word's definition
     """
     if not word:
         return {'error': 'The word parameter not found.'}
-    dictionary = WebsterLearners()
-    return dictionary.process(word.lower())
+    word = word.lower()
+    for dictionary_class in settings.NC_DICTIONARIES:
+        dictionary = import_string(dictionary_class)()
+        result = dictionary.process(word)
+        if result and result.definition:
+            return result.__dict__
+    return None
 
 
 @cache_result('synonyms')
-def get_synonyms(word) -> object:
+def get_synonyms(word) -> dict:
     """
     Get the word's synonyms
     """

@@ -82,7 +82,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         """
         Returns images for a word
         """
-        return Response(get_images(request.GET.get('word')))
+        result = get_images(request.GET.get('word'))
+        return Response(result, status=200 if result else 404)
 
     @staticmethod
     @action(detail=False, methods=['get'])
@@ -90,7 +91,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         """
         Returns translations for a word
         """
-        return Response(translate(request.GET.get('word')))
+        result = translate(request.GET.get('word'))
+        return Response(result, status=200 if result else 404)
 
     @staticmethod
     @action(detail=False, methods=['get'])
@@ -98,7 +100,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         """
         Returns synonyms and antonyms for a word
         """
-        return Response(get_synonyms(request.GET.get('word')))
+        result = get_synonyms(request.GET.get('word'))
+        return Response(result, status=200 if result else 404)
 
     @staticmethod
     @action(detail=False, methods=['get'])
@@ -106,7 +109,8 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         """
         Returns definitions for a word
         """
-        return Response(get_defenition(request.GET.get('word')))
+        result = get_defenition(request.GET.get('word'))
+        return Response(result, status=200 if result else 404)
 
     @action(detail=False, methods=['get'])
     def lesson(self, request):
