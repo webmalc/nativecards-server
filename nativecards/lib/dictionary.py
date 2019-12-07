@@ -9,6 +9,7 @@ from xml.etree import ElementTree
 import requests
 from django.conf import settings
 
+from nativecards.lib.audio import get_audio
 from nativecards.lib.cache import cache_result  # pylint: disable=import-error
 
 
@@ -41,7 +42,7 @@ class Dictionary(ABC):
         """
         info = self.get_entry(word)
         if info and 'pronunciation' in info and not info['pronunciation']:
-            info['pronunciation'] = None
+            info['pronunciation'] = get_audio(word)
         return info
 
 

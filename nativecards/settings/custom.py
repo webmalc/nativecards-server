@@ -3,6 +3,8 @@ Custom setting for nativecards project
 """
 from .env import ENV
 
+NC_FILES_DOMAIN = ENV.str('NC_FILES_DOMAIN')
+
 NC_IMAGE_WIDTH = ENV.int('NC_IMAGE_WIDTH')
 
 NC_ATTEMPTS_TO_REMEMBER = ENV.int('NC_ATTEMPTS_TO_REMEMBER')

@@ -23,10 +23,11 @@ def test_get_phrasal_word_definition(mocker):
     response._content = xml.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
     result = get_defenition('come up with')
+    audio = 'http://localhost:8000/media/audio/come_up_with.mp3'
 
     assert 'to get or think of' in result['definition']
     assert 'We finally *came up with* a' in result['examples']
-    assert result['pronunciation'] is None
+    assert result['pronunciation'] == audio
     assert result['transcription'] is None
 
 
@@ -82,7 +83,6 @@ def test_get_definition_errors(mocker):
     result = get_defenition('man')
 
     assert result['definition'] is None
-    assert result['pronunciation'] is None
     assert result['examples'] is None
     assert result['transcription'] is None
 
