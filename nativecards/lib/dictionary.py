@@ -30,10 +30,10 @@ class DefinitionEntry():
     """
     The definition entry class
     """
-    pronunciation = None  # type: Optional[str]
-    examples = None  # type: Optional[str]
-    definition = None  # type: Optional[str]
-    transcription = None  # type: Optional[str]
+    pronunciation: Optional[str] = None
+    examples: Optional[str] = None
+    definition: Optional[str] = None
+    transcription: Optional[str] = None
 
     def __init__(
             self,

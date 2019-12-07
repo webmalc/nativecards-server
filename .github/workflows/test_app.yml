@@ -53,4 +53,4 @@ jobs:
 
     - name: Test the app
       run: |
-        pytest --pep8 --flakes --cov=./
+        pytest --pycodestyle --flakes --cov=./

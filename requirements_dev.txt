@@ -2,7 +2,7 @@ pudb==2018.1
 ipdb==0.11
 pytest==4.3.1
 pytest-env==0.6.2
-pytest-pep8==1.0.6
+pytest-codestyle==2.0.0
 pytest-django==3.4.7
 pytest-forked==0.2
 pytest-mock==1.10.0
@@ -21,7 +21,6 @@ pyflakes==2.1.1
 coverage==4.5.1
 virtualenv==16.0.0
 virtualenv-clone==0.3.0
-pep8==1.7.1
 flake8==3.7.9
 coveralls==1.9.1
 pylint==2.4.4
