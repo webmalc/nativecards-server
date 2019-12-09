@@ -1,4 +1,5 @@
 import json
+import os
 
 import pytest
 from django.conf import settings
@@ -90,6 +91,7 @@ def test_deck_get_remote_image(admin):
 
     assert deck.image.width is settings.NC_IMAGE_WIDTH
     assert '_1' in deck.image.url
+    os.remove(deck.image.path)
 
 
 def test_decks_list_by_user(client):
@@ -127,8 +129,9 @@ def test_decks_create_by_admin(admin_client):
         'description': 'test description',
         'remote_image': 'https://via.placeholder.com/550x400'
     })
-    response = admin_client.post(
-        reverse('decks-list'), data=data, content_type="application/json")
+    response = admin_client.post(reverse('decks-list'),
+                                 data=data,
+                                 content_type="application/json")
     data = response.json()
 
     assert data['title'] == 'new test deck'
@@ -137,3 +140,5 @@ def test_decks_create_by_admin(admin_client):
 
     response = admin_client.get(reverse('decks-list'))
     assert len(response.json()['results']) == 4
+    deck = Deck.objects.get(pk=data['id'])
+    os.remove(deck.image.path)

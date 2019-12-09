@@ -78,7 +78,7 @@ bower_components/*
 /static
 
 #media
-/media/*
+/media/uploads/*
 /media/audio/*
 !/media/audio/.gitkeep
 !/media/350x150.png
