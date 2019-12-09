@@ -3,7 +3,7 @@ Custom setting for nativecards project
 """
 from .env import ENV
 
-NC_DICTIONARIES = ['nativecards.lib.dictionary.WebsterLearners']
+NC_DICTIONARIES = ['nativecards.lib.dicts.webster_learners.WebsterLearners']
 
 NC_FILES_DOMAIN = ENV.str('NC_FILES_DOMAIN')
 

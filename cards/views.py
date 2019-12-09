@@ -7,8 +7,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
-from nativecards.lib.dictionary import get_defenition, get_synonyms
+from nativecards.lib.dictionary import get_defenition
 from nativecards.lib.pixabay import get_images
+from nativecards.lib.synonyms import get_synonyms
 from nativecards.lib.trans import translate
 from nativecards.viewsets import UserViewSetMixin
 

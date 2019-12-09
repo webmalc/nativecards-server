@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 import requests
 
-from nativecards.lib.cache import cache_result  # pylint: disable=import-error
+from nativecards.lib.cache import cache_result
 
 
 class Translate(ABC):
