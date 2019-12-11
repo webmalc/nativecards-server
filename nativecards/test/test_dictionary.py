@@ -10,7 +10,55 @@ from gtts import gTTS
 from nativecards.lib.dictionary import get_defenition
 
 
-def test_get_phrasal_word_definition(mocker):
+def test_get_definition_errors_freedict(mocker):
+    """
+    Should return None when an error occurred
+    """
+    gTTS.save = mocker.MagicMock(return_value='some value')
+    result = get_defenition('')
+    assert result['error'] == 'The word parameter not found.'
+
+    response = requests.Response()
+    response.status_code = 404
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_defenition('to put it mildly')
+
+    assert result is None
+
+    response = requests.Response()
+    response.status_code = 200
+    content = '<html><body>test</body></html>'
+    response._content = content.encode()  # pylint: disable=protected-access
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_defenition('beat around the bush')
+
+    assert result is None
+
+
+def test_get_word_definition_freedict(mocker):
+    """
+    Should return a dictionary with the definition
+    and other information about the word
+    """
+    gTTS.save = mocker.MagicMock(return_value='some value')
+    path = os.path.join(settings.FIXTURE_DIRS[0], 'test/freedict/horse.html')
+    with open(path, 'r') as page:
+        page = page.read()
+    response = requests.Response()
+    response.status_code = 200
+    response._content = page.encode()  # pylint: disable=protected-access
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_defenition("get straight from the horse's mouth")
+    audio = '/media/audio/get_straight_from_the_horses_mouth.mp3'
+
+    assert 'obtain information from the original' in result['definition']
+    assert 'to get information from the person most' in result['definition']
+    assert 'Yep, Mrs. Whitford told me' in result['examples']
+    assert 'it until I get it straight from the horse' in result['examples']
+    assert audio in result['pronunciation']
+
+
+def test_get_phrasal_word_definition_webster(mocker):
     """
     Should return a dictionary with the definition
     and other information about the phrasal word
@@ -32,8 +80,11 @@ def test_get_phrasal_word_definition(mocker):
     assert result['pronunciation'] == audio
     assert result['transcription'] is None
 
+    result = get_defenition('come across')
+    assert 'to seem to have a particular quality' in result['definition']
 
-def test_get_word_definition(mocker):
+
+def test_get_word_definition_webster(mocker):
     """
     Should return a dictionary with the definition
     and other information about the word
@@ -56,7 +107,7 @@ def test_get_word_definition(mocker):
     assert result['transcription'] == 'ˈkæt'
 
 
-def test_get_definition_errors(mocker):
+def test_get_definition_errors_webster(mocker):
     """
     Should return None when an error occurred
     """

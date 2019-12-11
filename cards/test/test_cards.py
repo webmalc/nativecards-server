@@ -2,6 +2,7 @@
 The test module for the cards application
 """
 import json
+import os
 
 import pytest
 from django.urls import reverse
@@ -207,6 +208,9 @@ def test_cards_create_by_admin(admin_client):
 
     response = admin_client.get(reverse('cards-list'))
     assert len(response.json()['results']) == 3
+
+    card = Card.objects.get(pk=data['id'])
+    os.remove(card.image.path)
 
 
 def test_cards_images_by_user(client):

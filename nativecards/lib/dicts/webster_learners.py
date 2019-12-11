@@ -63,6 +63,8 @@ class WebsterLearners(Dictionary):
         for element in root.iter('dt'):
             text = element.text if element.text else ''
             text = text.replace(':', '')
+            if not text:
+                text = element.find('sx').text
             if text:
                 definition += '{}\n\n'.format(text)
         return definition
@@ -146,7 +148,7 @@ class WebsterLearners(Dictionary):
             except ElementTree.ParseError:
                 return None
             category = guess_category(word)
-            if category == 'phrasal_verb':
+            if category != 'word':
                 return self._get_phrasal_verb_info(tree, word)
             return self._get_word_info(tree)
 
