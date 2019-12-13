@@ -64,7 +64,7 @@ class WebsterLearners(Dictionary):
             text = element.text if element.text else ''
             text = text.replace(':', '')
             if not text:
-                text = element.find('sx').text
+                text = getattr(element.find('sx'), 'text', '')
             if text:
                 definition += '{}\n\n'.format(text)
         return definition
