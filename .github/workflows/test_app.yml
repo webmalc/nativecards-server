@@ -29,7 +29,7 @@ jobs:
 
     - name: Install environments
       run: |
-          sudo apt-get update || exit 0
+          sudo apt-get update
           sudo apt-get install -y gettext sqlite3 libsqlite3-dev libpq-dev python3.7-dev
 
     - name: Copy configs
