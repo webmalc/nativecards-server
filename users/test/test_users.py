@@ -171,7 +171,7 @@ It must contain at least 8 characters.', 'This password is too common.',
     assert response.status_code == 200
 
     token = response.json()['access']
-    refresh = json_data['refresh']
+    refresh = response.json()['refresh']
     assert token is not None
     assert refresh is not None
 
@@ -181,6 +181,7 @@ It must contain at least 8 characters.', 'This password is too common.',
     response = client.get(reverse('api-root'),
                           HTTP_AUTHORIZATION='JWT ' + token)
     assert response.status_code == 200
+
     assert len(mailoutbox) == 1
     mail = mailoutbox[0]
     assert mail.recipients() == ['newuser@example.com']
@@ -192,6 +193,39 @@ It must contain at least 8 characters.', 'This password is too common.',
     deck = Deck.objects.get_default(user)
     assert deck.title == 'main'
     assert deck.is_default is True
+
+
+def test_admin_jwt_token(client, admin):
+    """
+    Should authenticate by the JWT token
+    """
+    admin.set_password('password')
+    admin.save()
+
+    response = client.post('/api-token-auth/',
+                           data={
+                               'username': admin.username,
+                               'password': 'password'
+                           },
+                           content_type="application/json")
+
+    assert response.status_code == 200
+    token = response.json()['access']
+    refresh = response.json()['refresh']
+    assert token is not None
+    assert refresh is not None
+
+    response = client.post(reverse('decks-list'),
+                           data={
+                               "title": "new deck",
+                               "description": 'new deck description',
+                           },
+                           content_type="application/json",
+                           HTTP_AUTHORIZATION='JWT ' + token)
+
+    assert response.status_code == 201
+    assert response.json()['created_by'] == 'admin'
+    assert response.json()['title'] == 'new deck'
 
 
 def test_user_register_validation_errors_by_user(client, mocker):

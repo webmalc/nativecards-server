@@ -3,6 +3,7 @@ from django.urls import resolve
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.functional import curry
 from django.utils.translation import activate
+from rest_framework_simplejwt import authentication
 
 
 class DisableAdminI18nMiddleware(MiddlewareMixin):
@@ -23,6 +24,9 @@ class WhodidMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         if request.method not in ('GET', 'HEAD', 'OPTIONS', 'TRACE'):
+            jwt_user = authentication.JWTAuthentication().authenticate(request)
+            if jwt_user:
+                request.user = jwt_user[0]
             if hasattr(request, 'user') and request.user.is_authenticated:
                 user = request.user
             else:
