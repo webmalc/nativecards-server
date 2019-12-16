@@ -79,6 +79,7 @@ LANGUAGES = (
     ('sk', _('Slovak')),
     ('sl', _('Slovenian')),
     ('so', _('Somali')),
+    ('es', _('Spanish')),
     ('su', _('Sundanese')),
     ('sw', _('Swahili')),
     ('sv', _('Swedish')),
