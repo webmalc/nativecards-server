@@ -20,18 +20,26 @@ class FreeDictionary(Dictionary):
     def _get_definition_and_examples(soup: BeautifulSoup
                                      ) -> Optional[DictionaryEntry]:
         definitions = examples = ''
-        entry_tags = soup.select('#Definition > section > .ds-single')
-        for entry in entry_tags:
-            definition = entry.text
-            example_tags = entry.select('.illustration')
-            for tag in example_tags:
-                example = tag.text.strip()
-                definition = definition.replace(example, '').strip()
-                if example:
-                    examples += '{}\n\n'.format(example)
+        for section in soup.select('#Definition > section'):
+            entry_tags = section.select('.ds-single')
+            if not entry_tags:
+                entry_tags = section.select('.ds-list')
+            if not entry_tags:
+                entry_tags = [section]
+            see_also = section.select_one('.SeeAlso')
+            see_also = see_also.text if see_also else ''
+            for entry in entry_tags:
+                definition = entry.text
+                definition = definition.replace(see_also, '')
+                example_tags = entry.select('.illustration')
+                for tag in example_tags:
+                    example = tag.text.strip()
+                    definition = definition.replace(example, '').strip()
+                    if example:
+                        examples += '{}\n\n'.format(example)
 
-            if definition:
-                definitions += '{}\n\n'.format(definition)
+                if definition:
+                    definitions += '{}\n\n'.format(definition)
 
         if definitions or examples:
             return DictionaryEntry(definitions, examples)
