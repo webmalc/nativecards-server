@@ -1,14 +1,20 @@
+"""
+The base models module
+"""
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 
+from .fields import LanguageField
 from .managers import SettingsManager
 
 
 class CommonInfo(models.Model):
-    """ CommonInfo abstract model """
+    """
+    The abstract model with common info
+    """
 
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -27,8 +33,9 @@ class CommonInfo(models.Model):
         editable=False,
         verbose_name=_('modified by'),
         related_name="%(app_label)s_%(class)s_modified_by")
-    is_enabled = models.BooleanField(
-        default=True, db_index=True, verbose_name=_('is enabled'))
+    is_enabled = models.BooleanField(default=True,
+                                     db_index=True,
+                                     verbose_name=_('is enabled'))
 
     def __str__(self):
         default = '{} #{}'.format(type(self).__name__, str(self.id))
@@ -39,6 +46,10 @@ class CommonInfo(models.Model):
 
 
 class CachedModel(models.Model):
+    """
+    The cached model mixin
+    """
+
     class Meta:
         abstract = True
 
@@ -50,6 +61,12 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
 
     objects = SettingsManager()
 
+    language = LanguageField(
+        null=True,
+        blank=True,
+        verbose_name=_('language'),
+        help_text=_('target language for translations'),
+    )
     attempts_to_remember = models.PositiveIntegerField(
         default=settings.NC_ATTEMPTS_TO_REMEMBER,
         verbose_name=_('attempts to remember'),
@@ -88,6 +105,9 @@ class Settings(CachedModel, CommonInfo, TimeStampedModel):  # type: ignore
 
     @property
     def attempts_per_day(self) -> int:
+        """
+        Returns attempts per day
+        """
         return self.lessons_per_day * (
             self.cards_per_lesson * settings.NC_CARDS_REPEAT_IN_LESSON +
             self.cards_to_repeat)

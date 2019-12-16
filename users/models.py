@@ -1,3 +1,6 @@
+"""
+The user models module
+"""
 from annoying.fields import AutoOneToOneField
 from django.contrib.auth.models import User
 from django.db import models
@@ -13,12 +16,17 @@ class Profile(TimeStampedModel):
     """
     objects = ProfileManager()
 
-    user = AutoOneToOneField(
-        User, on_delete=models.CASCADE, related_name='profile')
-    is_verified = models.BooleanField(
-        default=True, db_index=True, verbose_name=_('is verified'))
-    verification_code = models.CharField(
-        max_length=200, null=True, blank=True, db_index=True, unique=True)
+    user = AutoOneToOneField(User,
+                             on_delete=models.CASCADE,
+                             related_name='profile')
+    is_verified = models.BooleanField(default=True,
+                                      db_index=True,
+                                      verbose_name=_('is verified'))
+    verification_code = models.CharField(max_length=200,
+                                         null=True,
+                                         blank=True,
+                                         db_index=True,
+                                         unique=True)
 
     def __str__(self):
         return "{}'s profile".format(self.user.username)

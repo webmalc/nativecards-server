@@ -60,8 +60,9 @@ class SettingsAdmin(VersionAdmin):
     The settings admin interface
     """
     form = SettingsAdminForm
-    list_display = ('id', 'attempts_to_remember', 'cards_per_lesson',
-                    'cards_to_repeat', 'lesson_latest_days', 'lessons_per_day',
+    list_display = ('id', 'language', 'attempts_to_remember',
+                    'cards_per_lesson', 'cards_to_repeat',
+                    'lesson_latest_days', 'lessons_per_day',
                     'play_audio_on_open', 'created', 'created_by')
     list_display_links = ('id', 'attempts_to_remember', 'cards_per_lesson',
                           'cards_to_repeat', 'lesson_latest_days')
@@ -73,9 +74,9 @@ class SettingsAdmin(VersionAdmin):
     fieldsets = (
         ('General', {
             'fields':
-            ('attempts_to_remember', 'cards_per_lesson', 'cards_to_repeat',
-             'lesson_latest_days', 'lessons_per_day', 'attempts_per_day',
-             'play_audio_on_open')
+            ('language', 'attempts_to_remember', 'cards_per_lesson',
+             'cards_to_repeat', 'lesson_latest_days', 'lessons_per_day',
+             'attempts_per_day', 'play_audio_on_open')
         }),
         ('Options', {
             'fields': ('created', 'modified', 'created_by', 'modified_by')

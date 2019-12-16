@@ -142,13 +142,6 @@ UserAttributeSimilarityValidator',
 
 LANGUAGE_CODE = 'en'
 
-LANGUAGES = (
-    ('en', 'English'),
-    ('ru', 'Russian'),
-    ('de', 'German'),
-    ('fr', 'French'),
-    ('tr', 'Turkish'),
-)
 MODELTRANSLATION_LANGUAGES = ('en', 'ru')
 
 TIME_ZONE = 'UTC'
