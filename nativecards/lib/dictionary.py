@@ -19,7 +19,7 @@ def get_defenition(word) -> Optional[dict]:
     word = word.lower()
     for dictionary_class in settings.NC_DICTIONARIES:
         dictionary = import_string(dictionary_class)()
-        result = dictionary.process(word)
+        result = dictionary.process(word.lower())
         if result and result.definition:
             return result.__dict__
     return None

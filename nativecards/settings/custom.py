@@ -7,6 +7,10 @@ NC_DICTIONARIES = [
     'nativecards.lib.dicts.webster_learners.WebsterLearners',
     'nativecards.lib.dicts.free_dictionary.FreeDictionary',
 ]
+NC_TRANSLATORS = [
+    'nativecards.lib.trans.Lingualeo',
+    'nativecards.lib.trans.GoogleTrans',
+]
 
 NC_FILES_DOMAIN = ENV.str('NC_FILES_DOMAIN')
 
