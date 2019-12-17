@@ -40,8 +40,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
         return Response(serializer.data)
 
+    @staticmethod
     @action(detail=False, methods=['post'])
-    def verification(self, request):
+    def verification(request):
         """
         Users email verification
         """
@@ -56,8 +57,9 @@ class UsersViewSet(viewsets.GenericViewSet):
 
         return Response({'status': True}, status=status.HTTP_200_OK)
 
+    @staticmethod
     @action(detail=False, methods=['patch'])
-    def password(self, request):
+    def password(request):
         """
         Change the current user password
         """
@@ -81,11 +83,12 @@ class UsersViewSet(viewsets.GenericViewSet):
         data = serializer.validated_data
         email = data['email']
         password = data['password_new']
+        language = data['language']
 
         try:
-            user = ProfileManager.create_user(email, password)
+            user = ProfileManager.create_user(email, password, language)
         except ValidationError as error:
-            raise serializers.ValidationError(error)
+            raise serializers.ValidationError(error.message_dict)
 
         send_registration_email(user)
 

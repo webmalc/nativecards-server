@@ -1,8 +1,12 @@
+"""
+The users managers module
+"""
 from time import time_ns
 
 from django.contrib.auth.models import User
 from django.db import models
 
+from nativecards.models import Settings
 from users import models as user_models
 
 
@@ -10,19 +14,18 @@ class ProfileManager(models.Manager):
     """"
     The profile manager
     """
-
     def get_by_code(self, code: str):
         """
         Get a user profile by a code
         """
         try:
-            return self.select_related('user').get(
-                verification_code=code, is_verified=False)
+            return self.select_related('user').get(verification_code=code,
+                                                   is_verified=False)
         except user_models.Profile.DoesNotExist:  # ignore
             return None
 
     @staticmethod
-    def create_user(email: str, password: str) -> User:
+    def create_user(email: str, password: str, language: str) -> User:
         """
         Create a user account by email
         """
@@ -36,5 +39,10 @@ class ProfileManager(models.Manager):
         user.profile.verification_code = code
         user.profile.is_verified = False
         user.profile.save()
+
+        settings = Settings.objects.get_by_user(user)
+        settings.language = language
+        settings.full_clean()
+        settings.save()
 
         return user

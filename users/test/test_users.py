@@ -1,17 +1,22 @@
+"""
+The tests module for the users package
+"""
 import json
 
 import pytest
 from django.contrib.auth.models import User
-from django.core.validators import ValidationError
 from django.urls import reverse
 
 from cards.models import Deck
-from users.managers import ProfileManager
+from nativecards.models import Settings
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 def test_default_deck_creation():
+    """
+    Should create a deck when creating a user
+    """
     user = User()
     user.username = 'newtestuser@example.com'
     user.email = 'newtestuser@example.com'
@@ -24,11 +29,17 @@ def test_default_deck_creation():
 
 
 def test_user_get_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('users-get'))
     assert response.status_code == 401
 
 
 def test_user_get_by_admin(admin_client):
+    """
+    Should return a user
+    """
     response = admin_client.get(reverse('users-get'))
     data = response.json()
 
@@ -42,6 +53,9 @@ def test_user_get_by_admin(admin_client):
 
 
 def test_user_verification_by_user(client):
+    """
+    Should verify a user by a token
+    """
     profile = User.objects.get(username='user@example.com').profile
     profile.verification_code = 'b' * 100
     profile.is_verified = False
@@ -67,6 +81,9 @@ def test_user_verification_by_user(client):
 
 
 def test_user_change_password_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     data = json.dumps({'password': '123456', 'password_two': '654321'})
     response = client.patch(reverse('users-password'),
                             data=data,
@@ -75,6 +92,9 @@ def test_user_change_password_by_user(client):
 
 
 def test_user_change_password_by_admin(admin_client):
+    """
+    Should change password
+    """
     data = json.dumps({'password': '12345678', 'password_two': '87654321'})
     url = reverse('users-password')
     response = admin_client.patch(url,
@@ -114,13 +134,17 @@ def test_user_register_by_user(client, mailoutbox):
     """
     Test a new user registration
     """
-    data = json.dumps({
-        'email': 'admin@example.com',
-        'password_new': 'password'
-    })
-    response = client.post(reverse('users-register'),
+    def post(data: dict):
+        return client.post(reverse('users-register'),
                            data=data,
                            content_type="application/json")
+
+    data = json.dumps({
+        'email': 'admin@example.com',
+        'password_new': 'password',
+        'language': 'xx',
+    })
+    response = post(data)
     assert response.status_code == 400
     assert response.json() == {
         'non_field_errors': [{
@@ -128,11 +152,12 @@ def test_user_register_by_user(client, mailoutbox):
         }]
     }
 
-    data = json.dumps({'email': 'newuser@example.com', 'password_new': '12'})
-    response = client.post(reverse('users-register'),
-                           data=data,
-                           content_type="application/json")
-
+    data = json.dumps({
+        'email': 'newuser@example.com',
+        'password_new': '12',
+        'language': 'xx',
+    })
+    response = post(data)
     assert response.status_code == 400
     assert response.json() == {
         'password': [
@@ -144,20 +169,31 @@ It must contain at least 8 characters.', 'This password is too common.',
 
     data = json.dumps({
         'email': 'newuser@example.com',
-        'password_new': 'super_password'
+        'password_new': 'super_password',
+        'language': 'xx',
     })
-    response = client.post(reverse('users-register'),
-                           data=data,
-                           content_type="application/json")
+    response = post(data)
+    assert response.status_code == 400
+    assert response.json() == {
+        'language': ["Value 'xx' is not a valid choice."]
+    }
 
+    data = json.dumps({
+        'email': 'newuser@example.com',
+        'password_new': 'super_password',
+        'language': 'es',
+    })
+    response = post(data)
     assert response.status_code == 201
     json_data = response.json()
     user = User.objects.get(username='newuser@example.com')
     token = json_data['token']
     refresh = json_data['refresh']
+    settings = Settings.objects.get(created_by=user)
 
     assert token is not None
     assert refresh is not None
+    assert settings.language == 'es'
     assert user.email == 'newuser@example.com'
     assert user.username == 'newuser@example.com'
     assert user.is_staff is False
@@ -228,29 +264,7 @@ def test_admin_jwt_token(client, admin):
     assert response.json()['title'] == 'new deck'
 
 
-def test_user_register_validation_errors_by_user(client, mocker):
-    """
-    Test validation errors raised during the user registration
-    """
-
-    def raise_error(email: str, passowrd: str) -> None:
-        raise ValidationError('test')
-
-    ProfileManager.create_user = mocker.MagicMock(side_effect=raise_error)
-
-    data = json.dumps({
-        'email': 'newuser@example.com',
-        'password_new': 'super_password'
-    })
-    response = client.post(reverse('users-register'),
-                           data=data,
-                           content_type="application/json")
-
-    assert response.status_code == 400
-    assert 'test' in str(response.content)
-
-
-def test_user_admin_list_display(admin_client, mocker):
+def test_user_admin_list_display(admin_client):
     """
     Test validation errors raised during the user registration
     """
