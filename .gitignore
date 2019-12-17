@@ -90,6 +90,10 @@ bower_components/*
 celerybeat.pid
 celerybeat-schedule*
 
+#Vscode
+.vscode
+.history
+
 #Emacs
 tags
 GPATH
