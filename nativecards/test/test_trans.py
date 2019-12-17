@@ -3,7 +3,34 @@ The tests module for the trans module
 """
 import requests
 
-from nativecards.lib.trans import Lingualeo
+from nativecards.lib.trans import GoogleTrans, Lingualeo, translate
+
+
+def test_translators_supported_languages():
+    """
+    Translators should only support selected languages
+    """
+    lingualeo = Lingualeo()
+    google = GoogleTrans()
+
+    assert lingualeo.check_language('ru')
+    assert not lingualeo.check_language('es')
+    assert google.check_language('ru')
+    assert google.check_language('es')
+
+    Lingualeo.supported_languages = ['xx']
+    GoogleTrans.supported_languages = ['xx']
+
+    assert not translate('god', 'ru')
+
+
+def test_google_translate():
+    """
+    Should return a word translation
+    """
+    google = GoogleTrans()
+    translations = google.translate('cat', 'es')
+    assert translations == ['gato']
 
 
 def test_lingualeo_translate(mocker):
@@ -20,7 +47,7 @@ def test_lingualeo_translate(mocker):
         }]})
     requests.get = mocker.MagicMock(return_value=response)
     lingualeo = Lingualeo()
-    translations = lingualeo.translate('cat')
+    translations = lingualeo.translate('cat', 'ru')
     assert 'кошка' in translations
 
 
@@ -33,7 +60,7 @@ def test_lingualeo_errors(mocker):
     response = requests.Response()
     response.status_code = 404
     requests.get = mocker.MagicMock(return_value=response)
-    translations = lingualeo.translate('cat')
+    translations = lingualeo.translate('cat', 'ru')
     assert len(translations) == 0
 
     response = requests.Response()
@@ -41,5 +68,5 @@ def test_lingualeo_errors(mocker):
     response.json = mocker.MagicMock(return_value={'error_msg': 'error'})
     requests.get = mocker.MagicMock(return_value=response)
 
-    translations = lingualeo.translate('cat')
+    translations = lingualeo.translate('cat', 'ru')
     assert len(translations) == 0

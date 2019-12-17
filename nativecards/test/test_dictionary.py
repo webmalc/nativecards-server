@@ -53,6 +53,9 @@ def test_get_word_definition_freedict(mocker):
 
     assert 'obtain information from the original' in result['definition']
     assert 'to get information from the person most' in result['definition']
+    assert 'section with a .ds-list container' in result['definition']
+    assert 'section without a container' in result['definition']
+    assert 'See also' not in result['definition']
     assert 'Yep, Mrs. Whitford told me' in result['examples']
     assert 'it until I get it straight from the horse' in result['examples']
     assert audio in result['pronunciation']

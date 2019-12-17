@@ -257,13 +257,21 @@ def test_cards_translation_by_user(client):
     assert response.status_code == 401
 
 
-def test_cards_translation_by_admin(admin_client):
+def test_cards_translation_by_admin(admin_client, admin):
     """
     Should return a word translations
     """
     response = admin_client.get(reverse('cards-translation'))
     assert response.status_code == 200
     assert response.json()['error'] == 'The word parameter not found.'
+
+    response = admin_client.get(reverse('cards-translation') + '?word=dog')
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The language parameter not found.'
+
+    settings = Settings.objects.get_by_user(admin)
+    settings.language = 'ru'
+    settings.save()
 
     response = admin_client.get(reverse('cards-translation') + '?word=dog')
     assert response.status_code == 200
