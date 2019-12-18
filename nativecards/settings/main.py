@@ -50,6 +50,7 @@ for domain in ENV.list('CORS_ORIGIN_REGEX_WHITELIST', default=[]):
 INSTALLED_APPS = [
     'corsheaders',
     'raven.contrib.django.raven_compat',
+    'django.contrib.postgres',
     'django.contrib.admin',
     'django.contrib.humanize',
     'django.contrib.auth',
@@ -76,6 +77,7 @@ INSTALLED_APPS = [
     'nativecards',
     'cards',
     'users',
+    'words',
 ]
 
 SITE_ID = 1

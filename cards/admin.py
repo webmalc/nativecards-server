@@ -3,13 +3,13 @@ The cards admin module
 """
 import arrow
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from imagekit.admin import AdminThumbnail
 from markdownx.admin import MarkdownxModelAdmin
 from ordered_model.admin import OrderedModelAdmin
 from reversion.admin import VersionAdmin
 
 from nativecards.admin import ShowAllInlineAdminMixin
+from words.admin import WordAudioMixin
 
 from .models import Attempt, Card, Deck
 
@@ -60,7 +60,7 @@ class AttemptInlineAdmin(ShowAllInlineAdminMixin):
 
 
 @admin.register(Card)
-class CardAdmin(VersionAdmin, MarkdownxModelAdmin):
+class CardAdmin(VersionAdmin, MarkdownxModelAdmin, WordAudioMixin):
     """
     The cards's admin interface
     """
@@ -95,22 +95,6 @@ class CardAdmin(VersionAdmin, MarkdownxModelAdmin):
         form.base_fields['deck'].initial = Deck.objects.get_default(
             request.user)
         return form
-
-    @staticmethod
-    def audio(obj):
-        """
-        Get the HTML code for the word pronunciation audio file
-        """
-        if not obj.pronunciation:
-            return None
-        html = """
-            <audio id="audio_{id}">
-                <source src="{file}">
-            </audio>
-            <a href="#" data-audio="audio_{id}">►</a>
-        """
-
-        return mark_safe(html.format(id=obj.pk, file=obj.pronunciation))
 
     class Media:
         css = {'all': ('css/admin/cards.css', )}

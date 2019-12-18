@@ -1,0 +1,3 @@
+"""
+The words view module
+"""

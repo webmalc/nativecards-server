@@ -17,8 +17,8 @@ from imagekit.processors import ResizeToFit
 from markdownx.models import MarkdownxField
 from ordered_model.models import OrderedModel
 
-from nativecards.lib.dictionary import guess_category
 from nativecards.models import CachedModel, CommonInfo
+from words.models import BaseWord
 
 from .lesson.score import calc_score
 from .managers import AttemptManager, CardManager, DeckManager
@@ -92,7 +92,7 @@ class Deck(  # type: ignore
         pass
 
 
-class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
+class Card(BaseWord, ImageMixin):  # type: ignore
     """
     The flashcard class
     """
@@ -103,59 +103,15 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
         (3, _('high')),
         (4, _('very high')),
     )
-    CATEGORIES = (
-        ('word', _('word')),
-        ('phrase', _('phrase')),
-        ('phrasal_verb', _('phrasal verb')),
-    )
 
     objects = CardManager()
 
-    word = models.CharField(max_length=255,
-                            db_index=True,
-                            validators=[MinLengthValidator(2)],
-                            verbose_name=_('word'))
-    category = models.CharField(max_length=30,
-                                null=True,
-                                blank=True,
-                                db_index=True,
-                                choices=CATEGORIES,
-                                verbose_name=_('category'))
-    definition = MarkdownxField(db_index=True,
-                                null=True,
-                                blank=True,
-                                verbose_name=_('definition'),
-                                validators=[MinLengthValidator(2)])
-    examples = MarkdownxField(null=True,
-                              blank=True,
-                              db_index=True,
-                              verbose_name=_('examples'),
-                              validators=[MinLengthValidator(2)])
     translation = models.CharField(max_length=255,
                                    null=True,
                                    blank=True,
                                    db_index=True,
                                    verbose_name=_('translation'),
                                    validators=[MinLengthValidator(2)])
-    synonyms = MarkdownxField(null=True,
-                              blank=True,
-                              db_index=True,
-                              verbose_name=_('synonyms'),
-                              validators=[MinLengthValidator(2)])
-    antonyms = MarkdownxField(null=True,
-                              blank=True,
-                              db_index=True,
-                              verbose_name=_('antonyms'),
-                              validators=[MinLengthValidator(2)])
-    transcription = models.CharField(max_length=255,
-                                     null=True,
-                                     blank=True,
-                                     db_index=True,
-                                     verbose_name=_('transcription'),
-                                     validators=[MinLengthValidator(2)])
-    pronunciation = models.URLField(null=True,
-                                    blank=True,
-                                    verbose_name=_('pronunciation'))
     note = MarkdownxField(null=True,
                           blank=True,
                           db_index=True,
@@ -180,13 +136,6 @@ class Card(CommonInfo, TimeStampedModel, ImageMixin):  # type: ignore
                              db_index=True,
                              related_name='cards',
                              verbose_name=_('deck'))
-
-    def _guess_and_set_category(self) -> None:
-        """
-        Try to guess and set the word category
-        """
-        if not self.category:
-            self.category = guess_category(self.word)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         # Limit the complete field

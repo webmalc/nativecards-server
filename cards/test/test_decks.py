@@ -136,7 +136,7 @@ def test_decks_create_by_admin(admin_client):
 
     assert data['title'] == 'new test deck'
     assert data['created_by'] == 'admin'
-    assert '_5.png' in data['image']
+    assert '.png' in data['image']
 
     response = admin_client.get(reverse('decks-list'))
     assert len(response.json()['results']) == 4

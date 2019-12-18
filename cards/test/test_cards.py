@@ -204,7 +204,7 @@ def test_cards_create_by_admin(admin_client):
     assert data['word'] == 'new test word'
     assert data['created_by'] == 'admin'
     assert data['deck'] == 1
-    assert '_4.png' in data['image']
+    assert '.png' in data['image']
 
     response = admin_client.get(reverse('cards-list'))
     assert len(response.json()['results']) == 3
