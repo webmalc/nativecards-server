@@ -7,7 +7,7 @@ import requests
 from django.conf import settings
 from gtts import gTTS
 
-from nativecards.lib.dictionary import get_defenition
+from nativecards.lib.dictionary import get_definition
 
 
 def test_get_definition_errors_freedict(mocker):
@@ -15,13 +15,13 @@ def test_get_definition_errors_freedict(mocker):
     Should return None when an error occurred
     """
     gTTS.save = mocker.MagicMock(return_value='some value')
-    result = get_defenition('')
+    result = get_definition('')
     assert result['error'] == 'The word parameter not found.'
 
     response = requests.Response()
     response.status_code = 404
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('to put it mildly')
+    result = get_definition('to put it mildly')
 
     assert result is None
 
@@ -30,7 +30,7 @@ def test_get_definition_errors_freedict(mocker):
     content = '<html><body>test</body></html>'
     response._content = content.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('beat around the bush')
+    result = get_definition('beat around the bush')
 
     assert result is None
 
@@ -48,7 +48,7 @@ def test_get_word_definition_freedict(mocker):
     response.status_code = 200
     response._content = page.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition("get straight from the horse's mouth")
+    result = get_definition("get straight from the horse's mouth")
     audio = '/media/audio/get_straight_from_the_horses_mouth.mp3'
 
     assert 'obtain information from the original' in result['definition']
@@ -75,7 +75,7 @@ def test_get_phrasal_word_definition_webster(mocker):
     response.status_code = 200
     response._content = xml.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('come up with')
+    result = get_definition('come up with')
     audio = 'http://localhost:8000/media/audio/come_up_with.mp3'
 
     assert 'to get or think of' in result['definition']
@@ -83,7 +83,7 @@ def test_get_phrasal_word_definition_webster(mocker):
     assert result['pronunciation'] == audio
     assert result['transcription'] is None
 
-    result = get_defenition('come across')
+    result = get_definition('come across')
     assert 'to seem to have a particular quality' in result['definition']
 
 
@@ -101,7 +101,7 @@ def test_get_word_definition_webster(mocker):
     response.status_code = 200
     response._content = xml.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('cat')
+    result = get_definition('cat')
 
     assert 'cat00001.wav' in result['pronunciation']
     assert 'I have two dogs and a *cat*' in result['examples']
@@ -115,13 +115,13 @@ def test_get_definition_errors_webster(mocker):
     Should return None when an error occurred
     """
     gTTS.save = mocker.MagicMock(return_value='some value')
-    result = get_defenition('')
+    result = get_definition('')
     assert result['error'] == 'The word parameter not found.'
 
     response = requests.Response()
     response.status_code = 404
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('car')
+    result = get_definition('car')
 
     assert result is None
 
@@ -129,7 +129,7 @@ def test_get_definition_errors_webster(mocker):
     response.status_code = 200
     response._content = 'invalid'.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('card')
+    result = get_definition('card')
 
     assert result is None
 
@@ -138,6 +138,6 @@ def test_get_definition_errors_webster(mocker):
     content = '<?xml version="1.0" encoding="utf-8"?><entry_list></entry_list>'
     response._content = content.encode()  # pylint: disable=protected-access
     requests.get = mocker.MagicMock(return_value=response)
-    result = get_defenition('man')
+    result = get_definition('man')
 
     assert result is None

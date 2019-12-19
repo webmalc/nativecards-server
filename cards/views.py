@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework_extensions.cache.mixins import CacheResponseMixin
 
 import nativecards.lib.settings as config
-from nativecards.lib.dictionary import get_defenition
+from nativecards.lib.dictionary import get_definition
 from nativecards.lib.pixabay import get_images
 from nativecards.lib.synonyms import get_synonyms
 from nativecards.lib.trans import translate
@@ -114,7 +114,7 @@ class CardViewSet(viewsets.ModelViewSet, UserViewSetMixin):
         """
         Returns definitions for a word
         """
-        result = get_defenition(request.GET.get('word'))
+        result = get_definition(request.GET.get('word'))
         return Response(result, status=200)
 
     @action(detail=False, methods=['get'])

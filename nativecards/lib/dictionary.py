@@ -10,7 +10,7 @@ from nativecards.lib.cache import cache_result
 
 
 @cache_result('definition')
-def get_defenition(word) -> Optional[dict]:
+def get_definition(word) -> Optional[dict]:
     """
     Get the word's definition
     """

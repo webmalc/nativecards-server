@@ -8,8 +8,11 @@ from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
 from markdownx.models import MarkdownxField
 
+# from .managers import WordManager
 from nativecards.lib.dictionary import guess_category
 from nativecards.models import CommonInfo
+
+from .managers import WordManager
 
 
 class BaseWord(CommonInfo, TimeStampedModel):
@@ -77,10 +80,14 @@ class Word(BaseWord):
     """
     The word class
     """
+
+    objects = WordManager()
+
     translations = HStoreField(
         null=True,
         blank=True,
         db_index=True,
+        default={},
         verbose_name=_('translations'),
     )
 

@@ -324,7 +324,7 @@ def test_cards_definition_by_admin(admin_client, mocker):
     Should return a JSON response with a definition
     """
     with mocker.patch(
-            'cards.views.get_defenition',
+            'cards.views.get_definition',
             mocker.MagicMock(
                 return_value={'error': 'The word parameter not found.'})):
         response = admin_client.get(reverse('cards-definition'))
@@ -332,7 +332,7 @@ def test_cards_definition_by_admin(admin_client, mocker):
         assert response.json()['error'] == 'The word parameter not found.'
 
     with mocker.patch(
-            'cards.views.get_defenition',
+            'cards.views.get_definition',
             mocker.MagicMock(
                 return_value={
                     'pronunciation': 'test.wav',
