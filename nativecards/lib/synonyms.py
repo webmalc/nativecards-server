@@ -3,11 +3,13 @@ The synonyms module
 """
 
 from abc import ABC, abstractmethod
+from typing import Dict, Optional
 
 import requests
 from django.conf import settings
 
 from nativecards.lib.cache import cache_result
+from words.models import Word
 
 
 class Thesaurus(ABC):
@@ -53,6 +55,29 @@ class BigHugeThesaurus(Thesaurus):
         return {'synonyms': synonyms, 'antonyms': antonyms}
 
 
+def _get_from_word(word: str) -> Optional[Dict[str, str]]:
+    """
+    Get synonyms and antonyms from the words object
+    """
+    word = Word.objects.filter(word=word).exclude(
+        synonyms__isnull=True,
+        antonyms__isnull=True,
+    ).first()
+    if word:
+        return {'synonyms': word.synonyms, 'antonyms': word.antonyms}
+    return None
+
+
+def _get_from_thesaurus(word: str) -> Dict[str, str]:
+    """
+    Get synonyms and antonyms from the thesauruses
+    """
+    thesaurus = BigHugeThesaurus()
+    result = thesaurus.get_synonyms(word.lower())
+    Word.objects.create_or_update(word, **result)
+    return result
+
+
 @cache_result('synonyms')
 def get_synonyms(word) -> dict:
     """
@@ -60,5 +85,7 @@ def get_synonyms(word) -> dict:
     """
     if not word:
         return {'error': 'The word parameter not found.'}
-    thesaurus = BigHugeThesaurus()
-    return thesaurus.get_synonyms(word.lower())
+    result = _get_from_word(word)
+    if result:
+        return result
+    return _get_from_thesaurus(word)

@@ -24,10 +24,15 @@ class WordManager(models.Manager):
             language: Optional[str] = None,
             synonyms: Optional[str] = None,
             antonyms: Optional[str] = None,
-    ) -> words.models.Word:
+    ) -> Optional[words.models.Word]:
         """
         Create or update the word
         """
+        params = locals()
+        del params['word']
+        del params['self']
+        if not any(params.values()):
+            return None
         word, _ = self.get_or_create(word=word)
         if translation and language:
             word.translations[language] = translation

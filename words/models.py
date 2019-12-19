@@ -87,7 +87,7 @@ class Word(BaseWord):
         null=True,
         blank=True,
         db_index=True,
-        default={},
+        default=dict,
         verbose_name=_('translations'),
     )
 

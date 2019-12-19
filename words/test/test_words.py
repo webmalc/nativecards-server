@@ -13,6 +13,7 @@ def test_word_create_or_update():
     """
     Should create and update the word object
     """
+    not_word = Word.objects.create_or_update('test')
     word = Word.objects.create_or_update(
         'test',
         translation='trans',
@@ -32,6 +33,7 @@ def test_word_create_or_update():
         definition=dict_entry,
     )
 
+    assert not_word is None
     assert word.translations == {'es': 'trans'}
     assert word.synonyms is None
     assert word_update.pk == word_pk
