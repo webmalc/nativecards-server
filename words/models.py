@@ -6,9 +6,8 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django_extensions.db.models import TimeStampedModel
-from markdownx.models import MarkdownxField
 
-# from .managers import WordManager
+from markdownx.models import MarkdownxField
 from nativecards.lib.dictionary import guess_category
 from nativecards.models import CommonInfo
 
