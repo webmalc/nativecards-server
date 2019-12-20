@@ -1,9 +1,12 @@
 """
 The tests module for the trans module
 """
+import pytest
 import requests
 
 from nativecards.lib.trans import GoogleTrans, Lingualeo, translate
+
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 def test_translators_supported_languages():
