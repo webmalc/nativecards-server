@@ -101,6 +101,7 @@ GRTAGS
 GTAGS
 .#*
 rest_client.txt
+.python-version
 
 #mypy
 .mypy_cache
