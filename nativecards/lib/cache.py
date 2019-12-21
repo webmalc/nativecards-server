@@ -1,3 +1,6 @@
+"""
+The cache module
+"""
 from functools import wraps
 
 from django.core.cache import cache

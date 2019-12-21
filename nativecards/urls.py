@@ -17,16 +17,16 @@ from users.urls import router as users_router
 from .routers import DefaultRouter
 from .views import SettingsViewSet
 
-base_router = SimpleRouter()
-base_router.register(r'settings', SettingsViewSet, 'settings')
+BASE_ROUTER = SimpleRouter()
+BASE_ROUTER.register(r'settings', SettingsViewSet, 'settings')
 
-router = DefaultRouter()
-router.extend(cards_router)
-router.extend(users_router)
-router.extend(base_router)
+ROUTER = DefaultRouter()
+ROUTER.extend(cards_router)
+ROUTER.extend(users_router)
+ROUTER.extend(BASE_ROUTER)
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('management/', admin.site.urls),
     re_path(r'^api-token-auth/',
             TokenObtainPairView.as_view(),
             name='token_obtain_pair'),
@@ -37,7 +37,7 @@ urlpatterns = [
     path(r'', include(tf_urls)),
 ]
 
-urlpatterns += i18n_patterns(re_path(r'^', include(router.urls)), )
+urlpatterns += i18n_patterns(re_path(r'^', include(ROUTER.urls)), )
 
 if settings.DEBUG or settings.TESTS:
     import debug_toolbar

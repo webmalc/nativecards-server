@@ -17,6 +17,7 @@ class Translate(ABC):
     """
     The base translation class
     """
+
     @property
     @abstractmethod
     def supported_languages(self):

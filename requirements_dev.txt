@@ -1,5 +1,5 @@
 pudb==2018.1
-ipdb==0.11
+ipdb==0.12.3
 pytest==4.3.1
 pytest-env==0.6.2
 pytest-codestyle==2.0.0
@@ -16,7 +16,7 @@ yapf==0.29.0
 tox==3.9.0
 twine==1.13.0
 virtualfish==1.0.6
-jedi==0.15.1
+jedi==0.15.2
 isort==4.3.9
 pyflakes==2.1.1
 coverage==4.5.1
@@ -28,3 +28,4 @@ pylint==2.4.4
 pylint-django==2.0.13
 pylint-plugin-utils==0.6
 pytest-pylint==0.14.0
+ipython==7.10.2

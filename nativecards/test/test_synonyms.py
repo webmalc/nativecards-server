@@ -35,12 +35,18 @@ def test_get_synonyms(mocker):
     response.json = mocker.MagicMock(return_value=return_value)
     requests.get = mocker.MagicMock(return_value=response)
     result = get_synonyms('love')
-    Word.objects.filter(word='love').update(synonyms='word_synonyms')
+    word = Word.objects.get(word='love')
+    word_synonyms = word.synonyms
+    word_antonyms = word.antonyms
+    word.synonyms = 'word_synonyms'
+    word.save()
     cache.clear()
     word_result = get_synonyms('love')
 
     assert 'passion' in result['synonyms']
     assert 'enjoy' in result['synonyms']
+    assert word_synonyms == result['synonyms']
+    assert word_antonyms == result['antonyms']
     assert 'hate' in result['antonyms']
     assert word_result['synonyms'] == 'word_synonyms'
 
