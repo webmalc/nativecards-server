@@ -10,6 +10,31 @@ from gtts import gTTS
 from nativecards.lib.cache import cache_result  # pylint: disable=import-error
 
 
+def get_audio_filename(word: str, ext: str = 'mp3') -> str:
+    """
+    Get an audio file path
+    """
+    filename = re.sub(r'[^A-Za-z\s]+', '', word).lower().replace(' ', '_')
+    filename = 'audio/{}.{}'.format(filename, ext)
+    return filename
+
+
+def get_audio_url(filename: str) -> str:
+    """
+    Get an audio file URL
+    """
+    url = os.path.join(settings.MEDIA_URL, filename)
+    return settings.NC_FILES_DOMAIN + url
+
+
+def check_audio_path(filename: str) -> bool:
+    """
+    Check if the file exists
+    """
+    fullpath = os.path.join(settings.MEDIA_ROOT, filename)
+    return os.path.isfile(fullpath)
+
+
 @cache_result('pronunciation')
 def get_audio(word: str) -> str:
     """
@@ -18,14 +43,11 @@ def get_audio(word: str) -> str:
     if not word:
         raise AttributeError('The word parameter not found.')
 
-    filename = re.sub(r'[^A-Za-z\s]+', '', word).lower().replace(' ', '_')
-    filename = 'audio/{}.mp3'.format(filename)
-    fullpath = os.path.join(settings.MEDIA_ROOT, filename)
-    url = os.path.join(settings.MEDIA_URL, filename)
-    url = settings.NC_FILES_DOMAIN + url
+    filename = get_audio_filename(word)
+    url = get_audio_url(filename)
 
-    if not os.path.isfile(fullpath):
+    if not check_audio_path(filename):
         tts = gTTS(word, lang='en')
-        tts.save(fullpath)
+        tts.save(os.path.join(settings.MEDIA_ROOT, filename))
 
     return url

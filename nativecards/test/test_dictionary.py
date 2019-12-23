@@ -9,10 +9,31 @@ from django.conf import settings
 from django.core.cache import cache
 from gtts import gTTS
 
+from nativecards.lib.audio import check_audio_path
 from nativecards.lib.dictionary import get_definition
+from nativecards.lib.dicts.webster_learners import WebsterLearners
 from words.models import Word
 
 pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
+
+
+def test_webster_save_audio():
+    """
+    Should save an audio to the server
+    """
+    # pylint: disable-all
+    url = WebsterLearners._save_audio(
+        ['https://media.merriam-webster.com/soundc11/d/dog00002.wav'],
+        'test webster word',
+    )
+    url_none = WebsterLearners._save_audio([], 'none word')
+    filename = 'audio/test_webster_word.wav'
+
+    assert url == 'http://localhost:8000/media/audio/test_webster_word.wav'
+    assert check_audio_path(filename)
+    assert url_none is None
+
+    os.remove(os.path.join(settings.MEDIA_ROOT, filename))
 
 
 def test_get_definition_errors_freedict(mocker):
@@ -97,6 +118,8 @@ def test_get_word_definition_webster(mocker):
     Should return a dictionary with the definition
     and other information about the word
     """
+    # pylint: disable=W
+    WebsterLearners._save_audio = mocker.MagicMock(return_value='cat.wav')
     gTTS.save = mocker.MagicMock(return_value='some value')
     path = os.path.join(settings.FIXTURE_DIRS[0],
                         'test/webster/cat_definition.xml')
@@ -104,7 +127,7 @@ def test_get_word_definition_webster(mocker):
         xml = xml.read().replace('\n', '')
     response = requests.Response()
     response.status_code = 200
-    response._content = xml.encode()  # pylint: disable=protected-access
+    response._content = xml.encode()
     requests.get = mocker.MagicMock(return_value=response)
     result = get_definition('cat')
 
@@ -116,7 +139,7 @@ def test_get_word_definition_webster(mocker):
     cache.clear()
     result_word = get_definition('cat')
 
-    assert 'cat00001.wav' in result['pronunciation']
+    assert 'cat.wav' in result['pronunciation']
     assert 'I have two dogs and a *cat*' in result['examples']
     assert 'a small animal that is related to lions' in result['definition']
     assert 'test content' in result['definition']

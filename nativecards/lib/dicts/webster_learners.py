@@ -2,12 +2,17 @@
 The dictionary module
 """
 import re
+import shutil
+from tempfile import NamedTemporaryFile
 from typing import List, Optional
 from xml.etree import ElementTree
 
 import requests
 from django.conf import settings
+from django.core.files.storage import default_storage
 
+from nativecards.lib.audio import (check_audio_path, get_audio_filename,
+                                   get_audio_url)
 from nativecards.lib.dictionary import guess_category
 from nativecards.lib.dicts.base import Dictionary, DictionaryEntry
 
@@ -103,7 +108,26 @@ class WebsterLearners(Dictionary):
                 examples += '{}\n'.format(text)
         return examples
 
-    def _get_word_info(self, tree) -> Optional[DictionaryEntry]:
+    @staticmethod
+    def _save_audio(audio: list, word: str) -> str:
+        """
+        Save an audio to the server and return the result URL
+        """
+        audio = audio[0] if audio else None
+        if not audio:
+            return None
+
+        filename = get_audio_filename(word, 'wav')
+        url = get_audio_url(filename)
+        if not check_audio_path(filename):
+            response = requests.get(audio, stream=True)
+            audio_temp = NamedTemporaryFile(delete=True)
+            shutil.copyfileobj(response.raw, audio_temp)
+            default_storage.save(filename, audio_temp)
+
+        return url
+
+    def _get_word_info(self, tree, word: str) -> Optional[DictionaryEntry]:
         """
         Returns the word information
         """
@@ -117,7 +141,7 @@ class WebsterLearners(Dictionary):
         result = DictionaryEntry(
             definition,
             examples,
-            audio[0] if audio else None,
+            self._save_audio(audio, word),
             transcription,
         )
 
@@ -150,6 +174,6 @@ class WebsterLearners(Dictionary):
             category = guess_category(word)
             if category != 'word':
                 return self._get_phrasal_verb_info(tree, word)
-            return self._get_word_info(tree)
+            return self._get_word_info(tree, word)
 
         return None
