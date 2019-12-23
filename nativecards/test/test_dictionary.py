@@ -3,11 +3,16 @@ The tests module for the dictionary module
 """
 import os
 
+import pytest
 import requests
 from django.conf import settings
+from django.core.cache import cache
 from gtts import gTTS
 
 from nativecards.lib.dictionary import get_definition
+from words.models import Word
+
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 def test_get_definition_errors_freedict(mocker):
@@ -103,11 +108,22 @@ def test_get_word_definition_webster(mocker):
     requests.get = mocker.MagicMock(return_value=response)
     result = get_definition('cat')
 
+    word = Word.objects.get(word='cat')
+    word_values = word.__dict__.copy()
+    word.definition = 'new test definition'
+    word.examples = 'new test examples'
+    word.save()
+    cache.clear()
+    result_word = get_definition('cat')
+
     assert 'cat00001.wav' in result['pronunciation']
     assert 'I have two dogs and a *cat*' in result['examples']
     assert 'a small animal that is related to lions' in result['definition']
     assert 'test content' in result['definition']
+    assert result.items() <= word_values.items()
     assert result['transcription'] == 'ˈkæt'
+    assert result_word['definition'] == 'new test definition'
+    assert result_word['examples'] == 'new test examples'
 
 
 def test_get_definition_errors_webster(mocker):
