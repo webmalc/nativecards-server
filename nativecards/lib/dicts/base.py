@@ -15,18 +15,24 @@ class DictionaryEntry():
     examples: Optional[str] = None
     definition: Optional[str] = None
     transcription: Optional[str] = None
+    synonyms: Optional[str] = None
+    antonyms: Optional[str] = None
 
     def __init__(
             self,
-            definition: Optional[str],
-            examples: Optional[str],
+            definition: Optional[str] = None,
+            examples: Optional[str] = None,
             pronunciation: Optional[str] = None,
             transcription: Optional[str] = None,
+            synonyms: Optional[str] = None,
+            antonyms: Optional[str] = None,
     ):
         self.pronunciation = pronunciation or None
         self.examples = examples or None
         self.definition = definition or None
         self.transcription = transcription or None
+        self.synonyms = synonyms or None
+        self.antonyms = antonyms or None
 
 
 class Dictionary(ABC):

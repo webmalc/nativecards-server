@@ -1,5 +1,5 @@
 """
-The dictionary module
+The FreeDictionary module
 """
 from typing import Optional
 
