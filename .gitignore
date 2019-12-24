@@ -79,6 +79,9 @@ bower_components/*
 
 #media
 /media/uploads/*
+/media/wordsapi/*
+/media/webster/*
+/media/tests/*
 /media/audio/*
 !/media/audio/.gitkeep
 !/media/350x150.png

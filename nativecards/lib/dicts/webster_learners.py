@@ -13,6 +13,7 @@ from django.core.files.storage import default_storage
 
 from nativecards.lib.audio import (check_audio_path, get_audio_filename,
                                    get_audio_url)
+from nativecards.lib.cache import save_result
 from nativecards.lib.dictionary import guess_category
 from nativecards.lib.dicts.base import Dictionary, DictionaryEntry
 
@@ -160,15 +161,25 @@ class WebsterLearners(Dictionary):
 
         return DictionaryEntry(definition, examples)
 
-    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
+    @save_result('webster/{}.xml')
+    def _make_request(self, word: str) -> Optional[str]:
         """
-        Returns the word or phrase entry
+        Make a request to the API
         """
         url = '{}{}?key={}'.format(self.url, word, self.key)
         response = requests.get(url)
         if response.status_code == 200:
+            return response.text
+        return None
+
+    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
+        """
+        Returns the word or phrase entry
+        """
+        xml_text = self._make_request(word)
+        if xml_text:
             try:
-                tree = ElementTree.fromstring(response.text)
+                tree = ElementTree.fromstring(xml_text)
             except ElementTree.ParseError:
                 return None
             category = guess_category(word)
