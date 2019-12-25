@@ -2,6 +2,7 @@
 The translate module
 """
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Dict, Optional
 
 import requests
@@ -13,11 +14,16 @@ from nativecards.lib.cache import cache_result
 from words.models import Word
 
 
+class TranslationError(Exception):
+    """
+    The translations error class
+    """
+
+
 class Translate(ABC):
     """
     The base translation class
     """
-
     @property
     @abstractmethod
     def supported_languages(self):
@@ -75,36 +81,58 @@ class Lingualeo(Translate):
         return []
 
 
-def _get_from_word(word: str, language: str) -> Optional[Dict[str, str]]:
+@dataclass
+class TranaslationManager():
     """
-    Get synonyms and antonyms from the words object
+    The translation manager
     """
-    word = Word.objects.filter(
-        word=word,
-        translations__has_key=language,
-    ).first()
-    if word:
-        return {'translation': word.translations[language]}
-    return None
 
+    word: str
+    language: Optional[str] = None
 
-def _get_from_translator(word: str, language: str) -> Optional[Dict[str, str]]:
-    """
-    Get get translations from the translators
-    """
-    for translator_class in settings.NC_TRANSLATORS:
-        translator = import_string(translator_class)()
-        if translator.check_language(language):
-            result = translator.translate(word.lower(), language)
-            if result:
-                translation = ', '.join(result)
-                Word.objects.create_or_update(
-                    word,
-                    translation=translation,
-                    language=language,
-                )
-                return {'translation': translation}
-    return None
+    def _get_from_word(self) -> Optional[Dict[str, str]]:
+        """
+        Get synonyms and antonyms from the words object
+        """
+        word = Word.objects.filter(
+            word=self.word,
+            translations__has_key=self.language,
+        ).first()
+        if word:
+            return {'translation': word.translations[self.language]}
+        return None
+
+    def _get_from_translator(self) -> Optional[Dict[str, str]]:
+        """
+        Get get translations from the translators
+        """
+        for translator_class in settings.NC_TRANSLATORS:
+            translator = import_string(translator_class)()
+            if translator.check_language(self.language):
+                result = translator.translate(self.word.lower(), self.language)
+                if result:
+                    translation = ', '.join(result)
+                    Word.objects.create_or_update(
+                        self.word,
+                        translation=translation,
+                        language=self.language,
+                    )
+                    return {'translation': translation}
+        return None
+
+    def translate(self) -> Optional[Dict[str, str]]:
+        """
+        Get the word translation
+        """
+        if not self.word:
+            raise TranslationError('The word parameter not found.')
+        if not self.language:
+            raise TranslationError('The language parameter not found.')
+
+        result = self._get_from_word()
+        if result:
+            return result
+        return self._get_from_translator()
 
 
 @cache_result('translation')
@@ -113,12 +141,8 @@ def translate(word: str,
     """
     Get the word translation
     """
-    if not word:
-        return {'error': 'The word parameter not found.'}
-    if not language:
-        return {'error': 'The language parameter not found.'}
-
-    result = _get_from_word(word, language)
-    if result:
-        return result
-    return _get_from_translator(word, language)
+    manager = TranaslationManager(word, language)
+    try:
+        return manager.translate()
+    except TranslationError as error:
+        return {'error': str(error)}
