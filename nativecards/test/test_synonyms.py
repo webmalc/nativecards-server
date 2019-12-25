@@ -29,8 +29,8 @@ def test_get_synonyms_wordsapi(mocker, settings):
     with open(path, 'r') as page:
         return_value = page.read()
 
-    response.json = mocker.MagicMock(return_value=return_value)
-    requests.text = mocker.MagicMock(return_value=response)
+    response.body = mocker.MagicMock(return_value=return_value)
+    requests.get = mocker.MagicMock(return_value=response)
     result = get_synonyms('love')
 
     assert 'lovemaking' in result['synonyms']
