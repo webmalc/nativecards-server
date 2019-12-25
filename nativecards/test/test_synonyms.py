@@ -19,6 +19,7 @@ def test_get_synonyms_wordsapi(mocker, settings):
     """
     Should return a dictionary with the synonyms and antonyms for the word
     """
+    # pylint: disable-all
     settings.NC_THESAURI = ['nativecards.lib.dicts.words_api.WordsApi']
     cache.clear()
     response = requests.Response()
@@ -29,7 +30,7 @@ def test_get_synonyms_wordsapi(mocker, settings):
     with open(path, 'r') as page:
         return_value = page.read()
 
-    response.body = mocker.MagicMock(return_value=return_value)
+    response._content = return_value.encode('utf-8')
     requests.get = mocker.MagicMock(return_value=response)
     result = get_synonyms('love')
 

@@ -17,7 +17,8 @@ def save_result(path):
         @wraps(func)
         def func_wrapper(*args, **kwargs):
             filename = path.format(args[1])
-            if not default_storage.exists(filename):
+            tests = settings.TESTS
+            if not default_storage.exists(filename) or tests:
                 result = func(*args, **kwargs)
                 if not settings.TESTS:
                     json_file = ContentFile(str(result))
