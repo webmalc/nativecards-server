@@ -4,10 +4,11 @@ The synonyms module
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
+from typing import Dict, Optional
 
 import requests
 from django.conf import settings
+from django.utils.module_loading import import_string
 
 from nativecards.lib.cache import cache_result
 from nativecards.lib.dicts.base import DictionaryEntry
@@ -39,7 +40,7 @@ class BigHugeThesaurus(Thesaurus):
     url = 'http://words.bighugelabs.com/api/2'
     key = settings.NC_BIGHUGELABS_KEY
 
-    def get_synonyms(self, word: str) -> DictionaryEntry:
+    def get_synonyms(self, word: str) -> Optional[DictionaryEntry]:
         url = '{}/{}/{}/json'.format(self.url, self.key, word.lower())
         response = requests.get(url)
         synonyms = antonyms = ''
@@ -59,7 +60,9 @@ class BigHugeThesaurus(Thesaurus):
                 synonyms += get('syn', keys, val)
                 antonyms += get('ant', keys, val)
 
-        return DictionaryEntry(synonyms=synonyms, antonyms=antonyms)
+        if synonyms or antonyms:
+            return DictionaryEntry(synonyms=synonyms, antonyms=antonyms)
+        return None
 
 
 @dataclass
@@ -83,20 +86,23 @@ class ThesaurusManager():
                                    antonyms=word.antonyms)
         return None
 
-    def _get_from_thesaurus(self) -> DictionaryEntry:
+    def _get_from_thesaurus(self) -> Optional[DictionaryEntry]:
         """
         Get synonyms and antonyms from the thesauruses
         """
-        thesaurus = BigHugeThesaurus()
-        result = thesaurus.get_synonyms(self.word.lower())
-        Word.objects.create_or_update(
-            self.word,
-            synonyms=result.synonyms,
-            antonyms=result.antonyms,
-        )
-        return result
+        for translator_class in settings.NC_THESAURI:
+            thesaurus = import_string(translator_class)()
+            result = thesaurus.get_synonyms(self.word.lower())
+            if result:
+                Word.objects.create_or_update(
+                    self.word,
+                    synonyms=result.synonyms,
+                    antonyms=result.antonyms,
+                )
+                return result
+        return None
 
-    def get_entry(self) -> dict:
+    def get_entry(self) -> Optional[Dict[str, str]]:
         """
         Get the word's synonyms
         """
@@ -105,11 +111,14 @@ class ThesaurusManager():
         result = self._get_from_word()
         if result:
             return result.__dict__
-        return self._get_from_thesaurus().__dict__
+        result = self._get_from_thesaurus()
+        if result:
+            return result.__dict__
+        return None
 
 
 @cache_result('synonyms')
-def get_synonyms(word: str) -> dict:
+def get_synonyms(word: str) -> Optional[Dict[str, str]]:
     """
     Get the word's synonyms
     """

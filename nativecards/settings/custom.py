@@ -6,10 +6,15 @@ from .env import ENV
 NC_DICTIONARIES = [
     'nativecards.lib.dicts.webster_learners.WebsterLearners',
     'nativecards.lib.dicts.free_dictionary.FreeDictionary',
+    'nativecards.lib.dicts.words_api.WordsApi',
 ]
 NC_TRANSLATORS = [
     'nativecards.lib.trans.Lingualeo',
     'nativecards.lib.trans.GoogleTrans',
+]
+NC_THESAURI = [
+    'nativecards.lib.dicts.words_api.WordsApi',
+    'nativecards.lib.synonyms.BigHugeThesaurus',
 ]
 
 NC_FILES_DOMAIN = ENV.str('NC_FILES_DOMAIN')

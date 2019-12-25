@@ -26,20 +26,22 @@ class DictionaryEntry():
             transcription: Optional[str] = None,
             synonyms: Optional[str] = None,
             antonyms: Optional[str] = None,
-    ):
+    ) -> None:
         self.pronunciation = pronunciation or None
         self.examples = examples or None
         self.definition = definition or None
         self.transcription = transcription or None
         self.synonyms = synonyms or None
         self.antonyms = antonyms or None
+        for key, entry in self.__dict__.items():
+            if isinstance(entry, str):
+                self.__dict__[key] = entry.strip(', \n')
 
 
 class Dictionary(ABC):
     """
     Base dictionary class
     """
-
     @abstractmethod
     def get_entry(self, word: str) -> Optional[DictionaryEntry]:
         """
