@@ -2,7 +2,6 @@
 The dictionary module
 """
 import json
-from collections import defaultdict
 from typing import Dict, Optional
 
 import requests
@@ -79,7 +78,6 @@ class WordsApi(Dictionary, Thesaurus):
         results = data.get('results')
         if not results:
             return None
-        data = defaultdict(dict)
         entry = DictionaryEntry()
         for result in results:
             part_of_speach = result.get('partOfSpeech')

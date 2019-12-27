@@ -42,23 +42,29 @@ class WebsterLearners(Dictionary):
         return data
 
     @staticmethod
-    def _get_definition(tree) -> str:
-        definition = ''
-        entry = tree.find('entry')
-        if not entry:
-            return ''
-        for element in entry.find('def').iter('dt'):
-            text = element.text if element.text else ''
-            sx_element = element.find('sx')
-            un_element = element.find('un')
-            if hasattr(sx_element, 'text'):
-                text += sx_element.text
-            if hasattr(un_element, 'text'):
-                text += un_element.text
-            text = text.replace(':', '')
-            if text:
-                definition += '{}\n\n'.format(text)
-        return definition
+    def _get_definition(tree, entry: DictionaryEntry) -> DictionaryEntry:
+        for value in tree.findall('entry'):
+            part_of_speach = getattr(value.find('fl'), 'text', '-')
+            def_element = value.find('def')
+            if not def_element:
+                continue
+            for element in def_element.iter('dt'):
+                text = element.text if element.text else ''
+                sx_element = element.find('sx')
+                un_element = element.find('un')
+                if hasattr(sx_element, 'text'):
+                    text += sx_element.text
+                if hasattr(un_element, 'text'):
+                    text += un_element.text
+                text = text.replace(':', '')
+                if text:
+                    entry.add_data_entry(
+                        'definition',
+                        text.strip(' \n'),
+                        part_of_speach,
+                    )
+
+        return entry
 
     @staticmethod
     def _get_phrasal_verb_definition(root) -> str:
@@ -96,18 +102,23 @@ class WebsterLearners(Dictionary):
         return result
 
     @staticmethod
-    def _get_examples(tree) -> str:
-        examples = ''
-        entry = tree.find('entry')
-        if not entry:
-            return ''
-        for element in entry.find('def').iter('vi'):
-            text = ElementTree.tostring(element).decode('utf-8')
-            text = text.replace('</vi>', '\n').replace('<vi>', '')
-            text = re.sub(r'</?(it|phrase){1}>', '*', text)
-            if text:
-                examples += '{}\n'.format(text)
-        return examples
+    def _get_examples(tree, entry: DictionaryEntry) -> DictionaryEntry:
+        for value in tree.findall('entry'):
+            part_of_speach = getattr(value.find('fl'), 'text', '-')
+            def_element = value.find('def')
+            if not def_element:
+                continue
+            for element in def_element.iter('vi'):
+                text = ElementTree.tostring(element).decode('utf-8')
+                text = text.replace('</vi>', '\n').replace('<vi>', '')
+                text = re.sub(r'</?(it|phrase){1}>', '*', text)
+                if text:
+                    entry.add_data_entry(
+                        'examples',
+                        text.strip(' \n'),
+                        part_of_speach,
+                    )
+        return entry
 
     @staticmethod
     def _save_audio(audio: list, word: str) -> str:
@@ -133,20 +144,19 @@ class WebsterLearners(Dictionary):
         Returns the word information
         """
         audio = []  # type: List[str]
-        examples = definition = transcription = None
         audio = self._get_audio(tree)
-        examples = self._get_examples(tree)
-        definition = self._get_definition(tree)
         transcription = self._get_transcription(tree)
 
-        result = DictionaryEntry(
-            definition,
-            examples,
-            self._save_audio(audio, word),
-            transcription,
+        entry = DictionaryEntry(
+            pronunciation=self._save_audio(audio, word),
+            transcription=transcription,
         )
 
-        return result
+        entry = self._get_examples(tree, entry)
+        entry = self._get_definition(tree, entry)
+        entry.process_data()
+
+        return entry
 
     def _get_phrasal_verb_info(self, tree,
                                word: str) -> Optional[DictionaryEntry]:

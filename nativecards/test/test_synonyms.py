@@ -34,9 +34,12 @@ def test_get_synonyms_wordsapi(mocker, settings):
     requests.get = mocker.MagicMock(return_value=response)
     result = get_synonyms('love')
 
+    assert '[noun] love' in result['synonyms']
     assert 'lovemaking' in result['synonyms']
     assert 'beloved' in result['synonyms']
-    assert 'hate' in result['antonyms']
+    assert '[verb] enjoy' in result['synonyms']
+    assert '[noun] hate' in result['antonyms']
+    assert '[verb] hate' in result['antonyms']
 
 
 def test_get_synonyms_bighuge(mocker, settings):
@@ -73,11 +76,12 @@ def test_get_synonyms_bighuge(mocker, settings):
     cache.clear()
     word_result = get_synonyms('love')
 
-    assert 'bighuge passion' in result['synonyms']
+    assert '[noun] bighuge passion' in result['synonyms']
+    assert '[verb] bighuge love' in result['synonyms']
     assert 'bighuge enjoy' in result['synonyms']
     assert word_synonyms == result['synonyms']
     assert word_antonyms == result['antonyms']
-    assert 'bighuge hate' in result['antonyms']
+    assert '[verb] hate' in result['antonyms']
     assert word_result['synonyms'] == 'word_synonyms'
 
 

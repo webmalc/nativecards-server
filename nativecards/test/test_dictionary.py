@@ -5,13 +5,14 @@ import os
 
 import pytest
 import requests
-from django.conf import settings
+from django.conf import settings as global_settings
 from django.core.cache import cache
 from gtts import gTTS
 
 from nativecards.lib.audio import check_audio_path
 from nativecards.lib.dictionary import get_definition
 from nativecards.lib.dicts.webster_learners import WebsterLearners
+from nativecards.lib.dicts.words_api import WordsApi
 from words.models import Word
 
 pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
@@ -33,7 +34,7 @@ def test_webster_save_audio():
     assert check_audio_path(filename)
     assert url_none is None
 
-    os.remove(os.path.join(settings.MEDIA_ROOT, filename))
+    os.remove(os.path.join(global_settings.MEDIA_ROOT, filename))
 
 
 def test_get_definition_errors_freedict(mocker):
@@ -61,13 +62,58 @@ def test_get_definition_errors_freedict(mocker):
     assert result is None
 
 
+def test_get_word_definition_wordsapi(mocker, settings):
+    """
+    Should return a dictionary with the definition
+    and other information about the word
+    """
+    settings.NC_DICTIONARIES = ['nativecards.lib.dicts.words_api.WordsApi']
+    cache.clear()
+    gTTS.save = mocker.MagicMock(return_value='some value')
+    response = requests.Response()
+    response.status_code = 200
+
+    path = os.path.join(global_settings.FIXTURE_DIRS[0],
+                        'test/wordsapi/love.json')
+    with open(path, 'r') as page:
+        return_value = page.read()
+    response._content = return_value.encode('utf-8')
+    requests.get = mocker.MagicMock(return_value=response)
+    result = get_definition('love')
+
+    assert '[noun] any object of warm' in result['definition']
+    assert '[verb] get pleasure from' in result['definition']
+    assert '[noun] he has a very complicated' in result['examples']
+    assert '[verb] I love cooking' in result['examples']
+    assert '[noun] love life' in result['synonyms']
+    assert '[verb] enjoy' in result['synonyms']
+    assert '[verb] hate' in result['antonyms']
+    assert 'lÉ™v' in result['transcription']
+
+
+def test_get_definition_errors_wordsapi(mocker):
+    """
+    Should return None when an error occurred
+    """
+    response = requests.Response()
+    response.status_code = 200
+    response._content = '{"test": []}'.encode('utf-8')
+    requests.get = mocker.MagicMock(return_value=response)
+
+    words_api = WordsApi()
+    result = words_api.get_entry('wordsapi test word')
+
+    assert result is None
+
+
 def test_get_word_definition_freedict(mocker):
     """
     Should return a dictionary with the definition
     and other information about the word
     """
     gTTS.save = mocker.MagicMock(return_value='some value')
-    path = os.path.join(settings.FIXTURE_DIRS[0], 'test/freedict/horse.html')
+    path = os.path.join(global_settings.FIXTURE_DIRS[0],
+                        'test/freedict/horse.html')
     with open(path, 'r') as page:
         page = page.read()
     response = requests.Response()
@@ -93,7 +139,7 @@ def test_get_phrasal_word_definition_webster(mocker):
     and other information about the phrasal word
     """
     gTTS.save = mocker.MagicMock(return_value='some value')
-    path = os.path.join(settings.FIXTURE_DIRS[0],
+    path = os.path.join(global_settings.FIXTURE_DIRS[0],
                         'test/webster/come_definition.xml')
     with open(path, 'r') as xml:
         xml = xml.read().replace('\n', '')
@@ -121,7 +167,7 @@ def test_get_word_definition_webster(mocker):
     # pylint: disable=W
     WebsterLearners._save_audio = mocker.MagicMock(return_value='cat.wav')
     gTTS.save = mocker.MagicMock(return_value='some value')
-    path = os.path.join(settings.FIXTURE_DIRS[0],
+    path = os.path.join(global_settings.FIXTURE_DIRS[0],
                         'test/webster/cat_definition.xml')
     with open(path, 'r') as xml:
         xml = xml.read().replace('\n', '')
@@ -140,8 +186,9 @@ def test_get_word_definition_webster(mocker):
     result_word = get_definition('cat')
 
     assert 'cat.wav' in result['pronunciation']
-    assert 'I have two dogs and a *cat*' in result['examples']
-    assert 'a small animal that is related to lions' in result['definition']
+    assert '[noun] I have two dogs and a *cat*' in result['examples']
+    assert '[noun] a small animal that is related' in result['definition']
+    assert '[verb] a thief who enter' in result['definition']
     assert 'test content' in result['definition']
 
     del result['data']

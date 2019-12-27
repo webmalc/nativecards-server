@@ -35,12 +35,14 @@ class DictionaryEntry():
         Render the data
         """
         for name in ('definition', 'examples', 'synonyms', 'antonyms'):
-            setattr(
-                self, name,
-                render_to_string(
-                    'dicts/{}.md'.format(name),
-                    {'entries': dict(self.data[name])},
-                ))
+            data = self.data[name]
+            if data:
+                setattr(
+                    self, name,
+                    render_to_string(
+                        'dicts/{}.md'.format(name),
+                        {'entries': dict(data)},
+                    ))
         self._clean_data()
 
     def _clean_data(self):

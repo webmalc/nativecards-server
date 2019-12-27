@@ -5,8 +5,8 @@ from .env import ENV
 
 NC_DICTIONARIES = [
     'nativecards.lib.dicts.webster_learners.WebsterLearners',
-    'nativecards.lib.dicts.free_dictionary.FreeDictionary',
     'nativecards.lib.dicts.words_api.WordsApi',
+    'nativecards.lib.dicts.free_dictionary.FreeDictionary',
 ]
 NC_TRANSLATORS = [
     'nativecards.lib.trans.Lingualeo',
