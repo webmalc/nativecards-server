@@ -143,6 +143,8 @@ def test_get_word_definition_webster(mocker):
     assert 'I have two dogs and a *cat*' in result['examples']
     assert 'a small animal that is related to lions' in result['definition']
     assert 'test content' in result['definition']
+
+    del result['data']
     assert result.items() <= word_values.items()
     assert result['transcription'] == 'ˈkæt'
     assert result_word['definition'] == 'new test definition'

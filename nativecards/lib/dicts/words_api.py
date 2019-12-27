@@ -49,18 +49,19 @@ class WordsApi(Dictionary, Thesaurus):
 
     @staticmethod
     def _process_entry(
-            result: dict,
             data: dict,
+            entry: DictionaryEntry,
             key: str,
-            delimiter: str = '\n\n',
+            part_of_speach: str = '',
     ) -> dict:
         """
         Extract data from a result row
         """
-        entry = data.get(key)
-        if entry:
-            result[key] += '{}{}'.format(delimiter.join(entry), delimiter)
-        return result
+        entries = data.get(key)
+        if entries:
+            for value in entries:
+                entry.add_data_entry(key, value, part_of_speach)
+        return entry
 
     def get_synonyms(self, word: str) -> Optional[DictionaryEntry]:
         """
@@ -78,25 +79,34 @@ class WordsApi(Dictionary, Thesaurus):
         results = data.get('results')
         if not results:
             return None
-        entry_data = defaultdict(str)
+        data = defaultdict(dict)
+        entry = DictionaryEntry()
         for result in results:
-            entry_data['definition'] += '{}\n\n'.format(
-                result.get('definition'))
-            entry_data = self._process_entry(entry_data, result, 'examples')
-            entry_data = self._process_entry(
-                entry_data,
+            part_of_speach = result.get('partOfSpeech')
+            entry.add_data_entry(
+                'definition',
+                result.get('definition'),
+                part_of_speach,
+            )
+            entry = self._process_entry(
                 result,
+                entry,
+                'examples',
+                part_of_speach=part_of_speach,
+            )
+            entry = self._process_entry(
+                result,
+                entry,
                 'synonyms',
-                ', ',
+                part_of_speach=part_of_speach,
             )
-            entry_data = self._process_entry(
-                entry_data,
+            entry = self._process_entry(
                 result,
+                entry,
                 'antonyms',
-                ', ',
+                part_of_speach=part_of_speach,
             )
-
-        entry_data['transcription'] = data.get('pronunciation', {}).get('all')
-        entry = DictionaryEntry(**entry_data)
+        entry.transcription = data.get('pronunciation', {}).get('all')
+        entry.process_data()
 
         return entry
