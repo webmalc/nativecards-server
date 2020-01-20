@@ -21,7 +21,7 @@
   pip:
     state: latest
     virtualenv: "{{nativecards.venv}}"
-    requirements: "{{nativecards.path}}requirements.txt"
+    name: "{{nativecards.path}}"
   tags: deploy  
 
 - name: Nativecards deploy - migrate, static, messages

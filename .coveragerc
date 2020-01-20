@@ -5,6 +5,8 @@ omit =
     */apps.py
     */migrations/*
     */test/*
+    .tox/*
+    setup.py
     manage.py
 
 [report]
