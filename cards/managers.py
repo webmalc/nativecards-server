@@ -1,16 +1,21 @@
 """
 The cards managers module
 """
+from __future__ import annotations
+
 from random import sample, shuffle
-from typing import Dict, Iterable, List
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 import arrow
-from django.apps import apps
-from django.db import models
-
 import cards
 import nativecards.lib.settings as config
+from django.apps import apps
+from django.db import models
 from nativecards.models import Settings
+
+if TYPE_CHECKING:
+    from users.models import User
+    from .models import Deck
 
 
 class CardManager(models.Manager):
@@ -178,12 +183,25 @@ class DeckManager(models.Manager):
 
         return query
 
-    def get_default(self, user):
+    def get_default(self, user: User) -> Deck:
         """
-        Get the default deck for user
+        Get the default deck for the user
         """
         query = self.filter_default(user)
         try:
             return query.get()
         except cards.models.Deck.DoesNotExist:
             return self.filter(created_by=user).first()
+
+    def create_default(self, user: User) -> Deck:
+        """
+        Create the default deck for the user
+        """
+        deck = self.get_default(user)
+        if not deck:
+            deck = self.create(
+                created_by=user,
+                title='main',
+                is_default=True,
+            )
+        return deck

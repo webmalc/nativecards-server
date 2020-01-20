@@ -1,6 +1,7 @@
 """
 Nativecards URL Configuration
 """
+from cards.urls import router as cards_router
 from django.conf import settings
 from django.conf.urls.i18n import i18n_patterns
 from django.conf.urls.static import static
@@ -10,9 +11,7 @@ from rest_framework.routers import SimpleRouter
 from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 from two_factor.urls import urlpatterns as tf_urls
-
-from cards.urls import router as cards_router
-from users.urls import router as users_router
+from users.urls import ROUTER as USERS_ROUTER
 
 from .routers import DefaultRouter
 from .views import SettingsViewSet
@@ -22,7 +21,7 @@ BASE_ROUTER.register(r'settings', SettingsViewSet, 'settings')
 
 ROUTER = DefaultRouter()
 ROUTER.extend(cards_router)
-ROUTER.extend(users_router)
+ROUTER.extend(USERS_ROUTER)
 ROUTER.extend(BASE_ROUTER)
 
 urlpatterns = [

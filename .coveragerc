@@ -16,6 +16,7 @@ exclude_lines =
     def __repr__
     def __str__
     if DEBUG
+    if TYPE_CHECKING
 
     raise AssertionError
     raise NotImplementedError

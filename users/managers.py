@@ -2,19 +2,21 @@
 The users managers module
 """
 from time import time_ns
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
-
 from nativecards.models import Settings
 from users import models as user_models
+
+from .mailer import send_registration_email
 
 
 class ProfileManager(models.Manager):
     """"
     The profile manager
     """
-    def get_by_code(self, code: str):
+    def get_by_code(self, code: str) -> Optional[User]:
         """
         Get a user profile by a code
         """
@@ -40,9 +42,8 @@ class ProfileManager(models.Manager):
         user.profile.is_verified = False
         user.profile.save()
 
-        settings = Settings.objects.get_by_user(user)
-        settings.language = language
-        settings.full_clean()
-        settings.save()
+        Settings.objects.update_by_user(user, language=language)
+
+        send_registration_email(user)
 
         return user

@@ -62,22 +62,34 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     password_new = serializers.CharField(required=False)
     language = serializers.CharField(required=True, write_only=True)
 
+    @staticmethod
+    def _validate_email(email: str) -> None:
+        """
+        Validate an email
+        """
+        if User.objects.filter(email=email).count():
+            raise serializers.ValidationError([{
+                'email': ['A user with that email already exists.']
+            }])
+
+    @staticmethod
+    def _validate_password(password: str) -> None:
+        """
+        Validate a password
+        """
+        try:
+            password_validators.validate_password(password=password, user=User)
+        except ValidationError as error:
+            raise serializers.ValidationError({'password': error.messages})
+
     def validate(self, attrs):
         """
         Validate an user
         """
         super().validate(attrs)
-        email = attrs['email']
-        password = attrs['password_new']
+        self._validate_email(attrs['email'])
+        self._validate_password(attrs['password_new'])
 
-        if User.objects.filter(email=email).count():
-            raise serializers.ValidationError([{
-                'email': ['A user with that email already exists.']
-            }])
-        try:
-            password_validators.validate_password(password=password, user=User)
-        except ValidationError as error:
-            raise serializers.ValidationError({'password': error.messages})
         return attrs
 
     class Meta:

@@ -9,7 +9,6 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from .jwt import get_user_token
-from .mailer import send_registration_email
 from .managers import ProfileManager
 from .serializers import (PasswordSerializer, UserSerializer,
                           VerificationSerializer)
@@ -89,8 +88,6 @@ class UsersViewSet(viewsets.GenericViewSet):
             user = ProfileManager.create_user(email, password, language)
         except ValidationError as error:
             raise serializers.ValidationError(error.message_dict)
-
-        send_registration_email(user)
 
         tokens = get_user_token(user)
 

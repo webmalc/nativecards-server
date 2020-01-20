@@ -1,6 +1,9 @@
+"""
+The users urls module
+"""
 from rest_framework.routers import SimpleRouter
 
 from .views import UsersViewSet
 
-router = SimpleRouter()
-router.register(r'users', UsersViewSet, 'users')
+ROUTER = SimpleRouter()
+ROUTER.register(r'users', UsersViewSet, 'users')
