@@ -106,6 +106,9 @@ GTAGS
 rest_client.txt
 .python-version
 
+#coveralls
+.coveralls.yml
+
 #mypy
 .mypy_cache
 
