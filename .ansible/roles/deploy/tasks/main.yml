@@ -22,6 +22,7 @@
     state: latest
     virtualenv: "{{nativecards.venv}}"
     name: "{{nativecards.path}}"
+    extra_args: -e
   tags: deploy  
 
 - name: Nativecards deploy - migrate, static, messages

@@ -41,7 +41,7 @@ class ImageMixin(models.Model):
                                    blank=True,
                                    verbose_name=_('remote image url'))
 
-    def get_remote_image(self):
+    def get_remote_image(self) -> None:
         """
         Saves the image from the remote URL
         """
@@ -75,18 +75,20 @@ class Deck(  # type: ignore
                                      db_index=True,
                                      verbose_name=_('is default'))
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        # Invoke the parent save method
-        super().save(*args, **kwargs)
-
-        # Get an image from remote url
-        self.get_remote_image()
-
-        # Update the is default field
+    def _reset_decks_default_value(self):
+        """
+        Save the deck as default and reset the remaining decks
+        """
         if self.is_default:
             Deck.objects.filter(is_default=True,
                                 created_by=self.created_by).exclude(
                                     pk=self.pk).update(is_default=False)
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        super().save(*args, **kwargs)
+
+        self.get_remote_image()
+        self._reset_decks_default_value()
 
     class Meta(OrderedModel.Meta):
         pass
@@ -137,23 +139,29 @@ class Card(BaseWord, ImageMixin):  # type: ignore
                              related_name='cards',
                              verbose_name=_('deck'))
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        # Limit the complete field
+    def _limit_complete(self) -> None:
+        """
+        Keep the limit field between 0 and 100
+        """
         self.complete = max(0, self.complete)
         self.complete = min(100, self.complete)
 
-        self._guess_and_set_category()
-
-        # Invoke the parent save method
-        super().save(*args, **kwargs)
-
-        # Get an image from remote url
-        self.get_remote_image()
-
-        # Set a default deck
+    def _set_default_deck(self) -> None:
+        """
+        Set the default deck if it does not exist
+        """
         if not self.deck and self.created_by:
             self.deck = Deck.objects.get_default(self.created_by)
             self.save()
+
+    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        self._limit_complete()
+        self._guess_and_set_category()
+
+        super().save(*args, **kwargs)
+
+        self.get_remote_image()
+        self._set_default_deck()
 
     def __str__(self):
         return self.word
@@ -205,9 +213,9 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
                             choices=FORMS,
                             verbose_name=_('form'))
 
-    def _set_score(self):
+    def _set_score(self) -> None:
         """
-        Calc the score
+        Calculate and set the score
         """
         if not self.pk:
             score = calc_score(self)
@@ -216,10 +224,8 @@ class Attempt(CommonInfo, TimeStampedModel):  # type: ignore
             self.card.save()
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        # Calc the card complete field
         self._set_score()
 
-        # Invoke the parent save method
         super().save(*args, **kwargs)
 
     def __str__(self):

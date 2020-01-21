@@ -7,10 +7,11 @@ from random import sample, shuffle
 from typing import TYPE_CHECKING, Dict, Iterable, List
 
 import arrow
-import cards
-import nativecards.lib.settings as config
 from django.apps import apps
 from django.db import models
+
+import cards
+import nativecards.lib.settings as config
 from nativecards.models import Settings
 
 if TYPE_CHECKING:

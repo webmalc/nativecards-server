@@ -1,3 +1,6 @@
+"""
+The test module for the decks models
+"""
 import json
 import os
 
@@ -8,11 +11,17 @@ from django.urls import reverse
 
 from cards.models import Deck
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 class DeckTestCase(TestCase):
+    """
+    Test decks unit tests
+    """
     def test_deck_api_cache(self):
+        """
+        Should cache decks API
+        """
         admin_client = self.client
         admin_client.login(username='admin', password='password')
         url = reverse('decks-list')
@@ -24,6 +33,9 @@ class DeckTestCase(TestCase):
 
 
 def test_deck_is_default_filter(admin, user):
+    """
+    Test the decks default filter
+    """
     admin_decks = Deck.objects.filter_default(admin)
     admin_decks_exclude = Deck.objects.filter_default(admin, exclude_pk=1)
     user_decks = Deck.objects.filter_default(user)
@@ -40,6 +52,9 @@ def test_deck_is_default_filter(admin, user):
 
 
 def test_deck_is_default_get(admin, user):
+    """
+    Should return a default deck
+    """
     admin_deck = Deck.objects.get_default(admin)
     user_deck = Deck.objects.get_default(user)
     Deck.objects.filter(pk=1).delete()
@@ -56,6 +71,9 @@ def test_deck_is_default_get(admin, user):
 
 
 def test_deck_is_default_change(admin, user):
+    """
+    Should only be one default deck
+    """
     old_main_deck = Deck.objects.get_default(admin)
 
     deck = Deck()
@@ -76,6 +94,9 @@ def test_deck_is_default_change(admin, user):
 
 
 def test_deck_get_remote_image(admin):
+    """
+    Should save a deck image
+    """
     deck = Deck.objects.get_default(admin)
     assert deck.image.width == 350
 
@@ -95,11 +116,17 @@ def test_deck_get_remote_image(admin):
 
 
 def test_decks_list_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('decks-list'))
     assert response.status_code == 401
 
 
 def test_decks_list_by_admin(admin_client):
+    """
+    Should return the decks list
+    """
     response = admin_client.get(reverse('decks-list') + '?ordering=id')
     data = response.json()['results']
     assert response.status_code == 200
@@ -108,22 +135,34 @@ def test_decks_list_by_admin(admin_client):
 
 
 def test_decks_display_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('decks-detail', args=[2]))
     assert response.status_code == 401
 
 
 def test_decks_display_by_admin(admin_client):
+    """
+    Should return a deck entry
+    """
     response = admin_client.get(reverse('decks-detail', args=[3]))
     assert response.status_code == 200
     assert response.json()['title'] == 'animals'
 
 
 def test_decks_display_another_user_by_admin(admin_client):
+    """
+    Should return 404 error code for non authenticated users
+    """
     response = admin_client.get(reverse('decks-detail', args=[4]))
     assert response.status_code == 404
 
 
 def test_decks_create_by_admin(admin_client):
+    """
+    Should create a deck entry
+    """
     data = json.dumps({
         'title': 'new test deck',
         'description': 'test description',

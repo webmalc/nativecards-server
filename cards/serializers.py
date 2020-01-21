@@ -10,7 +10,6 @@ class UserSerializerMixin():
     """
     The mixin class for filtering by the user
     """
-
     def filter_field(self, fields, key, model):
         """
         Filter field by the user
@@ -47,10 +46,12 @@ class CardSerializer(serializers.HyperlinkedModelSerializer,
                                              required=False)
     category_display = serializers.CharField(source='get_category_display',
                                              required=False)
-    deck = serializers.PrimaryKeyRelatedField(many=False,
-                                              read_only=False,
-                                              required=True,
-                                              queryset=Deck.objects.all())
+    deck = serializers.PrimaryKeyRelatedField(
+        many=False,
+        read_only=False,
+        required=True,
+        queryset=Deck.objects.all(),
+    )
 
     def get_fields(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """
@@ -73,7 +74,6 @@ class LessonCardSerializer(CardSerializer):
     """
     The card serializer for the user lesson
     """
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['form'] = serializers.CharField(read_only=True)
@@ -93,10 +93,12 @@ class AttemptSerializer(serializers.HyperlinkedModelSerializer,
     """
     created_by = serializers.StringRelatedField(many=False, read_only=True)
     modified_by = serializers.StringRelatedField(many=False, read_only=True)
-    card = serializers.PrimaryKeyRelatedField(many=False,
-                                              read_only=False,
-                                              required=False,
-                                              queryset=Card.objects.all())
+    card = serializers.PrimaryKeyRelatedField(
+        many=False,
+        read_only=False,
+        required=False,
+        queryset=Card.objects.all(),
+    )
 
     def get_fields(self, *args, **kwargs):  # pylint: disable=arguments-differ
         """
