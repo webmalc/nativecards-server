@@ -1,7 +1,13 @@
+"""
+The permissions model
+"""
 from rest_framework.permissions import DjangoModelPermissions
 
 
 class DjangoModelPermissionsGet(DjangoModelPermissions):
+    """
+    The default permissions
+    """
     perms_map = {
         'GET': ['%(app_label)s.change_%(model_name)s'],
         'OPTIONS': ['%(app_label)s.change_%(model_name)s'],

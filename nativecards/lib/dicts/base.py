@@ -38,11 +38,13 @@ class DictionaryEntry():
             data = self.data[name]
             if data:
                 setattr(
-                    self, name,
+                    self,
+                    name,
                     render_to_string(
                         'dicts/{}.md'.format(name),
                         {'entries': dict(data)},
-                    ))
+                    ),
+                )
         self._clean_data()
 
     def _clean_data(self):

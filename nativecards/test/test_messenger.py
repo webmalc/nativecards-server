@@ -1,12 +1,18 @@
+"""
+The tests module for the messenger module
+"""
 import pytest
 from django.contrib.auth.models import User
 
 from nativecards.lib.messengers import mailer
 
-pytestmark = pytest.mark.django_db
+pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 def test_mail_managers(mailoutbox):
+    """
+    Should send emails to managers
+    """
     mailer.mail_managers(subject='Text message', data={'text': 'Test text'})
     assert len(mailoutbox) == 1
     mail = mailoutbox[0]
@@ -17,6 +23,9 @@ def test_mail_managers(mailoutbox):
 
 
 def test_mail_client_by_email(mailoutbox):
+    """
+    Should send emails to clients by email
+    """
     mailer.mail_user(subject='Test message',
                      template='emails/registration.html',
                      data={},
@@ -30,6 +39,9 @@ def test_mail_client_by_email(mailoutbox):
 
 
 def test_mail_client_by_client(mailoutbox):
+    """
+    Should send emails to clients
+    """
     def send(user):
         user = User.objects.get(username=user)
         mailer.mail_user(subject='Test message',

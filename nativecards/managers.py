@@ -5,8 +5,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import nativecards
 from django.db import models
+
+import nativecards
 
 if TYPE_CHECKING:
     from users.models import User

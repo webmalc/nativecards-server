@@ -29,4 +29,5 @@ class Profile(TimeStampedModel):
                                          unique=True)
 
     def __str__(self):
+        # pylint: disable=no-member
         return "{}'s profile".format(self.user.username)

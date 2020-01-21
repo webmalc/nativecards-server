@@ -17,8 +17,8 @@ class FreeDictionary(Dictionary):
     url: str = 'https://idioms.thefreedictionary.com/'
 
     @staticmethod
-    def _get_definition_and_examples(soup: BeautifulSoup
-                                     ) -> Optional[DictionaryEntry]:
+    def _get_definition_and_examples(
+            soup: BeautifulSoup) -> Optional[DictionaryEntry]:
         definitions = examples = ''
         for section in soup.select('#Definition > section'):
             entry_tags = section.select('.ds-single')
@@ -36,10 +36,10 @@ class FreeDictionary(Dictionary):
                     example = tag.text.strip()
                     definition = definition.replace(example, '').strip()
                     if example:
-                        examples += '{}\n\n'.format(example)
+                        examples += f'{example}\n\n'
 
                 if definition:
-                    definitions += '{}\n\n'.format(definition)
+                    definitions += f'{definition}\n\n'
 
         if definitions or examples:
             return DictionaryEntry(definitions, examples)

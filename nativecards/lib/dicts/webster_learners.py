@@ -176,7 +176,7 @@ class WebsterLearners(Dictionary):
         """
         Make a request to the API
         """
-        url = '{}{}?key={}'.format(self.url, word, self.key)
+        url = f'{self.url}{word}?key={self.key}'
         response = requests.get(url)
         if response.status_code == 200:
             return response.text

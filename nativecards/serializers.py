@@ -1,3 +1,6 @@
+"""
+The nativecards serializers module
+"""
 from rest_framework import serializers
 
 from .models import Settings

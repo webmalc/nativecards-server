@@ -27,6 +27,7 @@ class UserAdmin(BaseUserAdmin):
         """
         Admin list display
         """
+        # pylint: disable=arguments-differ
         list_display = list(super().get_list_display(requset))
         list_display.append('is_verified')
         return list_display

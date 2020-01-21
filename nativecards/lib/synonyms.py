@@ -85,8 +85,10 @@ class ThesaurusManager():
             antonyms__isnull=True,
         ).first()
         if word:
-            return DictionaryEntry(synonyms=word.synonyms,
-                                   antonyms=word.antonyms)
+            return DictionaryEntry(
+                synonyms=word.synonyms,
+                antonyms=word.antonyms,
+            )
         return None
 
     def _get_from_thesaurus(self) -> Optional[DictionaryEntry]:

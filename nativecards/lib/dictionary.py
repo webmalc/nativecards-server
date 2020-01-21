@@ -1,7 +1,6 @@
 """
 The dictionary module
 """
-from dataclasses import dataclass
 from typing import Dict, Optional
 
 from django.apps import apps
@@ -17,7 +16,6 @@ class DictionaryError(Exception):
     """
 
 
-@dataclass
 class DictionaryManager():
     """
     The dictionary manager
@@ -25,13 +23,16 @@ class DictionaryManager():
 
     word: str
 
+    def __init__(self, word: str):
+        self.word = word
+        self.word_model = apps.get_model('words.Word')
+
     def _get_from_word(self) -> Optional[Dict[str, str]]:
         """
         Get synonyms and antonyms from the words object
         """
-        word_model = apps.get_model('words.Word')
-        word = word_model.objects.filter(word=self.word).exclude(
-            definition__isnull=True, ).first()
+        word = self.word_model.objects.filter(word=self.word).exclude(
+            definition__isnull=True).first()
         if word:
             return {
                 'definition': word.definition,
@@ -45,14 +46,14 @@ class DictionaryManager():
         """
         Get get definition from the dictionaries
         """
-        word_model = apps.get_model('words.Word')
         for dictionary_class in settings.NC_DICTIONARIES:
             dictionary = import_string(dictionary_class)()
             result = dictionary.process(self.word.lower())
             if result and result.definition:
-                word_model = apps.get_model('words.Word')
-                word_model.objects.create_or_update(self.word,
-                                                    definition=result)
+                self.word_model.objects.create_or_update(
+                    self.word,
+                    definition=result,
+                )
                 return result.__dict__
         return None
 

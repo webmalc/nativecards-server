@@ -92,7 +92,7 @@ class TranaslationManager():
 
     def _get_from_word(self) -> Optional[Dict[str, str]]:
         """
-        Get synonyms and antonyms from the words object
+        Get translations from the words object
         """
         word = Word.objects.filter(
             word=self.word,
@@ -136,8 +136,10 @@ class TranaslationManager():
 
 
 @cache_result('translation')
-def translate(word: str,
-              language: Optional[str] = None) -> Optional[Dict[str, str]]:
+def translate(
+        word: str,
+        language: Optional[str] = None,
+) -> Optional[Dict[str, str]]:
     """
     Get the word translation
     """

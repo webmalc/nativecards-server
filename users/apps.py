@@ -14,4 +14,5 @@ class UsersConfig(AppConfig):
         """
         Imports the app signals
         """
+        # pylint: disable=unused-import, import-outside-toplevel
         import users.signals

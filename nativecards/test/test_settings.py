@@ -1,3 +1,6 @@
+"""
+The tests module for the dictionary module
+"""
 import json
 
 import pytest
@@ -13,7 +16,13 @@ pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
 
 
 class CalcTestCase(TestCase):
+    """
+    The calculation test case
+    """
     def test_calc_api_cache(self):
+        """
+        Should cache settings in memory
+        """
         admin = User.objects.get(username='admin')
         clear_mermory_cache(admin)
         with self.assertNumQueries(2):
@@ -21,9 +30,9 @@ class CalcTestCase(TestCase):
         with self.assertNumQueries(0):
             assert get('attempts_to_remember', admin) == 10
 
-        settings = Settings.objects.get_by_user(admin)
-        settings.attempts_to_remember = 5
-        settings.save()
+        user_settings = Settings.objects.get_by_user(admin)
+        user_settings.attempts_to_remember = 5
+        user_settings.save()
 
         with self.assertNumQueries(1):
             assert get('attempts_to_remember', admin) == 5
@@ -39,11 +48,17 @@ def test_settings_get_default():
 
 
 def test_settings_get_by_user(client):
+    """
+    Should return 401 error code for non authenticated users
+    """
     response = client.get(reverse('settings-get'))
     assert response.status_code == 401
 
 
 def test_settings_get_by_admin(admin_client):
+    """
+    Should display an user settings
+    """
     response = admin_client.get(reverse('settings-get'))
     data = response.json()
 
@@ -54,6 +69,9 @@ def test_settings_get_by_admin(admin_client):
 
 
 def test_settings_update_by_admin(admin_client):
+    """
+    Should update an user settings
+    """
     data = json.dumps({'cards_to_repeat': 22, 'attempts_to_remember': 5})
     response = admin_client.patch(reverse('settings-save'),
                                   data=data,

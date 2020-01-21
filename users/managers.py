@@ -6,6 +6,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
+
 from nativecards.models import Settings
 from users import models as user_models
 
@@ -31,6 +32,8 @@ class ProfileManager(models.Manager):
         """
         Create a user account by email
         """
+
+        # pylint: disable=no-member
         user = User()
         user.username = email
         user.email = email

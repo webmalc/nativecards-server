@@ -13,6 +13,9 @@ class VerificationSerializer(serializers.Serializer):
     """
     The user verification token serializer
     """
+
+    # pylint: disable=abstract-method
+
     profile = serializers.CharField(max_length=200, min_length=50)
 
     def validate(self, attrs):
@@ -27,6 +30,9 @@ class PasswordSerializer(serializers.Serializer):
     """
     The user password serializer
     """
+
+    # pylint: disable=abstract-method
+
     password = serializers.CharField(max_length=40, min_length=8)
     password_two = serializers.CharField(max_length=40, min_length=8)
 
