@@ -30,4 +30,5 @@ pylint-plugin-utils==0.6
 pytest-pylint==0.14.1
 ipython==7.11.1
 tox==3.14.3
+bandit==1.6.2
 
