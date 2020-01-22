@@ -54,4 +54,8 @@ jobs:
 
     - name: Test the app
       run: |
-        pytest --pycodestyle --flakes --pylint --cov=./
+        pytest --pycodestyle --flakes --cov=./
+
+    - name: Bandit
+      run: |
+        bandit -r . -c .bandit.yml
