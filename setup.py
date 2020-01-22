@@ -95,7 +95,7 @@ setup(
         'phonenumberslite==8.9.10',
         'pilkit==2.0',
         'pipenv==2018.7.1',
-        'pluggy==0.7.1',
+        'pluggy==0.13.1',
         'polib==1.1.0',
         'progressbar2==3.38.0',
         'psycopg2==2.8.4',
@@ -135,9 +135,4 @@ setup(
         'gTTS==2.0.4',
         'googletrans==2.4.0',
     ],
-    entry_points={
-        "console_scripts": [
-            'booking-sites-parser=booking_sites_parser.__main__:run',
-        ]
-    },
 )

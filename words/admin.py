@@ -13,7 +13,6 @@ class WordAudioMixin(admin.ModelAdmin):
     """
     The admin mixin to dispaly an audio tag
     """
-
     @staticmethod
     def audio(obj):
         """
@@ -28,7 +27,11 @@ class WordAudioMixin(admin.ModelAdmin):
             <a href="#" data-audio="audio_{id}">►</a>
         """
 
-        return mark_safe(html.format(id=obj.pk, file=obj.pronunciation))
+        return mark_safe(  # nosec
+            html.format(
+                id=obj.pk,
+                file=obj.pronunciation,
+            ))
 
 
 @admin.register(Word)

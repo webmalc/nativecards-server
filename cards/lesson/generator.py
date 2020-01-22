@@ -70,8 +70,8 @@ class LessonGenerator():
 
         return cards
 
-    def _get_cards_with_choices_and_attempt_form(self, cards: List[Card]
-                                                 ) -> List[Card]:
+    def _get_cards_with_choices_and_attempt_form(
+            self, cards: List[Card]) -> List[Card]:
         random_words = self.manager.get_random_words(self.user)
 
         result = []

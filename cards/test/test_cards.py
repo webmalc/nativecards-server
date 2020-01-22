@@ -225,28 +225,34 @@ def test_cards_images_by_admin(admin_client, mocker):
     """
     Should return a JSON response with images information
     """
-    with mocker.patch(
-            'cards.views.get_images',
-            mocker.MagicMock(
-                return_value={'error': 'The word parameter not found.'})):
-        response = admin_client.get(reverse('cards-images'))
-        assert response.status_code == 200
-        assert response.json()['error'] == 'The word parameter not found.'
+    mocker.patch(
+        'cards.views.get_images',
+        mocker.MagicMock(
+            return_value={'error': 'The word parameter not found.'}),
+    )
+    response = admin_client.get(reverse('cards-images'))
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The word parameter not found.'
 
-    with mocker.patch(
-            'cards.views.get_images',
-            mocker.MagicMock(return_value=[{
+    mocker.patch(
+        'cards.views.get_images',
+        mocker.MagicMock(return_value=[
+            {
                 'previewURL': 'image1.png'
-            }, {
+            },
+            {
                 'previewURL': 'image2.png'
-            }, {
+            },
+            {
                 'previewURL': 'image3.png'
-            }])):
+            },
+        ], ),
+    )
 
-        response = admin_client.get(reverse('cards-images') + '?word=dog')
-        assert response.status_code == 200
-        assert len(response.json()) == 3
-        assert response.json()[0]['previewURL'] == 'image1.png'
+    response = admin_client.get(reverse('cards-images') + '?word=dog')
+    assert response.status_code == 200
+    assert len(response.json()) == 3
+    assert response.json()[0]['previewURL'] == 'image1.png'
 
 
 def test_cards_translation_by_user(client):
@@ -291,24 +297,26 @@ def test_cards_synonyms_by_admin(admin_client, mocker):
     Should return a JSON response with the synonyms information
     """
 
-    with mocker.patch(
-            'cards.views.get_synonyms',
-            mocker.MagicMock(
-                return_value={'error': 'The word parameter not found.'})):
-        response = admin_client.get(reverse('cards-synonyms'))
-        assert response.status_code == 200
-        assert response.json()['error'] == 'The word parameter not found.'
+    mocker.patch(
+        'cards.views.get_synonyms',
+        mocker.MagicMock(
+            return_value={'error': 'The word parameter not found.'}),
+    )
+    response = admin_client.get(reverse('cards-synonyms'))
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The word parameter not found.'
 
-    with mocker.patch(
-            'cards.views.get_synonyms',
-            mocker.MagicMock(return_value={
-                'synonyms': 'beloved, word',
-                'antonyms': 'hate, word'
-            })):
-        response = admin_client.get(reverse('cards-synonyms') + '?word=love')
-        assert response.status_code == 200
-        assert 'beloved' in response.json()['synonyms']
-        assert 'hate' in response.json()['antonyms']
+    mocker.patch(
+        'cards.views.get_synonyms',
+        mocker.MagicMock(return_value={
+            'synonyms': 'beloved, word',
+            'antonyms': 'hate, word',
+        }),
+    )
+    response = admin_client.get(reverse('cards-synonyms') + '?word=love')
+    assert response.status_code == 200
+    assert 'beloved' in response.json()['synonyms']
+    assert 'hate' in response.json()['antonyms']
 
 
 def test_cards_definition_by_user(client):
@@ -323,29 +331,30 @@ def test_cards_definition_by_admin(admin_client, mocker):
     """
     Should return a JSON response with a definition
     """
-    with mocker.patch(
-            'cards.views.get_definition',
-            mocker.MagicMock(
-                return_value={'error': 'The word parameter not found.'})):
-        response = admin_client.get(reverse('cards-definition'))
-        assert response.status_code == 200
-        assert response.json()['error'] == 'The word parameter not found.'
+    mocker.patch(
+        'cards.views.get_definition',
+        mocker.MagicMock(
+            return_value={'error': 'The word parameter not found.'}),
+    )
+    response = admin_client.get(reverse('cards-definition'))
+    assert response.status_code == 200
+    assert response.json()['error'] == 'The word parameter not found.'
 
-    with mocker.patch(
-            'cards.views.get_definition',
-            mocker.MagicMock(
-                return_value={
-                    'pronunciation': 'test.wav',
-                    'examples': '*dog*',
-                    'definition': 'favorite animal',
-                    'transcription': 'ˈdɑ:g',
-                })):
-        response = admin_client.get(reverse('cards-definition') + '?word=dog')
-        assert response.status_code == 200
-        assert '.wav' in response.json()['pronunciation']
-        assert '*dog*' in response.json()['examples']
-        assert 'animal' in response.json()['definition']
-        assert "ˈdɑ:g" in response.json()['transcription']
+    mocker.patch(
+        'cards.views.get_definition',
+        mocker.MagicMock(return_value={
+            'pronunciation': 'test.wav',
+            'examples': '*dog*',
+            'definition': 'favorite animal',
+            'transcription': 'ˈdɑ:g',
+        }, ),
+    )
+    response = admin_client.get(reverse('cards-definition') + '?word=dog')
+    assert response.status_code == 200
+    assert '.wav' in response.json()['pronunciation']
+    assert '*dog*' in response.json()['examples']
+    assert 'animal' in response.json()['definition']
+    assert "ˈdɑ:g" in response.json()['transcription']
 
 
 def test_cards_lesson_by_user(client):

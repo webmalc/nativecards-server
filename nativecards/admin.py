@@ -15,7 +15,6 @@ class ShowAllInlineAdminMixin(admin.TabularInline):
     """
     The mixin to show a link to all entries in inline admin classes
     """
-
     def get_formset(self, request, obj=None, **kwargs):
         self.parent_obj = obj
         return super().get_formset(request, obj, **kwargs)
@@ -27,16 +26,17 @@ class ShowAllInlineAdminMixin(admin.TabularInline):
         template = """
         <a href="{}?created_by__id__exact={}" target="_blank">Show all</a>
         """
-        return mark_safe(
-            template.format(reverse(self.all_url),
-                            self.parent_obj.created_by.id))
+        return mark_safe(  # nosec
+            template.format(
+                reverse(self.all_url),
+                self.parent_obj.created_by.id,
+            ))
 
 
 class SettingsAdminForm(forms.ModelForm):
     """
     The settings admin form class
     """
-
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request', None)
         super().__init__(*args, **kwargs)
@@ -94,7 +94,6 @@ class SettingsAdmin(VersionAdmin):
             """
             Admin form metaclass
             """
-
             def __new__(cls, *args, **kwargs):
                 kwargs['request'] = request
                 return admin_form(*args, **kwargs)
