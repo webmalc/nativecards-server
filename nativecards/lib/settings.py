@@ -1,7 +1,7 @@
 """
 The settings lib
 """
-from typing import Generator
+from typing import Iterator
 
 from django.conf import settings
 from django.utils.module_loading import import_string
@@ -12,7 +12,7 @@ SETTINGS = {}  # type: ignore
 RELOAD = False  # type: ignore
 
 
-def get_instances(key: str) -> Generator:
+def get_instances(key: str) -> Iterator:
     """
     Gets class instances from the settings
     """
@@ -26,12 +26,13 @@ def get(key: str, user=None):
     Get settings
     """
     default = getattr(settings, 'NC_' + key.upper(), None)
-    if user:
-        if user.id not in SETTINGS or RELOAD:
-            user_settings = Settings.objects.get_by_user(user)
-            SETTINGS[user.id] = user_settings
-        return getattr(SETTINGS[user.id], key, default)
-    return default
+    if not user:
+        return default
+
+    if user.id not in SETTINGS or RELOAD:
+        user_settings = Settings.objects.get_by_user(user)
+        SETTINGS[user.id] = user_settings
+    return getattr(SETTINGS[user.id], key, default)
 
 
 def clear_mermory_cache(user):
