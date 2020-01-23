@@ -1,17 +1,16 @@
 """
 The synonyms module
 """
-
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
 
 import requests
 from django.conf import settings
-from django.utils.module_loading import import_string
 
 from nativecards.lib.cache import cache_result
 from nativecards.lib.dicts.base import DictionaryEntry
+from nativecards.lib.settings import get_instances
 from words.models import Word
 
 
@@ -95,8 +94,7 @@ class ThesaurusManager():
         """
         Get synonyms and antonyms from the thesauruses
         """
-        for translator_class in settings.NC_THESAURI:
-            thesaurus = import_string(translator_class)()
+        for thesaurus in get_instances('THESAURI'):
             result = thesaurus.get_synonyms(self.word.lower())
             if result:
                 Word.objects.create_or_update(

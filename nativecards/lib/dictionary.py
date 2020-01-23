@@ -4,10 +4,9 @@ The dictionary module
 from typing import Dict, Optional
 
 from django.apps import apps
-from django.conf import settings
-from django.utils.module_loading import import_string
 
 from nativecards.lib.cache import cache_result
+from nativecards.lib.settings import get_instances
 
 
 class DictionaryError(Exception):
@@ -46,8 +45,7 @@ class DictionaryManager():
         """
         Get get definition from the dictionaries
         """
-        for dictionary_class in settings.NC_DICTIONARIES:
-            dictionary = import_string(dictionary_class)()
+        for dictionary in get_instances('DICTIONARIES'):
             result = dictionary.process(self.word.lower())
             if result and result.definition:
                 self.word_model.objects.create_or_update(

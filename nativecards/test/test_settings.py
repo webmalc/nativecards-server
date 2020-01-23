@@ -9,7 +9,10 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
-from nativecards.lib.settings import clear_mermory_cache, get
+from nativecards.lib.dicts.free_dictionary import FreeDictionary
+from nativecards.lib.dicts.webster_learners import WebsterLearners
+from nativecards.lib.dicts.words_api import WordsApi
+from nativecards.lib.settings import clear_mermory_cache, get, get_instances
 from nativecards.models import Settings
 
 pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
@@ -38,6 +41,17 @@ class CalcTestCase(TestCase):
             assert get('attempts_to_remember', admin) == 5
         with self.assertNumQueries(0):
             assert get('attempts_to_remember', admin) == 5
+
+
+def test_settings_get_instances():
+    """
+    Should return a generator with class instances from the settings
+    """
+    dicts = get_instances('DICTIONARIES')
+
+    assert isinstance(next(dicts), WebsterLearners)
+    assert isinstance(next(dicts), WordsApi)
+    assert isinstance(next(dicts), FreeDictionary)
 
 
 def test_settings_get_default():

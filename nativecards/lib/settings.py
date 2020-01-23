@@ -1,12 +1,24 @@
 """
 The settings lib
 """
+from typing import Generator
+
 from django.conf import settings
+from django.utils.module_loading import import_string
 
 from nativecards.models import Settings
 
 SETTINGS = {}  # type: ignore
 RELOAD = False  # type: ignore
+
+
+def get_instances(key: str) -> Generator:
+    """
+    Gets class instances from the settings
+    """
+    modules = getattr(settings, 'NC_' + key.upper(), [])
+    for name in modules:
+        yield import_string(name)()
 
 
 def get(key: str, user=None):

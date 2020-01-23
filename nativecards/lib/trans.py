@@ -6,11 +6,10 @@ from dataclasses import dataclass
 from typing import Dict, Optional
 
 import requests
-from django.conf import settings
-from django.utils.module_loading import import_string
 from googletrans import Translator
 
 from nativecards.lib.cache import cache_result
+from nativecards.lib.settings import get_instances
 from words.models import Word
 
 
@@ -106,8 +105,7 @@ class TranaslationManager():
         """
         Get get translations from the translators
         """
-        for translator_class in settings.NC_TRANSLATORS:
-            translator = import_string(translator_class)()
+        for translator in get_instances('TRANSLATORS'):
             if translator.check_language(self.language):
                 result = translator.translate(self.word.lower(), self.language)
                 if result:
