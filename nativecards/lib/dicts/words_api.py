@@ -52,7 +52,7 @@ class WordsApi(Dictionary, Thesaurus):
             entry: DictionaryEntry,
             key: str,
             part_of_speach: str = '',
-    ) -> dict:
+    ) -> DictionaryEntry:
         """
         Extract data from a result row
         """

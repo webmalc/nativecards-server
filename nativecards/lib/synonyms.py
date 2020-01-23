@@ -53,7 +53,7 @@ class BigHugeThesaurus(Thesaurus):
                         name: str,
                         keys,
                         part_of_speach,
-                ) -> str:
+                ) -> DictionaryEntry:
                     if key in keys:
                         for value in keys[key][:5]:
                             entry.add_data_entry(name, value, part_of_speach)

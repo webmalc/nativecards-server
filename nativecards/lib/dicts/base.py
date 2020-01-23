@@ -3,7 +3,7 @@ The dictionary module
 """
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from django.template.loader import render_to_string
 
@@ -20,7 +20,7 @@ class DictionaryEntry():
     transcription: Optional[str] = None
     synonyms: Optional[str] = None
     antonyms: Optional[str] = None
-    data: Dict[str, str] = None
+    data: Dict[str, Any] = {}
 
     def add_data_entry(self, name: str, value: str, part_of_speach: str):
         """

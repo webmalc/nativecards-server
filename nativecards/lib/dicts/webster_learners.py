@@ -121,18 +121,18 @@ class WebsterLearners(Dictionary):
         return entry
 
     @staticmethod
-    def _save_audio(audio: list, word: str) -> str:
+    def _save_audio(audio: List[str], word: str) -> Optional[str]:
         """
         Save an audio to the server and return the result URL
         """
-        audio = audio[0] if audio else None
-        if not audio:
+        audio_url = audio[0] if audio else None
+        if not audio_url:
             return None
 
         filename = get_audio_filename(word, 'wav')
         url = get_audio_url(filename)
         if not check_audio_path(filename):
-            response = requests.get(audio, stream=True)
+            response = requests.get(audio_url, stream=True)
             audio_temp = NamedTemporaryFile(delete=True)
             shutil.copyfileobj(response.raw, audio_temp)
             default_storage.save(filename, audio_temp)
