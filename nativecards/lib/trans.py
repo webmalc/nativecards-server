@@ -3,7 +3,7 @@ The translate module
 """
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import requests
 from googletrans import Translator
@@ -25,7 +25,7 @@ class Translate(ABC):
     """
     @property
     @abstractmethod
-    def supported_languages(self):
+    def supported_languages(self) -> Optional[List[str]]:
         """
         Available languages (None - for all languages)
         """
@@ -39,7 +39,7 @@ class Translate(ABC):
         return language in self.supported_languages
 
     @abstractmethod
-    def translate(self, word: str, language: str) -> list:
+    def translate(self, word: str, language: str) -> List[str]:
         """
         Get the translation
         """
@@ -52,7 +52,7 @@ class GoogleTrans(Translate):
     supported_languages = None
     languages_override = {'zh': 'zh-TW'}
 
-    def translate(self, word: str, language: str) -> list:
+    def translate(self, word: str, language: str) -> List[str]:
         """
         Get the translation
         """
@@ -68,7 +68,7 @@ class Lingualeo(Translate):
     supported_languages = ['ru']
     url = 'https://api.lingualeo.com/gettranslates?port=1001&word='
 
-    def translate(self, word: str, language: str) -> list:
+    def translate(self, word: str, language: str) -> List[str]:
         result = requests.get(self.url + word.lower())
         if result.status_code == 200:
             data = result.json()
@@ -87,35 +87,39 @@ class TranaslationManager():
     """
 
     word: str
-    language: Optional[str] = None
+    language: str
 
     def _get_from_word(self) -> Optional[Dict[str, str]]:
         """
-        Get translations from the words object
+        Get translations from the word object
         """
-        word = Word.objects.filter(
-            word=self.word,
-            translations__has_key=self.language,
-        ).first()
+        word = Word.objects.get_with_translation(self.word, self.language)
         if word:
             return {'translation': word.translations[self.language]}
         return None
+
+    def _save_to_word(self, translation: str) -> None:
+        """
+        Save translation to the word object
+        """
+        Word.objects.create_or_update(
+            self.word,
+            translation=translation,
+            language=self.language,
+        )
 
     def _get_from_translator(self) -> Optional[Dict[str, str]]:
         """
         Get get translations from the translators
         """
         for translator in get_instances('TRANSLATORS'):
-            if translator.check_language(self.language):
-                result = translator.translate(self.word.lower(), self.language)
-                if result:
-                    translation = ', '.join(result)
-                    Word.objects.create_or_update(
-                        self.word,
-                        translation=translation,
-                        language=self.language,
-                    )
-                    return {'translation': translation}
+            if not translator.check_language(self.language):
+                continue
+            result = translator.translate(self.word.lower(), self.language)
+            if result:
+                translation = ', '.join(result)
+                self._save_to_word(translation)
+                return {'translation': translation}
         return None
 
     def translate(self) -> Optional[Dict[str, str]]:
@@ -127,17 +131,11 @@ class TranaslationManager():
         if not self.language:
             raise TranslationError('The language parameter not found.')
 
-        result = self._get_from_word()
-        if result:
-            return result
-        return self._get_from_translator()
+        return self._get_from_word() or self._get_from_translator()
 
 
 @cache_result('translation')
-def translate(
-        word: str,
-        language: Optional[str] = None,
-) -> Optional[Dict[str, str]]:
+def translate(word: str, language: str) -> Optional[Dict[str, str]]:
     """
     Get the word translation
     """

@@ -48,3 +48,12 @@ class WordManager(models.Manager):
         word_object.save()
 
         return word_object
+
+    def get_with_translation(self, word: str, language: str) -> Optional[Word]:
+        """
+        Get a words object based on the translation
+        """
+        return self.filter(
+            word=word,
+            translations__has_key=language,
+        ).first()
