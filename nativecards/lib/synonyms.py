@@ -1,7 +1,6 @@
 """
 The synonyms module
 """
-from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Dict, Optional
 
@@ -9,8 +8,8 @@ import requests
 from django.conf import settings
 
 from nativecards.lib.cache import cache_result
-from nativecards.lib.dicts.base import DictionaryEntry
-from nativecards.lib.settings import get_instances
+from nativecards.lib.dicts.models import DictionaryEntry
+from nativecards.lib.settings import Chain, get_chain
 from words.models import Word
 
 
@@ -20,18 +19,7 @@ class ThesaurusError(Exception):
     """
 
 
-class Thesaurus(ABC):
-    """
-    Base thesaurus class
-    """
-    @abstractmethod
-    def get_synonyms(self, word: str) -> Optional[DictionaryEntry]:
-        """
-        Get the synonyms
-        """
-
-
-class BigHugeThesaurus(Thesaurus):
+class BigHugeThesaurus(Chain):
     """
     Bighugelabs thesaurus
     """
@@ -39,7 +27,8 @@ class BigHugeThesaurus(Thesaurus):
     url = 'http://words.bighugelabs.com/api/2'
     key = settings.NC_BIGHUGELABS_KEY
 
-    def get_synonyms(self, word: str) -> Optional[DictionaryEntry]:
+    def get_result(self, **kwargs):
+        word = kwargs.get('word')
         url = '{}/{}/{}/json'.format(self.url, self.key, word.lower())
         response = requests.get(url)
         if response.status_code == 200:
@@ -90,19 +79,24 @@ class ThesaurusManager():
             )
         return None
 
+    def _save_to_word(self, result: DictionaryEntry) -> None:
+        """
+        Save results to the word object
+        """
+        Word.objects.create_or_update(
+            self.word,
+            synonyms=result.synonyms,
+            antonyms=result.antonyms,
+        )
+
     def _get_from_thesaurus(self) -> Optional[DictionaryEntry]:
         """
         Get synonyms and antonyms from the thesauruses
         """
-        for thesaurus in get_instances('THESAURI'):
-            result = thesaurus.get_synonyms(self.word.lower())
-            if result:
-                Word.objects.create_or_update(
-                    self.word,
-                    synonyms=result.synonyms,
-                    antonyms=result.antonyms,
-                )
-                return result
+        result = get_chain('THESAURI').handle(word=self.word.lower())
+        if result:
+            self._save_to_word(result)
+            return result
         return None
 
     def get_entry(self) -> Optional[Dict[str, str]]:

@@ -1,13 +1,10 @@
 """
 The dictionary module
 """
-from abc import ABC, abstractmethod
 from collections import defaultdict
 from typing import Any, Dict, Optional
 
 from django.template.loader import render_to_string
-
-from nativecards.lib.audio import get_audio
 
 
 class DictionaryEntry():
@@ -72,23 +69,3 @@ class DictionaryEntry():
         self.synonyms = synonyms or None
         self.antonyms = antonyms or None
         self._clean_data()
-
-
-class Dictionary(ABC):
-    """
-    Base dictionary class
-    """
-    @abstractmethod
-    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
-        """
-        Get the word or phrase entry
-        """
-
-    def process(self, word: str) -> Optional[DictionaryEntry]:
-        """
-        Get the definition
-        """
-        info = self.get_entry(word)
-        if info and not info.pronunciation:
-            info.pronunciation = get_audio(word)
-        return info

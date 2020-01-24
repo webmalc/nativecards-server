@@ -15,10 +15,11 @@ from nativecards.lib.audio import (check_audio_path, get_audio_filename,
                                    get_audio_url)
 from nativecards.lib.cache import save_result
 from nativecards.lib.dictionary import guess_category
-from nativecards.lib.dicts.base import Dictionary, DictionaryEntry
+from nativecards.lib.dicts.models import DictionaryEntry
+from nativecards.lib.settings import Chain
 
 
-class WebsterLearners(Dictionary):
+class WebsterLearners(Chain):
     """
     Webster learners dictionary
     """
@@ -156,7 +157,7 @@ class WebsterLearners(Dictionary):
         entry = self._get_definition(tree, entry)
         entry.process_data()
 
-        return entry
+        return entry if entry.definition else None
 
     def _get_phrasal_verb_info(self, tree,
                                word: str) -> Optional[DictionaryEntry]:
@@ -169,7 +170,7 @@ class WebsterLearners(Dictionary):
             definition = self._get_phrasal_verb_definition(root)
             examples = self._get_phrasal_verb_examples(root)
 
-        return DictionaryEntry(definition, examples)
+        return DictionaryEntry(definition, examples) if definition else None
 
     @save_result('webster/{}.xml')
     def _make_request(self, word: str) -> Optional[str]:
@@ -182,10 +183,11 @@ class WebsterLearners(Dictionary):
             return response.text
         return None
 
-    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
+    def get_result(self, **kwargs) -> Optional[DictionaryEntry]:
         """
         Returns the word or phrase entry
         """
+        word = str(kwargs.get('word'))
         xml_text = self._make_request(word)
         if xml_text:
             try:

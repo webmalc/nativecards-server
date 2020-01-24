@@ -9,10 +9,12 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 
+from nativecards.lib import trans
 from nativecards.lib.dicts.free_dictionary import FreeDictionary
 from nativecards.lib.dicts.webster_learners import WebsterLearners
 from nativecards.lib.dicts.words_api import WordsApi
-from nativecards.lib.settings import clear_mermory_cache, get, get_instances
+from nativecards.lib.settings import (clear_mermory_cache, get, get_chain,
+                                      get_instances)
 from nativecards.models import Settings
 
 pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
@@ -41,6 +43,40 @@ class CalcTestCase(TestCase):
             assert get('attempts_to_remember', admin) == 5
         with self.assertNumQueries(0):
             assert get('attempts_to_remember', admin) == 5
+
+
+def test_settings_chain(mocker):
+    """
+    Should return a chain of responsibility from the settings
+    """
+    path = 'nativecards.lib.trans.'
+    mocker.patch(f'{path}Lingualeo.get_result', return_value=['lingualeo'])
+    mocker.patch(f'{path}GoogleTrans.get_result', return_value=['google'])
+    translator = get_chain('TRANSLATORS')
+    result = translator.handle(word='cat', language='ru')
+    assert result == ['lingualeo']
+
+    result = translator.handle(word='cat', language='es')
+    assert result == ['google']
+
+
+def test_settings_get_chain():
+    """
+    Should return a chain of responsibility from the settings
+    """
+    translator = get_chain('TRANSLATORS')
+    assert isinstance(translator, trans.Lingualeo)
+    assert isinstance(translator.successor, trans.GoogleTrans)
+    assert translator.successor.successor is None
+
+
+def test_settings_get_instances_errors():
+    """
+    Should return an exception with an invalid key
+    """
+    with pytest.raises(ValueError) as error:
+        next(get_instances('INVALID'))
+        assert error == 'Invalid key has been provided'
 
 
 def test_settings_get_instances():

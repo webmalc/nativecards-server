@@ -7,10 +7,11 @@ import requests
 from bs4 import BeautifulSoup
 
 from nativecards.lib.dictionary import guess_category
-from nativecards.lib.dicts.base import Dictionary, DictionaryEntry
+from nativecards.lib.dicts.models import DictionaryEntry
+from nativecards.lib.settings import Chain
 
 
-class FreeDictionary(Dictionary):
+class FreeDictionary(Chain):
     """
     The Free Dictionary
     """
@@ -45,10 +46,11 @@ class FreeDictionary(Dictionary):
             return DictionaryEntry(definitions, examples)
         return None
 
-    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
+    def get_result(self, **kwargs) -> Optional[DictionaryEntry]:
         """
         Returns the idiom entry
         """
+        word = kwargs.get('word', '')
         if guess_category(word) == 'word':
             return None
         url = '{}{}'.format(self.url, word.replace(' ', '+'))

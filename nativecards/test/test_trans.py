@@ -18,10 +18,10 @@ def test_translators_supported_languages():
     lingualeo = Lingualeo()
     google = GoogleTrans()
 
-    assert lingualeo.check_language('ru')
-    assert not lingualeo.check_language('es')
-    assert google.check_language('ru')
-    assert google.check_language('es')
+    assert lingualeo.check(language='ru')
+    assert not lingualeo.check(language='es')
+    assert google.check(language='ru')
+    assert google.check(language='es')
 
     Lingualeo.supported_languages = ['xx']
     GoogleTrans.supported_languages = ['xx']
@@ -37,7 +37,7 @@ def test_google_translate():
     Should return a word translation
     """
     google = GoogleTrans()
-    translations = google.translate('cat', 'es')
+    translations = google.get_result(word='cat', language='es')
     assert translations == ['gato']
 
 
@@ -55,7 +55,7 @@ def test_lingualeo_translate(mocker):
         }]})
     requests.get = mocker.MagicMock(return_value=response)
     lingualeo = Lingualeo()
-    translations = lingualeo.translate('cat', 'ru')
+    translations = lingualeo.get_result(word='cat', language='ru')
     assert 'кошка' in translations
 
 
@@ -102,7 +102,7 @@ def test_lingualeo_errors(mocker):
     response = requests.Response()
     response.status_code = 404
     requests.get = mocker.MagicMock(return_value=response)
-    translations = lingualeo.translate('cat', 'ru')
+    translations = lingualeo.get_result(word='cat', language='ru')
     assert len(translations) == 0
 
     response = requests.Response()
@@ -110,5 +110,5 @@ def test_lingualeo_errors(mocker):
     response.json = mocker.MagicMock(return_value={'error_msg': 'error'})
     requests.get = mocker.MagicMock(return_value=response)
 
-    translations = lingualeo.translate('cat', 'ru')
+    translations = lingualeo.get_result(word='cat', language='ru')
     assert len(translations) == 0

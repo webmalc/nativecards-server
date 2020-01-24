@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from django.db import models
 
-from nativecards.lib.dicts.base import DictionaryEntry
+from nativecards.lib.dicts.models import DictionaryEntry
 
 if TYPE_CHECKING:
     from .models import Word

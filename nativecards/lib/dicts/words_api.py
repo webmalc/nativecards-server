@@ -8,11 +8,11 @@ import requests
 from django.conf import settings
 
 from nativecards.lib.cache import save_result
-from nativecards.lib.dicts.base import Dictionary, DictionaryEntry
-from nativecards.lib.synonyms import Thesaurus
+from nativecards.lib.dicts.models import DictionaryEntry
+from nativecards.lib.settings import Chain
 
 
-class WordsApi(Dictionary, Thesaurus):
+class WordsApi(Chain):
     """
     The WordsApi dictionary
     """
@@ -62,16 +62,11 @@ class WordsApi(Dictionary, Thesaurus):
                 entry.add_data_entry(key, value, part_of_speach)
         return entry
 
-    def get_synonyms(self, word: str) -> Optional[DictionaryEntry]:
-        """
-        Get the synonyms
-        """
-        return self.get_entry(word)
-
-    def get_entry(self, word: str) -> Optional[DictionaryEntry]:
+    def get_result(self, **kwargs) -> Optional[DictionaryEntry]:
         """
         Get the word or phrase entry
         """
+        word = str(kwargs.get('word'))
         data = self._get_data(word)
         if not data:
             return None
@@ -79,6 +74,7 @@ class WordsApi(Dictionary, Thesaurus):
         if not results:
             return None
         entry = DictionaryEntry()
+
         for result in results:
             part_of_speach = result.get('partOfSpeech')
             entry.add_data_entry(

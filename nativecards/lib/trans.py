@@ -1,7 +1,7 @@
 """
 The translate module
 """
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
@@ -9,7 +9,7 @@ import requests
 from googletrans import Translator
 
 from nativecards.lib.cache import cache_result
-from nativecards.lib.settings import get_instances
+from nativecards.lib.settings import Chain, get_chain
 from words.models import Word
 
 
@@ -19,7 +19,7 @@ class TranslationError(Exception):
     """
 
 
-class Translate(ABC):
+class Translate(Chain):
     """
     The base translation class
     """
@@ -30,19 +30,13 @@ class Translate(ABC):
         Available languages (None - for all languages)
         """
 
-    def check_language(self, language: str):
+    def check(self, **kwargs):
         """
         Check if the language is available
         """
         if not self.supported_languages:
             return True
-        return language in self.supported_languages
-
-    @abstractmethod
-    def translate(self, word: str, language: str) -> List[str]:
-        """
-        Get the translation
-        """
+        return kwargs.get('language') in self.supported_languages
 
 
 class GoogleTrans(Translate):
@@ -52,11 +46,13 @@ class GoogleTrans(Translate):
     supported_languages = None
     languages_override = {'zh': 'zh-TW'}
 
-    def translate(self, word: str, language: str) -> List[str]:
+    def get_result(self, **kwargs):
         """
         Get the translation
         """
         translator = Translator()
+        language = kwargs.get('language')
+        word = kwargs.get('word')
         language = self.languages_override.get(language, language)
         return [translator.translate(word, dest=language).text]
 
@@ -68,7 +64,8 @@ class Lingualeo(Translate):
     supported_languages = ['ru']
     url = 'https://api.lingualeo.com/gettranslates?port=1001&word='
 
-    def translate(self, word: str, language: str) -> List[str]:
+    def get_result(self, **kwargs):
+        word = kwargs.get('word')
         result = requests.get(self.url + word.lower())
         if result.status_code == 200:
             data = result.json()
@@ -112,14 +109,14 @@ class TranaslationManager():
         """
         Get get translations from the translators
         """
-        for translator in get_instances('TRANSLATORS'):
-            if not translator.check_language(self.language):
-                continue
-            result = translator.translate(self.word.lower(), self.language)
-            if result:
-                translation = ', '.join(result)
-                self._save_to_word(translation)
-                return {'translation': translation}
+        result = get_chain('TRANSLATORS').handle(
+            word=self.word.lower(),
+            language=self.language,
+        )
+        if result:
+            translation = ', '.join(result)
+            self._save_to_word(translation)
+            return {'translation': translation}
         return None
 
     def translate(self) -> Optional[Dict[str, str]]:

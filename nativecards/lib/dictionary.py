@@ -1,12 +1,16 @@
 """
 The dictionary module
 """
+from __future__ import annotations
+
 from typing import Dict, Optional
 
 from django.apps import apps
 
-from nativecards.lib.cache import cache_result
-from nativecards.lib.settings import get_instances
+from .audio import get_audio
+from .cache import cache_result
+from .dicts.models import DictionaryEntry
+from .settings import get_chain
 
 
 class DictionaryError(Exception):
@@ -41,19 +45,28 @@ class DictionaryManager():
             }
         return None
 
+    def _save_to_word(self, result: DictionaryEntry) -> None:
+        """
+        Save results to the word object
+        """
+        self.word_model.objects.create_or_update(
+            self.word,
+            definition=result,
+        )
+
     def _get_from_dictionary(self) -> Optional[Dict[str, str]]:
         """
         Get get definition from the dictionaries
         """
-        for dictionary in get_instances('DICTIONARIES'):
-            result = dictionary.process(self.word.lower())
-            if result and result.definition:
-                self.word_model.objects.create_or_update(
-                    self.word,
-                    definition=result,
-                )
-                return result.__dict__
-        return None
+        result = get_chain('DICTIONARIES').handle(word=self.word)
+
+        if not result or not result.definition:
+            return None
+        if not result.pronunciation:
+            result.pronunciation = get_audio(self.word)
+        self._save_to_word(result)
+
+        return result.__dict__
 
     def get_definition(self) -> Optional[dict]:
         """
@@ -62,10 +75,8 @@ class DictionaryManager():
         if not self.word:
             raise DictionaryError('The word parameter not found.')
         self.word = self.word.lower()
-        result = self._get_from_word()
-        if result:
-            return result
-        return self._get_from_dictionary()
+
+        return self._get_from_word() or self._get_from_dictionary()
 
 
 @cache_result('definition')

@@ -101,7 +101,7 @@ def test_get_definition_errors_wordsapi(mocker):
     requests.get = mocker.MagicMock(return_value=response)
 
     words_api = WordsApi()
-    result = words_api.get_entry('wordsapi test word')
+    result = words_api.get_result(word='wordsapi test word')
 
     assert result is None
 

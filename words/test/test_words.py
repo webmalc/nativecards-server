@@ -3,7 +3,7 @@ The words test module
 """
 import pytest
 
-from nativecards.lib.dicts.base import DictionaryEntry
+from nativecards.lib.dicts.models import DictionaryEntry
 from words.models import Word
 
 pytestmark = pytest.mark.django_db  # pylint: disable=invalid-name
