@@ -1,10 +1,21 @@
 """
 The dictionary module
 """
+from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, List, Optional
 
+from django.apps import apps
+from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
+
+from ..settings import get_chain
+
+
+class DictionaryError(Exception):
+    """
+    The dictionary error class
+    """
 
 
 class DictionaryEntry():
@@ -69,3 +80,101 @@ class DictionaryEntry():
         self.synonyms = synonyms or None
         self.antonyms = antonyms or None
         self._clean_data()
+
+
+class BaseManager(ABC):
+    """
+    The base dictionary manager
+    """
+
+    word: str
+
+    @property
+    @abstractmethod
+    def settings_key(self) -> str:
+        """
+        Chain settings key
+        """
+
+    @property
+    @abstractmethod
+    def word_fields(self) -> List[str]:
+        """
+        Words fields
+        """
+
+    @property
+    @abstractmethod
+    def word_query(self) -> QuerySet:
+        """
+        Words query
+        """
+
+    def __init__(self, word: str):
+        self.word = word
+        self.word_model = apps.get_model('words.Word')
+
+    def _get_from_word(self) -> Optional[Dict[str, str]]:
+        """
+        Get synonyms and antonyms from the words object
+        """
+        word = self.word_query(self.word)
+        if word:
+            return {f: getattr(word, f) for f in self.word_fields}
+        return None
+
+    def _save_to_word(self, result: DictionaryEntry) -> None:
+        """
+        Save results to the word object
+        """
+        self.word_model.objects.create_or_update(self.word, entry=result)
+
+    def get_entry(self) -> Optional[dict]:
+        """
+        Get the word's definition
+        """
+        if not self.word:
+            raise DictionaryError('The word parameter not found.')
+        return self._get_from_word() or self._get_from_dictionary()
+
+    @staticmethod
+    def is_result_valid(result: Optional[DictionaryEntry]) -> bool:
+        """
+        Checks result
+        """
+        return bool(result)
+
+    def process_result(self, result: DictionaryEntry) -> DictionaryEntry:
+        """
+        Processes result
+        """
+        # pylint: disable=no-self-use
+        return result
+
+    def _get_from_dictionary(self) -> Optional[Dict[str, str]]:
+        """
+        Get get definition from the dictionaries
+        """
+        result = get_chain(self.settings_key).handle(word=self.word)
+
+        if not self.is_result_valid(result):
+            return None
+
+        result = self.process_result(result)
+        self._save_to_word(result)
+
+        return result.__dict__
+
+
+def manager_runner(
+        word: str,
+        manager_cls: Callable[[str], BaseManager],
+) -> Optional[dict]:
+    """
+    Gets results from a manager
+    """
+    manager = manager_cls(word.lower())
+    try:
+        return manager.get_entry()
+    except DictionaryError as error:
+        return {'error': str(error)}

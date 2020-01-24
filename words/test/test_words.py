@@ -30,7 +30,7 @@ def test_word_create_or_update():
         'test',
         synonyms='one, two',
         antonyms='two, one',
-        definition=dict_entry,
+        entry=dict_entry,
     )
 
     assert not_word is None

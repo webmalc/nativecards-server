@@ -20,7 +20,7 @@ class WordManager(models.Manager):
     def create_or_update(
             self,
             word: str,
-            definition: Optional[DictionaryEntry] = None,
+            entry: Optional[DictionaryEntry] = None,
             translation: Optional[str] = None,
             language: Optional[str] = None,
             synonyms: Optional[str] = None,
@@ -41,13 +41,28 @@ class WordManager(models.Manager):
             word_object.synonyms = synonyms
         if antonyms:
             word_object.antonyms = antonyms
-        if definition:
-            for key, value in definition.__dict__.items():
+        if entry:
+            for key, value in entry.__dict__.items():
                 if value:
                     setattr(word_object, key, value)
         word_object.save()
 
         return word_object
+
+    def get_with_definition(self, word: str) -> Optional[Word]:
+        """
+        Get a words object based on the definition
+        """
+        return self.filter(word=word).exclude(definition__isnull=True).first()
+
+    def get_with_synonyms(self, word: str) -> Optional[Word]:
+        """
+        Get a words object based on the synonyms
+        """
+        return self.filter(word=word).exclude(
+            synonyms__isnull=True,
+            antonyms__isnull=True,
+        ).first()
 
     def get_with_translation(self, word: str, language: str) -> Optional[Word]:
         """

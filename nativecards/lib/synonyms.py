@@ -1,22 +1,17 @@
 """
 The synonyms module
 """
-from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
 import requests
 from django.conf import settings
+from django.db.models.query import QuerySet
 
 from nativecards.lib.cache import cache_result
-from nativecards.lib.dicts.models import DictionaryEntry
-from nativecards.lib.settings import Chain, get_chain
+from nativecards.lib.settings import Chain
 from words.models import Word
 
-
-class ThesaurusError(Exception):
-    """
-    The thesaurus error class
-    """
+from .dicts.models import BaseManager, DictionaryEntry, manager_runner
 
 
 class BigHugeThesaurus(Chain):
@@ -56,62 +51,13 @@ class BigHugeThesaurus(Chain):
         return None
 
 
-@dataclass
-class ThesaurusManager():
+class ThesaurusManager(BaseManager):
     """
     The thesaurus manager
     """
-
-    word: str
-
-    def _get_from_word(self) -> Optional[DictionaryEntry]:
-        """
-        Get synonyms and antonyms from the words object
-        """
-        word = Word.objects.filter(word=self.word).exclude(
-            synonyms__isnull=True,
-            antonyms__isnull=True,
-        ).first()
-        if word:
-            return DictionaryEntry(
-                synonyms=word.synonyms,
-                antonyms=word.antonyms,
-            )
-        return None
-
-    def _save_to_word(self, result: DictionaryEntry) -> None:
-        """
-        Save results to the word object
-        """
-        Word.objects.create_or_update(
-            self.word,
-            synonyms=result.synonyms,
-            antonyms=result.antonyms,
-        )
-
-    def _get_from_thesaurus(self) -> Optional[DictionaryEntry]:
-        """
-        Get synonyms and antonyms from the thesauruses
-        """
-        result = get_chain('THESAURI').handle(word=self.word.lower())
-        if result:
-            self._save_to_word(result)
-            return result
-        return None
-
-    def get_entry(self) -> Optional[Dict[str, str]]:
-        """
-        Get the word's synonyms
-        """
-        if not self.word:
-            raise ThesaurusError('The word parameter not found.')
-        result = self._get_from_word()
-        if result:
-            return result.__dict__
-        result = self._get_from_thesaurus()
-        if result:
-            return result.__dict__
-        return None
+    settings_key: str = 'THESAURI'
+    word_fields: List[str] = ['synonyms', 'antonyms']
+    word_query: QuerySet = Word.objects.get_with_synonyms
 
 
 @cache_result('synonyms')
@@ -119,9 +65,4 @@ def get_synonyms(word: str) -> Optional[Dict[str, str]]:
     """
     Get the word's synonyms
     """
-
-    manager = ThesaurusManager(word)
-    try:
-        return manager.get_entry()
-    except ThesaurusError as error:
-        return {'error': str(error)}
+    return manager_runner(word, ThesaurusManager)
