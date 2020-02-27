@@ -1,5 +1,5 @@
 """
-Django settings for billing project.
+Django settings for nativecards project.
 """
 
 import datetime
@@ -165,7 +165,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'billing/static'),
+    os.path.join(BASE_DIR, 'nativecards/static'),
     os.path.join(BASE_DIR, 'node_modules'),
 )
 
