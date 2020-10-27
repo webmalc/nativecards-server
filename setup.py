@@ -44,7 +44,7 @@ setup(
         'celery==4.2.1',
         'certifi==2018.8.13',
         'cffi==1.13.2',
-        'cryptography==2.3.1',
+        'cryptography==3.2',
         'cssselect2==0.2.1',
         'defusedxml==0.5.0',
         'Django>=2.2.9,<3.0.0',
