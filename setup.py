@@ -70,7 +70,7 @@ setup(
         'django-reversion==3.0.0',
         'django-templatetag-handlebars==1.3.1',
         'django-two-factor-auth==1.8.0',
-        'djangorestframework==3.9.1',
+        'djangorestframework==3.11.2',
         'django-environ==0.4.5',
         'djangorestframework-simplejwt==4.3.0',
         'PyJWT==1.7.1',
