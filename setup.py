@@ -131,7 +131,7 @@ setup(
         'xlrd==1.1.0',
         'xlwt==1.3.0',
         'typing==3.6.4',
-        'PyYAML==5.1.2',
+        'PyYAML==5.4',
         'gTTS==2.0.4',
         'googletrans==2.4.0',
     ],
