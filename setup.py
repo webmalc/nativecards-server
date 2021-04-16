@@ -55,7 +55,7 @@ setup(
         'django-colorful==1.2',
         'django-cors-headers==2.4.0',
         'django-crispy-forms==1.7.2',
-        'django-debug-toolbar==1.9.1',
+        'django-debug-toolbar==1.11.1',
         'django-extensions==2.2.5',
         'django-filter==2.1.0',
         'django-formtools==2.1',
