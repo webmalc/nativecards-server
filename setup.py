@@ -112,7 +112,7 @@ setup(
         'raven==6.9.0',
         'redis==2.10.6',
         'requests==2.22.0',
-        'rsa==3.4.2',
+        'rsa==4.7',
         's3transfer==0.1.13',
         'sqlparse==0.2.4',
         'standardjson==0.3.1',
