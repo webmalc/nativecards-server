@@ -121,7 +121,7 @@ setup(
         'tqdm==4.24.0',
         'unicodecsv==0.14.1',
         'Unidecode==1.0.22',
-        'urllib3==1.25.7',
+        'urllib3==1.26.5',
         'vine==1.1.4',
         'watchtower==0.5.3',
         'WeasyPrint==0.42.3',
