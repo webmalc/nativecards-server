@@ -89,7 +89,7 @@ setup(
         'microsofttranslator==0.8',
         'more-itertools==4.3.0',
         'num2words==0.5.7',
-        'paramiko==2.4.2',
+        'paramiko==2.10.1',
         'pdfrw==0.4',
         'pew==1.1.5',
         'phonenumberslite==8.9.10',
