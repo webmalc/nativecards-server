@@ -30,7 +30,7 @@ setup(
     install_requires=[
         'amqp==2.3.2',
         'apipkg==1.5',
-        'arrow==0.12.1',
+        'arrow==0.15.1',
         'atomicwrites==1.1.5',
         'attrs==18.1.0',
         'Babel==2.6.0',
