@@ -100,7 +100,7 @@ setup(
         'progressbar2==3.38.0',
         'psycopg2==2.8.4',
         'ptyprocess==0.6.0',
-        'py==1.5.4',
+        'py==1.11.0',
         'py-moneyed==0.7.0',
         'pyasn1==0.4.4',
         'pycparser==2.18',
