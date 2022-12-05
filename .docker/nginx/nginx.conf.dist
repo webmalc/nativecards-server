@@ -1,0 +1,79 @@
+upstream web {
+    server web:8000;
+}
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name nativecards.pw www.nativecards.pw;
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    ssl_certificate         /etc/ssl/cert.pem;
+    ssl_certificate_key     /etc/ssl/private.key;
+
+    server_name nativecards.pw www.nativecards.pw;
+
+    charset utf-8;
+    client_max_body_size 300M;
+
+    gzip on;
+    gzip_disable "msie6";
+
+    gzip_comp_level 6;
+    gzip_min_length 1100;
+    gzip_buffers 16 8k;
+    gzip_proxied any;
+    gzip_types
+        text/plain
+        text/css
+        text/js
+        text/xml
+        text/javascript
+        application/javascript
+        application/x-javascript
+        application/json
+        application/xml
+        application/rss+xml
+        image/svg+xml;
+
+    location /media  {
+        expires 1M;
+        add_header Cache-Control "public";
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin "*";
+            add_header "Access-Control-Allow-Credentials" true;
+            add_header "Access-Control-Allow-Headers" "x-auth-token,authorization,x-timezone,DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type";
+            add_header "Access-Control-Allow-Methods" "GET, OPTIONS";
+            add_header "Accept-Encoding" "gzip, deflate, br";
+            add_header "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
+            return 200;
+        }
+        alias /usr/src/app/media;
+    }
+
+    location /static  {
+        expires 1M;
+        add_header Cache-Control "public";
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin "*";
+            add_header "Access-Control-Allow-Credentials" true;
+            add_header "Access-Control-Allow-Headers" "x-auth-token,authorization,x-timezone,DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type";
+            add_header "Access-Control-Allow-Methods" "GET, OPTIONS";
+            add_header "Accept-Encoding" "gzip, deflate, br";
+            add_header "Accept" "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9";
+            return 200;
+        }
+        alias /usr/src/app/static;
+    }
+
+    location / {
+        proxy_pass http://web;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+}

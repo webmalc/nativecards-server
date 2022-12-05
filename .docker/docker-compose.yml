@@ -1,0 +1,76 @@
+version: '3'
+
+services:
+  postgres:
+    restart: always
+    image: postgres:12
+    hostname: postgres
+    env_file:
+      - pgsql-variables.env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+
+  memcached:
+    restart: always
+    image: memcached:alpine
+
+  redis:
+    restart: always
+    image: redis:alpine
+
+  web:
+    restart: always
+    build:
+      context: ..
+      dockerfile: ./.docker/Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    # command: uwsgi --ini /etc/uwsgi.ini
+    hostname: web
+    volumes:
+      - ..:/usr/src/app
+    depends_on:
+      - postgres
+      - memcached
+      - redis
+    # REMOVE
+    ports:
+      - "8000:8000"
+  # celery:
+  #   restart: always
+  #   build:
+  #     context: ..
+  #     dockerfile: ./.docker/Dockerfile
+  #   command: celery worker --pidfile= -A nativecards -l WARNING
+  #   volumes:
+  #     - ..:/usr/src/app
+  #   depends_on:
+  #     - web
+  #     - redis
+
+  # celerybeat:
+  #   restart: always
+  #   build:
+  #     context: ..
+  #     dockerfile: ./.docker/Dockerfile
+  #   command: celery beat --pidfile= -A nativecards -l WARNING
+  #   volumes:
+  #     - ..:/usr/src/app
+  #   depends_on:
+  #     - web
+  #     - redis
+
+  # nginx:
+  #   restart: always
+  #   build: ./nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ..:/usr/src/app
+  #   depends_on:
+  #     - web
+
+volumes:
+  pgdata:

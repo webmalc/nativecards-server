@@ -124,3 +124,7 @@ google_api_key.json
 .project
 .pydevproject
 
+.docker/pgsql-variables.env
+.docker/nginx/nginx.conf
+.docker/nginx/cert.pem
+.docker/nginx/private.key
