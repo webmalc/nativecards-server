@@ -25,8 +25,8 @@ services:
     build:
       context: ..
       dockerfile: ./.docker/Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    # command: uwsgi --ini /etc/uwsgi.ini
+    # command: python manage.py runserver 0.0.0.0:8000
+    command: uwsgi --ini /etc/uwsgi.ini
     hostname: web
     volumes:
       - ..:/usr/src/app
@@ -34,9 +34,6 @@ services:
       - postgres
       - memcached
       - redis
-    # REMOVE
-    ports:
-      - "8000:8000"
   # celery:
   #   restart: always
   #   build:
