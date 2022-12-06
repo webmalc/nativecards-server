@@ -55,7 +55,7 @@ setup(
         'django-crispy-forms==1.7.2',
         'django-debug-toolbar==1.9.1',
         'django-extensions==2.2.5',
-        'django-filter==2.1.0',
+        'django-filter==2.4.0',
         'django-formtools==2.1',
         'django-imagekit==4.0.2',
         'django-js-asset==1.1.0',
