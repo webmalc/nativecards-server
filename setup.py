@@ -67,7 +67,7 @@ setup(
         'django-phonenumber-field==1.3.0',
         'django-reversion==3.0.0',
         'django-templatetag-handlebars==1.3.1',
-        'django-two-factor-auth==1.8.0',
+        'django-two-factor-auth==1.12',
         'djangorestframework==3.9.1',
         'django-environ==0.4.5',
         'djangorestframework-simplejwt==4.3.0',
