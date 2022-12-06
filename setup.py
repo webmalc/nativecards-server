@@ -41,7 +41,7 @@ setup(
         'botocore==1.10.79',
         'cairocffi==0.9.0',
         'CairoSVG==2.1.3',
-        'celery==4.2.1',
+        'celery==5.2.2',
         'certifi==2018.8.13',
         'cssselect2==0.2.1',
         'defusedxml==0.5.0',
