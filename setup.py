@@ -71,7 +71,7 @@ setup(
         'djangorestframework==3.9.1',
         'django-environ==0.4.5',
         'djangorestframework-simplejwt==4.3.0',
-        'PyJWT==1.7.1',
+        'PyJWT==2.4.0',
         'docutils==0.14',
         'drf-extensions==0.3.1',
         'execnet==1.5.0',
