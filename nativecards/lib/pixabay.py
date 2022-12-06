@@ -16,11 +16,20 @@ def get_images(word):
     """
     if not word:
         return {'error': 'The word parameter not found.'}
-    url = (f'https://pixabay.com/api/?key={settings.NC_PIXABAY_KEY}'
-           f'&q={word.lower()}&min_width={settings.NC_IMAGE_WIDTH}&'
-           'orientation=horizontal')
-    result = requests.get(url)
-
-    if result.status_code == 200:
-        return result.json()['hits'][:MAX_IMAGES]
-    return {'error': 'The service is unavailable.'}
+    querystring = {"q": word}
+    url = "https://bing-image-search1.p.rapidapi.com/images/search"
+    headers = {
+        'X-RapidAPI-Host': 'bing-image-search1.p.rapidapi.com',
+        'X-RapidAPI-Key': settings.NC_RAPIDAPI_KEY
+    }
+    response = requests.request("GET",
+                                url,
+                                headers=headers,
+                                params=querystring)
+    if response.status_code == 200:
+        result = []
+        data = response.json()
+        for v in data.get("value", list()):
+            result.append({"previewURL": v["thumbnailUrl"]})
+        return result[:MAX_IMAGES]
+    return []
