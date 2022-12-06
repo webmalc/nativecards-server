@@ -33,7 +33,7 @@ setup(
         'arrow==0.12.1',
         'atomicwrites==1.1.5',
         'attrs==18.1.0',
-        'Babel==2.6.0',
+        'Babel==2.9.1',
         'backcall==0.1.0',
         'bcrypt==3.1.4',
         'billiard==3.5.0.4',
