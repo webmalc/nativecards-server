@@ -76,7 +76,7 @@ setup(
         'drf-extensions==0.3.1',
         'execnet==1.5.0',
         'Fabric3==1.14.post1',
-        'flower==0.9.2',
+        'flower==1.2.0',
         'html5lib==1.0.1',
         'idna==2.7',
         'jmespath==0.9.3',
