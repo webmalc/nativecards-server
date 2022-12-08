@@ -42,7 +42,7 @@ setup(
         'cairocffi==0.9.0',
         'CairoSVG==2.1.3',
         'celery==4.2.1',
-        'certifi==2018.8.13',
+        'certifi==2022.12.7',
         'cssselect2==0.2.1',
         'defusedxml==0.5.0',
         'Django>=2.2.9,<3.0.0',
