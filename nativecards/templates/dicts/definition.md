@@ -1,3 +1,3 @@
-{% for part_of_speach, values in entries.items %}{% for value in values %}
-[{{ part_of_speach }}] {{ value }}
+{% for part_of_speech, values in entries.items %}{% for value in values %}
+[{{ part_of_speech }}] {{ value }}
 {% endfor %}{% endfor %}

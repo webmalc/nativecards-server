@@ -29,22 +29,22 @@ class BigHugeThesaurus(Chain):
         if response.status_code == 200:
             data = response.json()
             entry = DictionaryEntry()
-            for part_of_speach, keys in data.items():
+            for part_of_speech, keys in data.items():
 
                 def get(
                         entry: DictionaryEntry,
                         key: str,
                         name: str,
                         keys,
-                        part_of_speach,
+                        part_of_speech,
                 ) -> DictionaryEntry:
                     if key in keys:
                         for value in keys[key][:5]:
-                            entry.add_data_entry(name, value, part_of_speach)
+                            entry.add_data_entry(name, value, part_of_speech)
                     return entry
 
-                entry = get(entry, 'syn', 'synonyms', keys, part_of_speach)
-                entry = get(entry, 'ant', 'antonyms', keys, part_of_speach)
+                entry = get(entry, 'syn', 'synonyms', keys, part_of_speech)
+                entry = get(entry, 'ant', 'antonyms', keys, part_of_speech)
 
             entry.process_data()
             return entry

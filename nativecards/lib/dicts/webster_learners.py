@@ -45,7 +45,7 @@ class WebsterLearners(Chain):
     @staticmethod
     def _get_definition(tree, entry: DictionaryEntry) -> DictionaryEntry:
         for value in tree.findall('entry'):
-            part_of_speach = getattr(value.find('fl'), 'text', '-')
+            part_of_speech = getattr(value.find('fl'), 'text', '-')
             def_element = value.find('def')
             if not def_element:
                 continue
@@ -62,7 +62,7 @@ class WebsterLearners(Chain):
                     entry.add_data_entry(
                         'definition',
                         text.strip(' \n'),
-                        part_of_speach,
+                        part_of_speech,
                     )
 
         return entry
@@ -105,7 +105,7 @@ class WebsterLearners(Chain):
     @staticmethod
     def _get_examples(tree, entry: DictionaryEntry) -> DictionaryEntry:
         for value in tree.findall('entry'):
-            part_of_speach = getattr(value.find('fl'), 'text', '-')
+            part_of_speech = getattr(value.find('fl'), 'text', '-')
             def_element = value.find('def')
             if not def_element:
                 continue
@@ -117,7 +117,7 @@ class WebsterLearners(Chain):
                     entry.add_data_entry(
                         'examples',
                         text.strip(' \n'),
-                        part_of_speach,
+                        part_of_speech,
                     )
         return entry
 

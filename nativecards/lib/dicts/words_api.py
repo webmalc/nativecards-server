@@ -51,7 +51,7 @@ class WordsApi(Chain):
             data: dict,
             entry: DictionaryEntry,
             key: str,
-            part_of_speach: str = '',
+            part_of_speech: str = '',
     ) -> DictionaryEntry:
         """
         Extract data from a result row
@@ -59,7 +59,7 @@ class WordsApi(Chain):
         entries = data.get(key)
         if entries:
             for value in entries:
-                entry.add_data_entry(key, value, part_of_speach)
+                entry.add_data_entry(key, value, part_of_speech)
         return entry
 
     def get_result(self, **kwargs) -> Optional[DictionaryEntry]:
@@ -76,29 +76,29 @@ class WordsApi(Chain):
         entry = DictionaryEntry()
 
         for result in results:
-            part_of_speach = result.get('partOfSpeech')
+            part_of_speech = result.get('partOfSpeech')
             entry.add_data_entry(
                 'definition',
                 result.get('definition'),
-                part_of_speach,
+                part_of_speech,
             )
             entry = self._process_entry(
                 result,
                 entry,
                 'examples',
-                part_of_speach=part_of_speach,
+                part_of_speech=part_of_speech,
             )
             entry = self._process_entry(
                 result,
                 entry,
                 'synonyms',
-                part_of_speach=part_of_speach,
+                part_of_speech=part_of_speech,
             )
             entry = self._process_entry(
                 result,
                 entry,
                 'antonyms',
-                part_of_speach=part_of_speach,
+                part_of_speech=part_of_speech,
             )
         entry.transcription = data.get('pronunciation', {}).get('all')
         entry.process_data()

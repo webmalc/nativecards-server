@@ -30,13 +30,13 @@ class DictionaryEntry():
     antonyms: Optional[str] = None
     data: Dict[str, Any] = {}
 
-    def add_data_entry(self, name: str, value: str, part_of_speach: str):
+    def add_data_entry(self, name: str, value: str, part_of_speech: str):
         """
         Add an data entry
         """
-        if part_of_speach not in self.data[name]:
-            self.data[name][part_of_speach] = []
-        self.data[name][part_of_speach].append(value)
+        if part_of_speech not in self.data[name]:
+            self.data[name][part_of_speech] = []
+        self.data[name][part_of_speech].append(value)
 
     def process_data(self):
         """
