@@ -124,7 +124,7 @@ setup(
         'watchtower==0.5.3',
         'WeasyPrint==0.42.3',
         'webencodings==0.5.1',
-        'Werkzeug==0.16.0',
+        'Werkzeug==2.2.3',
         'wrapt==1.11.1',
         'xlrd==1.1.0',
         'xlwt==1.3.0',
